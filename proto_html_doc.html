@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agir Legacy — Modèle de données Oracle</title>
+<style>
+  :root {
+    --bg: #f8f9fa;
+    --card: #ffffff;
+    --primary: #2c5282;
+    --primary-light: #ebf4ff;
+    --accent: #e53e3e;
+    --border: #e2e8f0;
+    --text: #2d3748;
+    --text-light: #718096;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.6;
+  }
+
+  /* Layout */
+  .layout { display: flex; min-height: 100vh; }
+
+  nav {
+    width: 260px; background: var(--primary); color: white;
+    padding: 1.5rem 0; position: fixed; height: 100vh; overflow-y: auto;
+  }
+  nav h1 { font-size: 1.1rem; padding: 0 1.2rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.15); margin-bottom: 0.8rem; }
+  nav h1 small { display: block; font-weight: 400; font-size: 0.75rem; opacity: 0.7; margin-top: 0.2rem; }
+  nav input[type="search"] {
+    width: calc(100% - 2.4rem); margin: 0 1.2rem 0.8rem; padding: 0.4rem 0.6rem;
+    border: none; border-radius: 4px; font-size: 0.85rem;
+    background: rgba(255,255,255,0.15); color: white; outline: none;
+  }
+  nav input::placeholder { color: rgba(255,255,255,0.5); }
+  nav ul { list-style: none; }
+  nav li { display: block; }
+  nav li a {
+    display: block; padding: 0.45rem 1.2rem; color: rgba(255,255,255,0.8);
+    text-decoration: none; font-size: 0.9rem; cursor: pointer; transition: background 0.15s;
+  }
+  nav li a:hover { background: rgba(255,255,255,0.1); color: white; }
+  nav li a.active { background: rgba(255,255,255,0.18); color: white; font-weight: 600; }
+  nav li a .tbl { font-size: 0.72rem; opacity: 0.55; margin-left: 0.4rem; }
+  nav li a .soon { font-size: 0.68rem; opacity: 0.4; margin-left: 0.3rem; }
+  .nav-hidden { display: none; }
+
+  main { margin-left: 260px; padding: 2rem 2.5rem; max-width: 960px; width: 100%; }
+
+  /* Entity sections — hidden by default, shown by JS */
+  .entity { display: none; }
+  .entity.visible { display: block; }
+
+  /* Cards */
+  .entity-header h2 { font-size: 1.8rem; color: var(--primary); }
+  .aliases { font-size: 0.85rem; color: var(--text-light); margin-top: 0.3rem; margin-bottom: 1.5rem; }
+  .aliases code { background: var(--primary-light); padding: 0.1rem 0.4rem; border-radius: 3px; font-size: 0.82rem; }
+
+  .card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 1.2rem 1.5rem; margin-bottom: 1.5rem;
+  }
+  .card h3 { font-size: 1rem; color: var(--primary); margin-bottom: 0.5rem; }
+  .card p { font-size: 0.92rem; margin-bottom: 0.6rem; }
+  .card p:last-child { margin-bottom: 0; }
+  .arch-note { font-size: 0.88rem; color: var(--text-light); font-style: italic; margin-top: 0.6rem; }
+  .arch-warning {
+    margin-top: 0.8rem; padding: 0.8rem 1rem; border-left: 4px solid #e53e3e;
+    background: #fff5f5; border-radius: 0 6px 6px 0; font-size: 0.88rem;
+  }
+  .arch-warning strong { color: #c53030; }
+  .placeholder-msg { color: #a0aec0; font-style: italic; }
+
+  /* Columns table */
+  .col-card { padding: 0; overflow: hidden; }
+  .col-card h3 {
+    padding: 0.7rem 1.2rem; margin: 0; background: var(--primary-light);
+    border-bottom: 1px solid var(--border);
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+  thead th {
+    text-align: left; padding: 0.55rem 1rem; border-bottom: 2px solid var(--border);
+    color: var(--text-light); font-weight: 600; font-size: 0.76rem;
+    text-transform: uppercase; letter-spacing: 0.03em;
+  }
+  thead th.sortable {
+    cursor: pointer; user-select: none; position: relative; padding-right: 1.6rem;
+  }
+  thead th.sortable:hover { color: var(--primary); }
+  thead th.sortable::after {
+    content: '⇅'; position: absolute; right: 0.4rem; top: 50%;
+    transform: translateY(-50%); font-size: 0.72rem; opacity: 0.4;
+  }
+  thead th.sort-asc::after { content: '↑'; opacity: 0.8; }
+  thead th.sort-desc::after { content: '↓'; opacity: 0.8; }
+  .col-card h3 { display: flex; align-items: center; justify-content: space-between; }
+  .reset-sort {
+    font-size: 0.75rem; font-weight: 400; color: var(--primary); cursor: pointer;
+    background: none; border: 1px solid var(--border); border-radius: 4px;
+    padding: 0.2rem 0.5rem; transition: background 0.15s; display: none;
+  }
+  .reset-sort:hover { background: var(--primary-light); }
+  .reset-sort.visible { display: inline-block; }
+  tbody td { padding: 0.55rem 1rem; border-bottom: 1px solid #edf2f7; vertical-align: top; }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: #f7fafc; }
+  .col-name { font-family: "SF Mono", Consolas, monospace; font-weight: 600; }
+  .col-oracle { font-family: "SF Mono", Consolas, monospace; font-size: 0.82rem; color: var(--text-light); }
+  .java-name { font-family: "SF Mono", Consolas, monospace; font-weight: 600; font-size: 0.9rem; }
+
+  /* Tooltip for C++ names */
+  .has-tip { position: relative; cursor: help; border-bottom: 1px dotted #cbd5e0; }
+  .has-tip .tip {
+    display: none; position: absolute; bottom: 100%; left: 0; margin-bottom: 4px;
+    background: #2d3748; color: white; padding: 3px 8px; border-radius: 4px;
+    font-size: 0.75rem; white-space: nowrap; z-index: 10;
+    font-family: "SF Mono", Consolas, monospace; font-weight: 400;
+  }
+  .has-tip .tip::after {
+    content: ''; position: absolute; top: 100%; left: 12px;
+    border: 4px solid transparent; border-top-color: #2d3748;
+  }
+  .has-tip:hover .tip { display: block; }
+
+  .tag {
+    display: inline-block; padding: 0.1rem 0.45rem; border-radius: 3px;
+    font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em;
+  }
+  .tag-pk { background: #fed7d7; color: #c53030; }
+  .tag-fk { background: #bee3f8; color: #2b6cb0; }
+  .tag-num { background: #fefcbf; color: #975a16; }
+  .tag-str { background: #fefcbf; color: #975a16; }
+  .tag-int { background: #e9d8fd; color: #6b46c1; }
+  .tag-date { background: #c6f6d5; color: #276749; }
+  .tag-deprecated { background: #e2e8f0; color: #718096; }
+  tr.deprecated td { color: #a0aec0; }
+  tr.deprecated .java-name { color: #a0aec0; }
+  tr.deprecated .col-oracle { color: #cbd5e0; }
+
+  .fk-link {
+    color: #2b6cb0; text-decoration: none; border-bottom: 1px dashed #2b6cb0; cursor: pointer;
+  }
+  .fk-link:hover { border-bottom-style: solid; }
+
+  /* Relations */
+  .rel-row { display: flex; align-items: center; gap: 0.6rem; font-size: 0.88rem; margin-bottom: 0.5rem; }
+  .rel-entity {
+    background: var(--primary-light); color: var(--primary); padding: 0.35rem 0.7rem;
+    border-radius: 5px; font-weight: 600; font-size: 0.85rem; min-width: 140px;
+    text-align: center; cursor: pointer; transition: background 0.15s;
+  }
+  .rel-entity:hover { background: #d4e6fc; }
+  .rel-entity.current { background: var(--primary); color: white; cursor: default; }
+  .rel-arrow { color: var(--text-light); font-size: 0.8rem; white-space: nowrap; }
+  .rel-card { font-family: "SF Mono", Consolas, monospace; color: var(--accent); font-weight: 700; font-size: 0.78rem; }
+  .rel-desc { color: var(--text-light); font-size: 0.82rem; font-style: italic; }
+
+</style>
+</head>
+<body>
+<div class="layout">
+
+<!-- ================================================================ -->
+<!-- NAV                                                              -->
+<!-- ================================================================ -->
+<nav>
+  <h1>Agir<small>Modèle objet Legacy / données Oracle</small></h1>
+  <input type="search" id="navSearch" placeholder="Rechercher une entité..." oninput="filterNav(this.value)">
+  <ul id="navList">
+    <li><a onclick="show('activity')" data-id="activity" class="active">Activity <span class="tbl">ACTIVITIES</span></a></li>
+    <li><a onclick="show('activity-type')" data-id="activity-type">ActivityType <span class="tbl">ACTIVITY_TYPES</span><span class="soon">(bientôt)</span></a></li>
+    <li><a onclick="show('task')" data-id="task">Task <span class="tbl">TASKS</span></a></li>
+    <li><a onclick="show('stevedoring-set')" data-id="stevedoring-set">StevedoringSet <span class="tbl">STEVEDORING_SETS</span><span class="soon">(bientôt)</span></a></li>
+    <li><a onclick="show('cargo')" data-id="cargo">Cargo <span class="tbl">CARGOS</span><span class="soon">(bientôt)</span></a></li>
+    <li><a onclick="show('activities-set')" data-id="activities-set">ActivitiesSet <span class="tbl">ACTIVITIES_SETS</span><span class="soon">(bientôt)</span></a></li>
+  </ul>
+</nav>
+
+<main>
+
+<!-- ================================================================ -->
+<!-- ACTIVITY                                                         -->
+<!-- ================================================================ -->
+<section class="entity visible" id="activity">
+
+  <div class="entity-header">
+    <h2>Activity</h2>
+    <div class="aliases">
+      Table Oracle : <code>ACTIVITIES</code> &nbsp;|&nbsp;
+      Serveur C++ : <code>tcMrpsActivity</code> &nbsp;|&nbsp;
+      Client Rp : <code>tcMrpsRpActivity</code> &nbsp;|&nbsp;
+      Formulaire : <code>tcMrpsFormActivity</code>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Description fonctionnelle</h3>
+    <p>
+      La classe <strong>Activity</strong> modélise à la fois les <strong>navires</strong> et les
+      <strong>activités de manutention hors exploitation</strong> (maîtrise, maintenance, etc.).
+      Dans l'interface Legacy, la fiche correspondante s'appelle d'ailleurs
+      « Fiche des activités/navires ».
+    </p>
+    <p>
+      Un navire est donc une Activity avec l'attribut <code>vessel = 1</code>.
+      Ce choix de modélisation fait qu'un navire ne possède pas de classe dédiée :
+      ses caractéristiques physiques (<code>length</code>, <code>beam</code>) sont
+      portées directement sur Activity.
+    </p>
+    <p>
+      Chaque Activity regroupe des <a class="fk-link" onclick="show('task')">Task</a>,
+      qui représentent ses escales (pour un navire) ou ses chantiers (pour une activité hors exploitation).
+      Le type de l'activité est déterminé par la relation vers
+      <a class="fk-link" onclick="show('activity-type')">ActivityType</a>,
+      qui forme une hiérarchie arborescente (exploitation, maîtrise, maintenance…).
+    </p>
+    <p class="arch-note">
+      Note d'architecture : les attributs <code>length</code> et <code>beam</code> sont
+      purement informatifs. Ils sont gérés directement par le formulaire via Ilog Inform
+      et ne transitent pas par le serveur ni le mapping du client BD,
+      car les algorithmes n'en ont pas besoin.
+    </p>
+  </div>
+
+  <!-- Attributes -->
+  <div class="card col-card">
+    <h3><span>Attributs — Activity</span><button class="reset-sort" onclick="resetSort(this)">↺ Ordre initial</button></h3>
+    <table class="sortable-table">
+      <thead>
+        <tr><th class="sortable" onclick="sortTable(this,0)">Attribut</th><th class="sortable" onclick="sortTable(this,1)">Colonne Oracle</th><th class="sortable" onclick="sortTable(this,2)">Type</th><th class="sortable" onclick="sortTable(this,3)">Contrainte</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr data-order="0">
+          <td><span class="java-name has-tip">id<span class="tip">C++ : getId() — hérité de tcMrpsObject</span></span></td>
+          <td class="col-oracle">ID</td>
+          <td><span class="tag tag-num">Number</span></td>
+          <td><span class="tag tag-pk">PK</span></td>
+          <td>Identifiant unique</td>
+        </tr>
+        <tr data-order="1">
+          <td><span class="java-name has-tip">activityType<span class="tip">C++ : mrActivityType (ILS_USES_1)</span></span></td>
+          <td class="col-oracle">AT_ID</td>
+          <td><span class="tag tag-fk">FK</span></td>
+          <td>→ <a class="fk-link" onclick="show('activity-type')">ActivityType</a> · <strong>obligatoire</strong></td>
+          <td>Type d'activité (exploitation, maîtrise, maintenance…)</td>
+        </tr>
+        <tr data-order="2">
+          <td><span class="java-name has-tip">label<span class="tip">C++ : mcLabel (ILS_ENTRY_STRING)</span></span></td>
+          <td class="col-oracle">LABEL</td>
+          <td><span class="tag tag-str">String</span></td>
+          <td><strong>obligatoire</strong></td>
+          <td>Libellé de l'activité</td>
+        </tr>
+        <tr data-order="3">
+          <td><span class="java-name has-tip">name<span class="tip">C++ : mcName (ILS_ENTRY_STRING)</span></span></td>
+          <td class="col-oracle">NAME</td>
+          <td><span class="tag tag-str">String</span></td>
+          <td><strong>obligatoire</strong></td>
+          <td>Nom complet de l'activité</td>
+        </tr>
+        <tr data-order="4">
+          <td><span class="java-name has-tip">notes<span class="tip">C++ : mcNotes (ILS_ENTRY_STRING)</span></span></td>
+          <td class="col-oracle">NOTES</td>
+          <td><span class="tag tag-str">String</span></td>
+          <td></td>
+          <td>Commentaires libres</td>
+        </tr>
+        <tr data-order="5">
+          <td><span class="java-name has-tip">vessel<span class="tip">C++ : mcIsVessel (ILS_ENTRY_INT)</span></span></td>
+          <td class="col-oracle">ISVESSEL</td>
+          <td><span class="tag tag-num">Number</span></td>
+          <td></td>
+          <td>1 = navire (activité d'exploitation). Quand actif, les attributs <code>length</code> et <code>beam</code> sont renseignés.</td>
+        </tr>
+        <tr data-order="6">
+          <td><span class="java-name has-tip">supportActivity<span class="tip">C++ : mcSupportActivity (ILS_ENTRY_INT)</span></span></td>
+          <td class="col-oracle">SUPP_ACT</td>
+          <td><span class="tag tag-num">Number</span></td>
+          <td></td>
+          <td>1 = activité de support (maîtrise, maintenance…). Permet d'identifier les activités cibles dans les règles d'effectif.</td>
+        </tr>
+        <tr data-order="7">
+          <td><span class="java-name has-tip">stevedoringSet<span class="tip">C++ : mrStevedoringSet (ILS_USES_1)</span></span></td>
+          <td class="col-oracle">SS_ID</td>
+          <td><span class="tag tag-fk">FK</span></td>
+          <td>→ <a class="fk-link" onclick="show('stevedoring-set')">StevedoringSet</a></td>
+          <td>Configuration d'engin/équipe par défaut de cette activité. Dans le panneau des commandes, lorsqu'on choisit une activité qui a une configuration par défaut, celle-ci est automatiquement sélectionnée. Optionnel.</td>
+        </tr>
+        <tr data-order="8">
+          <td><span class="java-name has-tip">cargo<span class="tip">C++ : mrCargo (ILS_USES_1)</span></span></td>
+          <td class="col-oracle">CAR_ID</td>
+          <td><span class="tag tag-fk">FK</span></td>
+          <td>→ <a class="fk-link" onclick="show('cargo')">Cargo</a></td>
+          <td>Cargaison associée (optionnel)</td>
+        </tr>
+        <tr data-order="9">
+          <td><span class="java-name has-tip">shortLabel<span class="tip">C++ : mcShortLabel (ILS_ENTRY_STRING)</span></span></td>
+          <td class="col-oracle">SHORT_LABEL</td>
+          <td><span class="tag tag-str">String</span></td>
+          <td></td>
+          <td>Libellé court</td>
+        </tr>
+        <tr data-order="10">
+          <td><span class="java-name has-tip">externalCode<span class="tip">C++ : mcExternalCode (ILS_ENTRY_STRING)</span></span></td>
+          <td class="col-oracle">EXTERNAL_CODE</td>
+          <td><span class="tag tag-str">String</span></td>
+          <td></td>
+          <td>Code externe</td>
+        </tr>
+        <tr data-order="11">
+          <td><span class="java-name has-tip">length<span class="tip">Pas d'attribut serveur C++ — géré directement par le formulaire via Ilog Inform</span></span></td>
+          <td class="col-oracle">LENGTH</td>
+          <td><span class="tag tag-num">Number</span></td>
+          <td></td>
+          <td>Longueur du navire. Informatif, pertinent uniquement quand <code>vessel = 1</code>.</td>
+        </tr>
+        <tr data-order="12">
+          <td><span class="java-name has-tip">beam<span class="tip">Pas d'attribut serveur C++ — géré directement par le formulaire via Ilog Inform</span></span></td>
+          <td class="col-oracle">BEAM</td>
+          <td><span class="tag tag-num">Number</span></td>
+          <td></td>
+          <td>Largeur du navire. Informatif, pertinent uniquement quand <code>vessel = 1</code>.</td>
+        </tr>
+        <tr data-order="13" class="deprecated">
+          <td><span class="java-name">fixed</span></td>
+          <td class="col-oracle">FIXED</td>
+          <td><span class="tag tag-num">Number</span></td>
+          <td><span class="tag tag-deprecated">Déprécié</span></td>
+          <td>Spécifique à la planification Legacy. Ne pas utiliser côté Java.</td>
+        </tr>
+        <tr data-order="14" class="deprecated">
+          <td><span class="java-name">isTraining</span></td>
+          <td class="col-oracle">ISTRAINING</td>
+          <td><span class="tag tag-num">Number</span></td>
+          <td><span class="tag tag-deprecated">Déprécié</span></td>
+          <td>Fonctionnalité en cours de retrait. Ne pas utiliser côté Java.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Relations -->
+  <div class="card">
+    <h3>Relations</h3>
+    <div class="rel-row">
+      <span class="rel-entity current">Activity</span>
+      <span class="rel-arrow">— <span class="rel-card">N:1</span> →</span>
+      <a class="rel-entity" onclick="show('activity-type')">ActivityType</a>
+      <span class="rel-desc">via AT_ID — type d'activité (obligatoire)</span>
+    </div>
+    <div class="rel-row">
+      <span class="rel-entity current">Activity</span>
+      <span class="rel-arrow">← <span class="rel-card">1:N</span> —</span>
+      <a class="rel-entity" onclick="show('task')">Task</a>
+      <span class="rel-desc">via TASKS.ACT_ID — escales / chantiers</span>
+    </div>
+    <div class="rel-row">
+      <span class="rel-entity current">Activity</span>
+      <span class="rel-arrow">— <span class="rel-card">N:1</span> →</span>
+      <a class="rel-entity" onclick="show('stevedoring-set')">StevedoringSet</a>
+      <span class="rel-desc">via SS_ID — configuration d'engin/équipe (optionnel)</span>
+    </div>
+    <div class="rel-row">
+      <span class="rel-entity current">Activity</span>
+      <span class="rel-arrow">— <span class="rel-card">N:1</span> →</span>
+      <a class="rel-entity" onclick="show('cargo')">Cargo</a>
+      <span class="rel-desc">via CAR_ID — cargaison (optionnel)</span>
+    </div>
+    <div class="rel-row">
+      <span class="rel-entity current">Activity</span>
+      <span class="rel-arrow">— <span class="rel-card">N:N</span> →</span>
+      <a class="rel-entity" onclick="show('activities-set')">ActivitiesSet</a>
+      <span class="rel-desc">via ACTIVITIES_OF_SETS — regroupement d'activités</span>
+    </div>
+  </div>
+
+
+</section>
+
+<!-- ================================================================ -->
+<!-- ACTIVITY TYPE (placeholder)                                      -->
+<!-- ================================================================ -->
+<section class="entity" id="activity-type">
+  <div class="entity-header">
+    <h2>ActivityType</h2>
+    <div class="aliases">
+      Table Oracle : <code>ACTIVITY_TYPES</code> &nbsp;|&nbsp;
+      Serveur C++ : <code>tcMrpsActivityType</code>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Description fonctionnelle</h3>
+    <p>Hiérarchie arborescente des types d'activité (exploitation, maîtrise, maintenance…).
+       La relation récursive <code>AT_ID</code> vers elle-même définit le parent dans l'arborescence.</p>
+    <p class="placeholder-msg">Documentation complète à venir.</p>
+  </div>
+</section>
+
+<!-- ================================================================ -->
+<!-- TASK                                                              -->
+<!-- ================================================================ -->
+<section class="entity" id="task">
+
+  <div class="entity-header">
+    <h2>Task</h2>
+    <div class="aliases">
+      Table Oracle : <code>TASKS</code> &nbsp;|&nbsp;
+      Serveur C++ : <code>tcMrpsTask</code> &nbsp;|&nbsp;
+      Client Rp : <code>tcMrpsRpTask</code> &nbsp;|&nbsp;
+      Formulaire : <code>tcMrpsFormTask</code> &nbsp;|&nbsp;
+      Panneau Gantt : <code>tcMrpsTaskGantt</code>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Description fonctionnelle</h3>
+    <p>
+      La classe <strong>Task</strong> modélise un <strong>chantier / escale</strong> :
+      l'unité de travail planifiée pour un navire (ou une activité hors exploitation)
+      sur une zone de travail donnée, pour une période donnée.
+    </p>
+    <p>
+      Le panneau principal est le <em>Planning des Chantiers / Escales</em> (Gantt), où chaque
+      barre représente la durée d'un chantier et peut être déplacée par drag &amp; drop. La fiche <em>Fiche Chantiers / Escales</em> existe
+      mais est peu utilisée, potentiellement dépréciée.
+    </p>
+    <p>
+      Chaque Task est rattachée à une <a class="fk-link" onclick="show('activity')">Activity</a>
+      (le navire ou l'activité concernée) et à une zone de travail (WorkingArea, le poste à quai).
+      Le type d'opération est défini par la relation vers TaskType (chargement, déchargement, shifting…).
+    </p>
+    <p>
+      Lors de la création d'un chantier, si aucune cargaison n'est spécifiée, le chantier
+      <strong>hérite de la cargaison de l'Activity</strong> parente (logique dans
+      <code>createRpTaskC2S</code> de <code>tcMrpsRpActivity.cpp</code>).
+      Les seuls champs véritablement obligatoires sont <code>activity</code> et
+      <code>workingArea</code> : si l'association échoue, un rollback est déclenché.
+    </p>
+    <div class="arch-warning">
+      <strong>Attention — convention de dates dans le modèle Legacy :</strong>
+      dans Agir Legacy, les intervalles de dates suivent la convention dite « semi-ouverte » :
+      la date de début (<code>startDate</code>) est <strong>incluse</strong> dans la période,
+      tandis que la date de fin (<code>endDate</code>) est <strong>exclue</strong>.
+      Concrètement, un chantier dont les dates vont du 1er au 3 avril couvre les journées
+      du 1er et du 2, mais <strong>pas le 3</strong>.
+      Cette convention est celle du <strong>modèle de données Oracle</strong> et restera inchangée.
+      En revanche, les nouvelles interfaces utilisateur (côté Java/Angular) pourront présenter
+      les dates différemment à l'écran (par exemple en dates inclusives).
+      Le développeur doit donc être conscient de cet écart entre le stockage et l'affichage.
+    </div>
+  </div>
+
+  <!-- Attributes -->
+  <div class="card col-card">
+    <h3><span>Attributs — Task</span><button class="reset-sort" onclick="resetSort(this)">↺ Ordre initial</button></h3>
+    <table class="sortable-table">
+      <thead>
+        <tr><th class="sortable" onclick="sortTable(this,0)">Attribut</th><th class="sortable" onclick="sortTable(this,1)">Colonne Oracle</th><th class="sortable" onclick="sortTable(this,2)">Type</th><th class="sortable" onclick="sortTable(this,3)">Contrainte</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr data-order="0">
+          <td><span class="java-name has-tip">id<span class="tip">C++ : getId() — hérité de tcMrpsObject</span></span></td>
+          <td class="col-oracle">ID</td>
+          <td><span class="tag tag-num">Number</span></td>
+          <td><span class="tag tag-pk">PK</span></td>
+          <td>Identifiant unique</td>
+        </tr>
+        <tr data-order="1">
+          <td><span class="java-name has-tip">activity<span class="tip">C++ : mrActivity (ILS_USES_1)</span></span></td>
+          <td class="col-oracle">ACT_ID</td>
+          <td><span class="tag tag-fk">FK</span></td>
+          <td>→ <a class="fk-link" onclick="show('activity')">Activity</a> · <strong>obligatoire</strong></td>
+          <td>Navire ou activité hors exploitation concernée par ce chantier</td>
+        </tr>
+        <tr data-order="2">
+          <td><span class="java-name has-tip">workingArea<span class="tip">C++ : mrWorkingArea (ILS_USES_1)</span></span></td>
+          <td class="col-oracle">AREA_ID</td>
+          <td><span class="tag tag-fk">FK</span></td>
+          <td>→ WorkingArea · <strong>obligatoire</strong></td>
+          <td>Zone de travail où se déroule le chantier</td>
+        </tr>
+        <tr data-order="3">
+          <td><span class="java-name has-tip">taskType<span class="tip">C++ : mrTaskType (ILS_USES_1)</span></span></td>
+          <td class="col-oracle">TT_ID</td>
+          <td><span class="tag tag-fk">FK</span></td>
+          <td>→ TaskType</td>
+          <td>Type d'opération (chargement, déchargement, shifting…). Traduit « Opération » dans le Gantt.</td>
+        </tr>
+        <tr data-order="4">
+          <td><span class="java-name has-tip">cargo<span class="tip">C++ : mrCargo (ILS_USES_1)</span></span></td>
+          <td class="col-oracle">CAR_ID</td>
+          <td><span class="tag tag-fk">FK</span></td>
+          <td>→ <a class="fk-link" onclick="show('cargo')">Cargo</a></td>
+          <td>Cargaison. Si non spécifiée à la création, héritée de l'Activity parente.</td>
+        </tr>
+        <tr data-order="5">
+          <td><span class="java-name has-tip">customer<span class="tip">C++ : mrCustomer (ILS_USES_1)</span></span></td>
+          <td class="col-oracle">CUS_ID</td>
+          <td><span class="tag tag-fk">FK</span></td>
+          <td>→ Customer</td>
+          <td>Agent (notion voisine du manutentionnaire). Non visible dans le panneau Gantt, mais présent dans le modèle. Gardé pour Java.</td>
+        </tr>
+        <tr data-order="6">
+          <td><span class="java-name has-tip">stevedoreCompany<span class="tip">C++ : mrStevedoreCompany (ILS_USES_1)</span></span></td>
+          <td class="col-oracle">STVD_ID</td>
+          <td><span class="tag tag-fk">FK</span></td>
+          <td>→ StevedoreCompany</td>
+          <td>Manutentionnaire en charge du chantier</td>
+        </tr>
+        <tr data-order="7">
+          <td><span class="java-name has-tip">callNumber<span class="tip">C++ : mcCallNumber (ILS_ENTRY_STRING)</span></span></td>
+          <td class="col-oracle">CALL_NUMBER</td>
+          <td><span class="tag tag-str">String</span></td>
+          <td></td>
+          <td>N° de chantier, potentiellement auto-généré. Dans le contexte PAB : « Numéro de chantier ».</td>
+        </tr>
+        <tr data-order="8">
+          <td><span class="java-name has-tip">startDate<span class="tip">C++ : mcStartDate (ILS_ENTRY_DATE)</span></span></td>
+          <td class="col-oracle">START_DATE</td>
+          <td><span class="tag tag-date">Date</span></td>
+          <td></td>
+          <td>Date/heure de début du chantier (incluse dans la période)</td>
+        </tr>
+        <tr data-order="9">
+          <td><span class="java-name has-tip">endDate<span class="tip">C++ : mcEndDate (ILS_ENTRY_DATE)</span></span></td>
+          <td class="col-oracle">END_DATE</td>
+          <td><span class="tag tag-date">Date</span></td>
+          <td></td>
+          <td>Date/heure de fin du chantier (<strong>exclue</strong> de la période — voir note d'architecture ci-dessus)</td>
+        </tr>
+        <tr data-order="10" class="deprecated">
+          <td><span class="java-name has-tip">startDateInit<span class="tip">C++ : mcStartDateInit (ILS_ENTRY_DATE)</span></span></td>
+          <td class="col-oracle">START_DATE_INIT</td>
+          <td><span class="tag tag-date">Date</span></td>
+          <td><span class="tag tag-deprecated">Déprécié</span></td>
+          <td>Date de début initiale. Snapshot figé à la création, jamais modifié ensuite. Ne pas utiliser côté Java.</td>
+        </tr>
+        <tr data-order="11" class="deprecated">
+          <td><span class="java-name has-tip">endDateInit<span class="tip">C++ : mcEndDateInit (ILS_ENTRY_DATE)</span></span></td>
+          <td class="col-oracle">END_DATE_INIT</td>
+          <td><span class="tag tag-date">Date</span></td>
+          <td><span class="tag tag-deprecated">Déprécié</span></td>
+          <td>Date de fin initiale. Snapshot figé à la création, jamais modifié ensuite. Ne pas utiliser côté Java.</td>
+        </tr>
+        <tr data-order="12">
+          <td><span class="java-name has-tip">notes<span class="tip">C++ : mcNotes (ILS_ENTRY_STRING)</span></span></td>
+          <td class="col-oracle">NOTES</td>
+          <td><span class="tag tag-str">String</span></td>
+          <td></td>
+          <td>Commentaires libres</td>
+        </tr>
+        <tr data-order="13">
+          <td><span class="java-name has-tip">quantity<span class="tip">C++ : mcTonnage (ILS_ENTRY_FLOAT)</span></span></td>
+          <td class="col-oracle">TONNAGE</td>
+          <td><span class="tag tag-num">Number</span></td>
+          <td></td>
+          <td>Quantité. Tonnes pour du vrac, unités pour des conteneurs. Le label Gantt est « Quantité » — on retient ce terme plus générique que « tonnage ».</td>
+        </tr>
+        <tr data-order="14">
+          <td><span class="java-name has-tip">reportNumber<span class="tip">C++ : mcReportNumber (ILS_ENTRY_INT)</span></span></td>
+          <td class="col-oracle">REPORT_NUMBER</td>
+          <td><span class="tag tag-int">Int</span></td>
+          <td></td>
+          <td>N° de constat. Champ prévu pour prendre des sens différents d'un client à l'autre. Pas d'usage précis défini actuellement.</td>
+        </tr>
+        <tr data-order="15">
+          <td><span class="java-name has-tip">specificNumber<span class="tip">C++ : mcSpecificNumber (ILS_ENTRY_INT)</span></span></td>
+          <td class="col-oracle">SPECIFIC_NUMBER</td>
+          <td><span class="tag tag-int">Int</span></td>
+          <td></td>
+          <td>N° d'escale spécifique. Important pour les évolutions : recevra le numéro d'escale transmis par un connecteur API externe.</td>
+        </tr>
+        <tr data-order="16" class="deprecated">
+          <td><span class="java-name has-tip">status<span class="tip">C++ : mcStatus (ILS_ENTRY_INT)</span></span></td>
+          <td class="col-oracle">STATUS</td>
+          <td><span class="tag tag-int">Int</span></td>
+          <td><span class="tag tag-deprecated">Déprécié</span></td>
+          <td>Non utilisé — tous les enregistrements sont à <code>&amp;Invalid</code> en base. Ne pas utiliser côté Java.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Relations -->
+  <div class="card">
+    <h3>Relations</h3>
+
+    <div class="rel-row">
+      <span class="rel-entity current">Task</span>
+      <span class="rel-arrow">— <span class="rel-card">N:1</span> →</span>
+      <a class="rel-entity" onclick="show('activity')">Activity</a>
+      <span class="rel-desc">via ACT_ID — navire ou activité (obligatoire)</span>
+    </div>
+    <div class="rel-row">
+      <span class="rel-entity current">Task</span>
+      <span class="rel-arrow">— <span class="rel-card">N:1</span> →</span>
+      <span class="rel-entity">WorkingArea</span>
+      <span class="rel-desc">via AREA_ID — zone de travail (obligatoire)</span>
+    </div>
+    <div class="rel-row">
+      <span class="rel-entity current">Task</span>
+      <span class="rel-arrow">— <span class="rel-card">N:1</span> →</span>
+      <span class="rel-entity">TaskType</span>
+      <span class="rel-desc">via TT_ID — type d'opération</span>
+    </div>
+    <div class="rel-row">
+      <span class="rel-entity current">Task</span>
+      <span class="rel-arrow">— <span class="rel-card">N:1</span> →</span>
+      <a class="rel-entity" onclick="show('cargo')">Cargo</a>
+      <span class="rel-desc">via CAR_ID — cargaison (héritée de l'Activity si non spécifiée)</span>
+    </div>
+    <div class="rel-row">
+      <span class="rel-entity current">Task</span>
+      <span class="rel-arrow">— <span class="rel-card">N:1</span> →</span>
+      <span class="rel-entity">Customer</span>
+      <span class="rel-desc">via CUS_ID — agent</span>
+    </div>
+    <div class="rel-row">
+      <span class="rel-entity current">Task</span>
+      <span class="rel-arrow">— <span class="rel-card">N:1</span> →</span>
+      <span class="rel-entity">StevedoreCompany</span>
+      <span class="rel-desc">via STVD_ID — manutentionnaire</span>
+    </div>
+
+    <h3 style="margin-top:1.2rem;">Relations inverses</h3>
+
+    <div class="rel-row">
+      <span class="rel-entity current">Task</span>
+      <span class="rel-arrow">← <span class="rel-card">1:N</span> —</span>
+      <span class="rel-entity">Order</span>
+      <span class="rel-desc">via ORDERS.TASK_ID — commandes liées à ce chantier</span>
+    </div>
+    <div class="rel-row">
+      <span class="rel-entity current">Task</span>
+      <span class="rel-arrow">← <span class="rel-card">1:N</span> —</span>
+      <span class="rel-entity">HumanResourcePointageLine</span>
+      <span class="rel-desc">— lignes de pointage personnel</span>
+    </div>
+    <div class="rel-row">
+      <span class="rel-entity current">Task</span>
+      <span class="rel-arrow">← <span class="rel-card">1:N</span> —</span>
+      <span class="rel-entity">EquipmentPointageLine</span>
+      <span class="rel-desc">— lignes de pointage équipement</span>
+    </div>
+    <div class="rel-row">
+      <span class="rel-entity current">Task</span>
+      <span class="rel-arrow">← <span class="rel-card">1:N</span> —</span>
+      <span class="rel-entity">GroundOrderAssignment</span>
+      <span class="rel-desc">— affectations terrain</span>
+    </div>
+  </div>
+
+</section>
+
+<!-- ================================================================ -->
+<!-- STEVEDORING SET (placeholder)                                    -->
+<!-- ================================================================ -->
+<section class="entity" id="stevedoring-set">
+  <div class="entity-header">
+    <h2>StevedoringSet</h2>
+    <div class="aliases">Table Oracle : <code>STEVEDORING_SETS</code></div>
+  </div>
+  <div class="card">
+    <h3>Description fonctionnelle</h3>
+    <p>Configuration d'engin/équipe.</p>
+    <p class="placeholder-msg">Documentation complète à venir.</p>
+  </div>
+</section>
+
+<!-- ================================================================ -->
+<!-- CARGO (placeholder)                                              -->
+<!-- ================================================================ -->
+<section class="entity" id="cargo">
+  <div class="entity-header">
+    <h2>Cargo</h2>
+    <div class="aliases">Table Oracle : <code>CARGOS</code></div>
+  </div>
+  <div class="card"><p class="placeholder-msg">Documentation à venir.</p></div>
+</section>
+
+<!-- ================================================================ -->
+<!-- ACTIVITIES SET (placeholder)                                     -->
+<!-- ================================================================ -->
+<section class="entity" id="activities-set">
+  <div class="entity-header">
+    <h2>ActivitiesSet</h2>
+    <div class="aliases">Table Oracle : <code>ACTIVITIES_SETS</code></div>
+  </div>
+  <div class="card"><p class="placeholder-msg">Documentation à venir.</p></div>
+</section>
+
+</main>
+</div>
+
+<!-- ================================================================ -->
+<!-- JS — Dynamic show/hide navigation                                -->
+<!-- ================================================================ -->
+<script>
+function show(id) {
+  // Hide all entities
+  document.querySelectorAll('.entity').forEach(function(el) {
+    el.classList.remove('visible');
+  });
+  // Show selected
+  var target = document.getElementById(id);
+  if (target) target.classList.add('visible');
+  // Update nav active state
+  document.querySelectorAll('#navList a').forEach(function(a) {
+    a.classList.toggle('active', a.getAttribute('data-id') === id);
+  });
+  // Scroll main to top
+  document.querySelector('main').scrollTop = 0;
+  window.scrollTo(0, 0);
+}
+
+function sortTable(th, colIndex) {
+  var table = th.closest('table');
+  var tbody = table.querySelector('tbody');
+  var rows = Array.from(tbody.querySelectorAll('tr'));
+  var isAsc = th.classList.contains('sort-asc');
+  var newDir = isAsc ? 'desc' : 'asc';
+
+  // Reset all headers in this table
+  table.querySelectorAll('thead th').forEach(function(h) {
+    h.classList.remove('sort-asc', 'sort-desc');
+  });
+  th.classList.add('sort-' + newDir);
+
+  rows.sort(function(a, b) {
+    var aText = a.cells[colIndex].textContent.trim().toLowerCase();
+    var bText = b.cells[colIndex].textContent.trim().toLowerCase();
+    if (aText < bText) return newDir === 'asc' ? -1 : 1;
+    if (aText > bText) return newDir === 'asc' ? 1 : -1;
+    return 0;
+  });
+
+  rows.forEach(function(row) { tbody.appendChild(row); });
+
+  // Show reset button
+  var btn = table.closest('.col-card').querySelector('.reset-sort');
+  if (btn) btn.classList.add('visible');
+}
+
+function resetSort(btn) {
+  var card = btn.closest('.col-card');
+  var table = card.querySelector('table');
+  var tbody = table.querySelector('tbody');
+  var rows = Array.from(tbody.querySelectorAll('tr'));
+
+  // Sort by original data-order
+  rows.sort(function(a, b) {
+    return parseInt(a.getAttribute('data-order')) - parseInt(b.getAttribute('data-order'));
+  });
+  rows.forEach(function(row) { tbody.appendChild(row); });
+
+  // Clear sort indicators
+  table.querySelectorAll('thead th').forEach(function(h) {
+    h.classList.remove('sort-asc', 'sort-desc');
+  });
+
+  // Hide reset button
+  btn.classList.remove('visible');
+}
+
+function filterNav(query) {
+  var items = document.querySelectorAll('#navList li');
+  var q = query.toLowerCase();
+  items.forEach(function(li) {
+    var text = li.textContent.toLowerCase();
+    li.classList.toggle('nav-hidden', q !== '' && text.indexOf(q) === -1);
+  });
+}
+</script>
+
+</body>
+</html>
