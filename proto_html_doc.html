@@ -46,7 +46,18 @@
   nav li a.active { background: rgba(255,255,255,0.18); color: white; font-weight: 600; }
   nav li a .tbl { font-size: 0.72rem; opacity: 0.55; margin-left: 0.4rem; }
   nav li a .soon { font-size: 0.68rem; opacity: 0.4; margin-left: 0.3rem; }
-  nav .group-label { padding: 0.8rem 1.2rem 0.3rem; font-size: 0.7rem; opacity: 0.45; text-transform: uppercase; letter-spacing: 0.05em; }
+  nav .group-label {
+    padding: 1rem 1.2rem 0.4rem;
+    margin-top: 0.6rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #ffd166;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    border-top: 1px solid rgba(255,255,255,0.15);
+    background: rgba(0,0,0,0.12);
+  }
+  nav .group-label:first-of-type { margin-top: 0; }
   .nav-hidden { display: none; }
 
   main { margin-left: 260px; padding: 2rem 2.5rem; max-width: calc(100vw - 260px); width: 100%; }
@@ -175,22 +186,23 @@
   <h1>Agir<small>Modèle objet Legacy / données Oracle</small></h1>
   <input type="search" id="navSearch" placeholder="Rechercher une entité..." oninput="filterNav(this.value)">
   <ul id="navList">
+    <li class="group-label">Exploitation</li>
+    <li><a onclick="show('activities-set')" data-id="activities-set">ActivitiesSet <span class="tbl">ACTIVITIES_SETS</span><span class="soon">(bientôt)</span></a></li>
     <li><a onclick="show('activity')" data-id="activity" class="active">Activity <span class="tbl">ACTIVITIES</span></a></li>
     <li><a onclick="show('activity-type')" data-id="activity-type">ActivityType <span class="tbl">ACTIVITY_TYPES</span><span class="soon">(bientôt)</span></a></li>
-    <li><a onclick="show('task')" data-id="task">Task <span class="tbl">TASKS</span></a></li>
-    <li><a onclick="show('stevedoring-set')" data-id="stevedoring-set">StevedoringSet <span class="tbl">STEVEDORING_SETS</span><span class="soon">(bientôt)</span></a></li>
     <li><a onclick="show('cargo')" data-id="cargo">Cargo <span class="tbl">CARGOS</span><span class="soon">(bientôt)</span></a></li>
-    <li><a onclick="show('activities-set')" data-id="activities-set">ActivitiesSet <span class="tbl">ACTIVITIES_SETS</span><span class="soon">(bientôt)</span></a></li>
+    <li><a onclick="show('stevedoring-set')" data-id="stevedoring-set">StevedoringSet <span class="tbl">STEVEDORING_SETS</span><span class="soon">(bientôt)</span></a></li>
+    <li><a onclick="show('task')" data-id="task">Task <span class="tbl">TASKS</span></a></li>
     <li class="group-label">Habilitations</li>
-    <li><a onclick="show('user')" data-id="user">User <span class="tbl">USERS</span></a></li>
-    <li><a onclick="show('profile')" data-id="profile">Profile <span class="tbl">PROFILES</span></a></li>
-    <li><a onclick="show('right')" data-id="right">Right <span class="tbl">RIGHTS</span></a></li>
     <li><a onclick="show('function')" data-id="function">Function <span class="tbl">FUNCTIONS</span></a></li>
+    <li><a onclick="show('profile')" data-id="profile">Profile <span class="tbl">PROFILES</span></a></li>
     <li><a onclick="show('profile-dependence')" data-id="profile-dependence">ProfileDependence <span class="tbl">PROFILE_DEPENDENCES</span></a></li>
+    <li><a onclick="show('right')" data-id="right">Right <span class="tbl">RIGHTS</span></a></li>
+    <li><a onclick="show('user')" data-id="user">User <span class="tbl">USERS</span></a></li>
     <li class="group-label">Planification</li>
     <li><a onclick="show('allotted-slot')" data-id="allotted-slot">AllottedSlot <span class="tbl">ALLOTTED_SLOTS</span></a></li>
-    <li><a onclick="show('working-period')" data-id="working-period">WorkingPeriod <span class="tbl">WORKING_PERIODS</span></a></li>
     <li><a onclick="show('slot-definition')" data-id="slot-definition">SlotDefinition <span class="tbl">SLOT_DEFINITIONS</span></a></li>
+    <li><a onclick="show('working-period')" data-id="working-period">WorkingPeriod <span class="tbl">WORKING_PERIODS</span></a></li>
   </ul>
 </nav>
 
