@@ -71,6 +71,22 @@
   .aliases { font-size: 0.85rem; color: var(--text-light); margin-top: 0.3rem; margin-bottom: 1.5rem; }
   .aliases code { background: var(--primary-light); padding: 0.1rem 0.4rem; border-radius: 3px; font-size: 0.82rem; }
 
+  /* Fraîcheur des données (proxy Java) */
+  .freshness {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    margin: -0.8rem 0 1.5rem; padding: 0.4rem 0.9rem;
+    border-radius: 20px; font-size: 0.82rem; border: 1.5px solid;
+  }
+  .freshness .fresh-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .fresh-static { background: #f0fdf4; border-color: #86efac; color: #166534; }
+  .fresh-static .fresh-dot { background: #22c55e; }
+  .fresh-specific { background: #fffbeb; border-color: #fcd34d; color: #92400e; }
+  .fresh-specific .fresh-dot { background: #f59e0b; }
+  .fresh-live { background: #fff5f5; border-color: #fc8181; color: #c53030; }
+  .fresh-live .fresh-dot { background: #e53e3e; }
+  .fresh-tbd { background: #f7fafc; border-color: #cbd5e0; color: #718096; }
+  .fresh-tbd .fresh-dot { background: #a0aec0; }
+
   .card {
     background: var(--card); border: 1px solid var(--border);
     border-radius: 8px; padding: 1.2rem 1.5rem; margin-bottom: 1.5rem;
@@ -214,6 +230,7 @@
   <input type="search" id="navSearch" placeholder="Rechercher une entité, une fonctionnalité..." oninput="filterNav(this.value)">
   <ul id="navList">
     <li class="group-label">Fonctionnalités</li>
+    <li><a onclick="show('generalites')" data-id="generalites">Généralités</a></li>
     <li><a onclick="show('feat-demarrage-de-shift')" data-id="feat-demarrage-de-shift">Démarrage de shift</a></li>
     <li><a onclick="show('feat-feuille-de-shift')" data-id="feat-feuille-de-shift">Feuille de shift</a></li>
     <li class="group-label">Exploitation</li>
@@ -244,6 +261,55 @@
 </nav>
 
 <main>
+
+<!-- ================================================================ -->
+<!-- GÉNÉRALITÉS                                                      -->
+<!-- ================================================================ -->
+<section class="entity feature-page" id="generalites">
+
+  <div class="entity-header">
+    <h2>Généralités</h2>
+    <div class="aliases">Règles transverses pour la nouvelle application Java/Angular</div>
+  </div>
+
+  <div class="card">
+    <h3>Fraîcheur des données — le proxy Java</h3>
+    <p>
+      Dans la nouvelle application, un <strong>système de proxy</strong> a la
+      responsabilité de charger les données du modèle Legacy. Toutes les classes n'ont
+      pas les mêmes besoins de rechargement : chaque fiche de cette documentation porte
+      donc, en haut de page, un <strong>badge de rafraîchissement</strong> indiquant
+      comment le proxy doit traiter la classe.
+    </p>
+
+    <div class="freshness fresh-static" style="margin: 0.4rem 0;"><span class="fresh-dot"></span><strong>Stable</strong>&nbsp;— pas de rechargement à chaque appel : un chargement initial (cache) suffit</div><br>
+    <div class="freshness fresh-live" style="margin: 0.4rem 0;"><span class="fresh-dot"></span><strong>Volatile</strong>&nbsp;— à rafraîchir systématiquement à chaque appel</div><br>
+    <div class="freshness fresh-specific" style="margin: 0.4rem 0;"><span class="fresh-dot"></span><strong>Spécifique</strong>&nbsp;— modalités décrites au cas par cas, selon les cas particuliers de la fiche</div>
+  </div>
+
+  <div class="card">
+    <h3>Règle : les classes volatiles se requêtent avec un discriminant de date</h3>
+    <p>
+      Sauf cas particulier, une classe volatile ne doit pas être requêtée « en entier » :
+      la requête doit porter un <strong>élément discriminant de date</strong>.
+      Exemple : les commandes <em>d'une journée</em>, ou <em>d'une plage de dates</em>.
+    </p>
+    <p>
+      Certaines classes volatiles <strong>n'ont pas d'attribut de date</strong> — par
+      exemple les activités/navires (<a class="fk-link" onclick="show('activity')">Activity</a>).
+      En règle générale, elles doivent alors être requêtées <strong>par jointure</strong>
+      depuis une classe datée : pour l'activité/navire, la jointure part du
+      chantier/escale (<a class="fk-link" onclick="show('task')">Task</a>), qui porte
+      les dates.
+    </p>
+    <div class="arch-warning">
+      <strong>Requêtes sans limite :</strong> il reste possible de requêter une classe
+      volatile non datée sans restriction — par exemple pour proposer l'ensemble des
+      navires dans une liste — mais cela doit rester <strong>rare et motivé</strong>.
+    </div>
+  </div>
+
+</section>
 
 <!-- ================================================================ -->
 <!-- FONCTIONNALITÉ : FEUILLE DE SHIFT                                -->
@@ -2294,8 +2360,8 @@
     <p>
       Côté Legacy, l'authentification repose sur un mot de passe haché stocké en base
       (<code>PASSWORD</code>) avec un grain de sel (<code>SALT</code>). Ces colonnes
-      <strong>ne doivent pas être exploitées côté Java</strong> : l'authentification de la
-      nouvelle UI passera par un mécanisme distinct (SSO / e-Citiz), et les méthodes
+      <strong>ne doivent pas être exploitées côté Java</strong> : les mots de passe sont
+      désormais gérés par <strong>Keycloak</strong>, et les méthodes
       <code>checkPassword</code> / <code>changePassword</code> du Legacy n'ont pas vocation
       à être réimplémentées.
     </p>
@@ -2350,7 +2416,7 @@
           <td class="col-oracle">PASSWORD</td>
           <td><span class="tag tag-str">String</span></td>
           <td><span class="tag tag-deprecated">Déprécié</span></td>
-          <td>Empreinte (hash) du mot de passe utilisée par l'authentification Legacy. Ne pas utiliser côté Java : l'authentification passera par un mécanisme distinct (SSO / e-Citiz).</td>
+          <td>Empreinte (hash) du mot de passe utilisée par l'authentification Legacy. Ne pas utiliser côté Java : les mots de passe sont désormais gérés par Keycloak.</td>
         </tr>
         <tr data-order="5" class="deprecated">
           <td><span class="java-name has-tip">salt<span class="tip">C++ : mcSalt (ILS_ENTRY_STRING)</span></span></td>
@@ -3879,6 +3945,53 @@ function resetSort(btn) {
   // Hide reset button
   btn.classList.remove('visible');
 }
+
+// Fraîcheur des données (proxy Java) : modalités de rechargement de chaque
+// classe/table par le proxy de la nouvelle application. Une seule table à
+// maintenir ci-dessous ; le badge est injecté en haut de chaque fiche.
+// Valeurs : 'static' (stable), 'medium' (semi-volatile), 'live' (volatile), 'tbd' (à définir).
+var FRESHNESS = {
+  'activity': 'volatile',
+  'activity-type': 'stable',
+  'task': 'volatile',
+  'stevedoring-set': 'stable',
+  'grade': 'stable',
+  'skill': 'stable',
+  'order': 'volatile',
+  'post': 'volatile',
+  'allocation': 'volatile',
+  'user': 'stable',
+  'profile': 'stable',
+  'profile-dependence': 'stable',
+  'right': 'stable',
+  'function': 'stable',
+  'activity-center': 'stable',
+  'allotted-slot': 'stable',
+  'slot-definition': 'stable',
+  'working-period': 'stable'
+};
+// Précision optionnelle affichée à la suite du badge (cas particuliers).
+var FRESH_NOTES = {
+  'activity': 'classe non datée : à charger par jointure depuis les chantiers/escales (Task)',
+  'user': 'les mots de passe sont désormais gérés par Keycloak et n\'ont pas besoin d\'être (re)chargés'
+};
+var FRESH_LABELS = {
+  'stable':   ['fresh-static', 'Stable', 'pas de rechargement à chaque appel — un chargement initial (cache) suffit'],
+  'volatile': ['fresh-live', 'Volatile', 'à rafraîchir à chaque appel — sauf cas particulier, toujours requêter avec un discriminant de date'],
+  'specific': ['fresh-specific', 'Spécifique', 'modalités décrites au cas par cas dans la fiche'],
+  'tbd':      ['fresh-tbd', 'À définir', 'modalités de rafraîchissement à préciser']
+};
+Object.keys(FRESHNESS).forEach(function(id) {
+  var header = document.querySelector('#' + id + ' .entity-header');
+  if (!header) return;
+  var info = FRESH_LABELS[FRESHNESS[id]];
+  var div = document.createElement('div');
+  div.className = 'freshness ' + info[0];
+  var html = '<span class="fresh-dot"></span><a onclick="show(\'generalites\')" style="cursor:pointer;color:inherit;">Proxy Java — rafraîchissement</a> : <strong>' + info[1] + '</strong>&nbsp;— ' + info[2];
+  if (FRESH_NOTES[id]) html += ' <em>(' + FRESH_NOTES[id] + ')</em>';
+  div.innerHTML = html;
+  header.appendChild(div);
+});
 
 // Pages fonctionnalités : les requêtes sont écrites UNE SEULE FOIS, sur la fiche
 // de l'entité concernée (query-block portant un attribut data-feature). Au chargement,
