@@ -88,6 +88,33 @@
   .arch-warning strong { color: #c53030; }
   .placeholder-msg { color: #a0aec0; font-style: italic; }
 
+  /* Query / feature blocks */
+  .feature-intro {
+    margin-bottom: 1rem; padding: 0.8rem 1rem; border-left: 4px solid #319795;
+    background: #e6fffa; border-radius: 0 6px 6px 0; font-size: 0.9rem;
+  }
+  .feature-intro strong { color: #285e61; }
+  .query-block {
+    margin-top: 0.9rem; padding: 0.9rem 1.1rem; border: 1px solid #b2f5ea;
+    border-radius: 8px; background: #f0fdfa;
+  }
+  .query-block h4 {
+    font-size: 0.95rem; color: #285e61; margin: 0 0 0.5rem;
+    display: flex; align-items: center; gap: 0.4rem;
+  }
+  .query-block h4 .q-tag {
+    font-size: 0.68rem; font-weight: 600; text-transform: uppercase;
+    background: #319795; color: #fff; padding: 0.1rem 0.45rem; border-radius: 4px;
+  }
+  .query-block p { font-size: 0.9rem; margin-bottom: 0.6rem; }
+  .query-block ul { margin: 0.3rem 0 0.6rem 1.4rem; font-size: 0.9rem; }
+  .query-block li { margin-bottom: 0.3rem; }
+  .query-block .q-note { font-size: 0.85rem; color: var(--text-light); font-style: italic; margin-top: 0.5rem; }
+  .q-source { font-size: 0.8rem; color: var(--text-light); margin-bottom: 0.6rem; }
+  .q-source a { color: #319795; cursor: pointer; font-weight: 600; }
+  .q-source a:hover { text-decoration: underline; }
+  .feature-intro a.feat-link { color: #285e61; cursor: pointer; text-decoration: underline; }
+
   /* Columns table */
   .col-card { padding: 0; overflow: hidden; }
   .col-card h3 {
@@ -184,15 +211,24 @@
 <!-- ================================================================ -->
 <nav>
   <h1>Agir<small>Modèle objet Legacy / données Oracle</small></h1>
-  <input type="search" id="navSearch" placeholder="Rechercher une entité..." oninput="filterNav(this.value)">
+  <input type="search" id="navSearch" placeholder="Rechercher une entité, une fonctionnalité..." oninput="filterNav(this.value)">
   <ul id="navList">
+    <li class="group-label">Fonctionnalités</li>
+    <li><a onclick="show('feat-demarrage-de-shift')" data-id="feat-demarrage-de-shift">Démarrage de shift</a></li>
+    <li><a onclick="show('feat-feuille-de-shift')" data-id="feat-feuille-de-shift">Feuille de shift</a></li>
     <li class="group-label">Exploitation</li>
     <li><a onclick="show('activities-set')" data-id="activities-set">ActivitiesSet <span class="tbl">ACTIVITIES_SETS</span><span class="soon">(bientôt)</span></a></li>
     <li><a onclick="show('activity')" data-id="activity" class="active">Activity <span class="tbl">ACTIVITIES</span></a></li>
-    <li><a onclick="show('activity-type')" data-id="activity-type">ActivityType <span class="tbl">ACTIVITY_TYPES</span><span class="soon">(bientôt)</span></a></li>
+    <li><a onclick="show('activity-type')" data-id="activity-type">ActivityType <span class="tbl">ACTIVITY_TYPES</span></a></li>
     <li><a onclick="show('cargo')" data-id="cargo">Cargo <span class="tbl">CARGOS</span><span class="soon">(bientôt)</span></a></li>
-    <li><a onclick="show('stevedoring-set')" data-id="stevedoring-set">StevedoringSet <span class="tbl">STEVEDORING_SETS</span><span class="soon">(bientôt)</span></a></li>
+    <li><a onclick="show('stevedoring-set')" data-id="stevedoring-set">StevedoringSet <span class="tbl">STEVEDORING_SETS</span></a></li>
     <li><a onclick="show('task')" data-id="task">Task <span class="tbl">TASKS</span></a></li>
+    <li class="group-label">Commande &amp; affectation</li>
+    <li><a onclick="show('allocation')" data-id="allocation">Allocation <span class="tbl">ALLOCATIONS</span></a></li>
+    <li><a onclick="show('grade')" data-id="grade">Grade <span class="tbl">GRADES</span></a></li>
+    <li><a onclick="show('order')" data-id="order">Order <span class="tbl">ORDERS</span></a></li>
+    <li><a onclick="show('post')" data-id="post">Post <span class="tbl">POSTS</span></a></li>
+    <li><a onclick="show('skill')" data-id="skill">Skill <span class="tbl">SKILLS</span></a></li>
     <li class="group-label">Habilitations</li>
     <li><a onclick="show('function')" data-id="function">Function <span class="tbl">FUNCTIONS</span></a></li>
     <li><a onclick="show('profile')" data-id="profile">Profile <span class="tbl">PROFILES</span></a></li>
@@ -200,6 +236,7 @@
     <li><a onclick="show('right')" data-id="right">Right <span class="tbl">RIGHTS</span></a></li>
     <li><a onclick="show('user')" data-id="user">User <span class="tbl">USERS</span></a></li>
     <li class="group-label">Planification</li>
+    <li><a onclick="show('activity-center')" data-id="activity-center">ActivityCenter <span class="tbl">ACTIVITY_CENTERS</span></a></li>
     <li><a onclick="show('allotted-slot')" data-id="allotted-slot">AllottedSlot <span class="tbl">ALLOTTED_SLOTS</span></a></li>
     <li><a onclick="show('slot-definition')" data-id="slot-definition">SlotDefinition <span class="tbl">SLOT_DEFINITIONS</span></a></li>
     <li><a onclick="show('working-period')" data-id="working-period">WorkingPeriod <span class="tbl">WORKING_PERIODS</span></a></li>
@@ -207,6 +244,60 @@
 </nav>
 
 <main>
+
+<!-- ================================================================ -->
+<!-- FONCTIONNALITÉ : FEUILLE DE SHIFT                                -->
+<!-- ================================================================ -->
+<section class="entity feature-page" id="feat-feuille-de-shift">
+
+  <div class="entity-header">
+    <h2>Feuille de shift</h2>
+    <div class="aliases">Fonctionnalité — nouvelle application Java/Angular</div>
+  </div>
+
+  <div class="card">
+    <h3>Description</h3>
+    <p class="placeholder-msg">Description à venir.</p>
+  </div>
+
+  <div class="card">
+    <h3>Requêtes de la fonctionnalité</h3>
+    <div class="feature-queries" data-feature="feat-feuille-de-shift"></div>
+  </div>
+
+</section>
+
+<!-- ================================================================ -->
+<!-- FONCTIONNALITÉ : DÉMARRAGE DE SHIFT                              -->
+<!-- ================================================================ -->
+<section class="entity feature-page" id="feat-demarrage-de-shift">
+
+  <div class="entity-header">
+    <h2>Démarrage de shift</h2>
+    <div class="aliases">Fonctionnalité — nouvelle application Java/Angular</div>
+  </div>
+
+  <div class="card">
+    <h3>Description</h3>
+    <p>
+      Fonctionnalité qui travaille dans le contexte d'un <strong>centre d'activité courant</strong>
+      (<a class="fk-link" onclick="show('activity-center')">ActivityCenter</a>) et d'un
+      <strong>moment donné</strong> (l'heure courante). Au démarrage, elle doit déterminer
+      quelle(s) <strong>plage(s) horaire(s)</strong>
+      (<a class="fk-link" onclick="show('allotted-slot')">AllottedSlot</a>) considérer à cet instant.
+    </p>
+  </div>
+
+  <div class="card">
+    <h3>Requêtes de la fonctionnalité</h3>
+    <p>
+      Toutes les requêtes documentées pour cette fonctionnalité. Chacune est également
+      visible sur la fiche de l'entité concernée (indiquée en tête de requête).
+    </p>
+    <div class="feature-queries" data-feature="feat-demarrage-de-shift"></div>
+  </div>
+
+</section>
 
 <!-- ================================================================ -->
 <!-- ACTIVITY                                                         -->
@@ -408,22 +499,216 @@
 </section>
 
 <!-- ================================================================ -->
-<!-- ACTIVITY TYPE (placeholder)                                      -->
+<!-- ACTIVITY TYPE                                                    -->
 <!-- ================================================================ -->
 <section class="entity" id="activity-type">
+
   <div class="entity-header">
     <h2>ActivityType</h2>
     <div class="aliases">
       Table Oracle : <code>ACTIVITY_TYPES</code> &nbsp;|&nbsp;
-      Serveur C++ : <code>tcMrpsActivityType</code>
+      Serveur C++ : <code>tcMrpsActivityType</code> &nbsp;|&nbsp;
+      Client Rp : <code>tcMrpsRpActivityType</code> &nbsp;|&nbsp;
+      Formulaire : <code>tcMrpsSqlFormActivityType</code>
     </div>
   </div>
+
   <div class="card">
     <h3>Description fonctionnelle</h3>
-    <p>Hiérarchie arborescente des types d'activité (exploitation, maîtrise, maintenance…).
-       La relation récursive <code>AT_ID</code> vers elle-même définit le parent dans l'arborescence.</p>
-    <p class="placeholder-msg">Documentation complète à venir.</p>
+    <p>
+      La classe <strong>ActivityType</strong> est le <strong>référentiel des types d'activité</strong> :
+      la classification métier qui qualifie chaque <a class="fk-link" onclick="show('activity')">Activity</a>
+      (exploitation, manutention, maintenance, absence…). C'est une donnée de paramétrage,
+      gérée dans la fiche <em>Types d'activité</em>.
+    </p>
+    <p>
+      Le référentiel est <strong>hiérarchique (arborescence)</strong> : chaque type peut avoir
+      un <strong>type parent</strong> (<code>parentActivityType</code>) et donc des sous-types.
+      La fiche présente d'ailleurs ces types sous forme d'arbre. Un type sans parent est une racine.
+    </p>
+    <p>
+      Les deux libellés <code>label</code> (libellé court) et <code>name</code> (nom complet)
+      ainsi que la <code>priority</code> sont les seuls champs obligatoires.
+    </p>
+    <div class="arch-warning">
+      <strong>Conventions Legacy à connaître :</strong>
+      <ul style="margin:0.4rem 0 0; padding-left:1.2rem;">
+        <li>
+          Un type dont le <strong>code externe vaut « 00 »</strong> désigne un
+          <strong>type de congé / d'absence</strong> (méthode <code>isVacation()</code>).
+          C'est une valeur « magique » utilisée par le code Legacy ; côté Java, mieux vaut
+          ne pas reposer sur cette convention de chaîne mais prévoir un indicateur explicite.
+        </li>
+        <li>
+          Il existe un <strong>type racine « Exploitation »</strong> (repéré par le paramètre
+          <code>ACTIVITY_TYPE_EXPLOITATION</code>). Le code Legacy teste si un type descend de
+          cette racine (<code>isSubTypeOfExploitation()</code>) pour distinguer les activités
+          d'exploitation (navires, manutention) des autres.
+        </li>
+        <li>
+          <strong>Héritage hiérarchique</strong> : plusieurs attributs (les champs analytiques,
+          le caractère fictif) ne sont pas lus uniquement sur le type courant mais
+          <strong>remontent vers le parent</strong> s'ils ne sont pas renseignés localement.
+          Ces attributs sont marqués dépréciés ci-dessous (non repris côté Java).
+        </li>
+      </ul>
+    </div>
   </div>
+
+  <!-- Attributes -->
+  <div class="card col-card">
+    <h3><span>Attributs — ActivityType</span><button class="reset-sort" onclick="resetSort(this)">↺ Ordre initial</button></h3>
+    <table class="sortable-table">
+      <thead>
+        <tr><th class="sortable" onclick="sortTable(this,0)">Attribut</th><th class="sortable" onclick="sortTable(this,1)">Colonne Oracle</th><th class="sortable" onclick="sortTable(this,2)">Type</th><th class="sortable" onclick="sortTable(this,3)">Contrainte</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr data-order="0">
+          <td><span class="java-name has-tip">id<span class="tip">C++ : getId() — hérité de tcMrpsObject</span></span></td>
+          <td class="col-oracle">ID</td>
+          <td><span class="tag tag-num">Number</span></td>
+          <td><span class="tag tag-pk">PK</span></td>
+          <td>Identifiant unique</td>
+        </tr>
+        <tr data-order="1">
+          <td><span class="java-name has-tip">parentActivityType<span class="tip">C++ : mbActivityType (ILS_INVERTED_1) / mrActivityTypes (ILS_USES_N)</span></span></td>
+          <td class="col-oracle">AT_ID</td>
+          <td><span class="tag tag-fk">FK</span></td>
+          <td>→ <a class="fk-link" onclick="show('activity-type')">ActivityType</a></td>
+          <td>Type parent dans l'arborescence. Vide pour un type racine. Définit la hiérarchie des types d'activité.</td>
+        </tr>
+        <tr data-order="2">
+          <td><span class="java-name has-tip">label<span class="tip">C++ : mcLabel (ILS_ENTRY_STRING)</span></span></td>
+          <td class="col-oracle">LABEL</td>
+          <td><span class="tag tag-str">String</span></td>
+          <td><strong>obligatoire</strong></td>
+          <td>Libellé court du type d'activité</td>
+        </tr>
+        <tr data-order="3">
+          <td><span class="java-name has-tip">name<span class="tip">C++ : mcName (ILS_ENTRY_STRING)</span></span></td>
+          <td class="col-oracle">NAME</td>
+          <td><span class="tag tag-str">String</span></td>
+          <td><strong>obligatoire</strong></td>
+          <td>Nom complet du type d'activité</td>
+        </tr>
+        <tr data-order="4">
+          <td><span class="java-name has-tip">notes<span class="tip">C++ : mcNotes (ILS_ENTRY_STRING)</span></span></td>
+          <td class="col-oracle">NOTES</td>
+          <td><span class="tag tag-str">String</span></td>
+          <td></td>
+          <td>Commentaires libres</td>
+        </tr>
+        <tr data-order="5">
+          <td><span class="java-name has-tip">externalCode<span class="tip">C++ : mcExternalCode (ILS_ENTRY_STRING)</span></span></td>
+          <td class="col-oracle">EXTERNAL_CODE</td>
+          <td><span class="tag tag-str">String</span></td>
+          <td></td>
+          <td>Code externe. <strong>Valeur « 00 » = type de congé / d'absence</strong> (voir conventions ci-dessus).</td>
+        </tr>
+        <tr data-order="6">
+          <td><span class="java-name has-tip">externalCode2<span class="tip">C++ : mcExternalCode2 (ILS_ENTRY_STRING)</span></span></td>
+          <td class="col-oracle">EXTERNAL_CODE_2</td>
+          <td><span class="tag tag-str">String</span></td>
+          <td></td>
+          <td>Second code externe (interfaçage avec un système tiers)</td>
+        </tr>
+        <tr data-order="7">
+          <td><span class="java-name has-tip">priority<span class="tip">C++ : mcPriority (ILS_ENTRY_INT)</span></span></td>
+          <td class="col-oracle">PRIORITY</td>
+          <td><span class="tag tag-int">Int</span></td>
+          <td><strong>obligatoire</strong></td>
+          <td>Priorité du type d'activité (utilisée pour l'ordonnancement / l'arbitrage)</td>
+        </tr>
+        <tr data-order="8" class="deprecated">
+          <td><span class="java-name has-tip">fictitious<span class="tip">C++ : mcFictitious (ILS_ENTRY_BOOLEAN)</span></span></td>
+          <td class="col-oracle">FICTITIOUS</td>
+          <td><span class="tag tag-int">Int</span></td>
+          <td><span class="tag tag-deprecated">Déprécié</span></td>
+          <td>Type « fictif » (libellé « Fictive »). Forcé à 1 si le parent est fictif. Mécanisme de paramétrage Legacy, non repris côté Java.</td>
+        </tr>
+        <tr data-order="9" class="deprecated">
+          <td><span class="java-name has-tip">analyticType<span class="tip">C++ : mcAnalyticType (ILS_ENTRY_STRING)</span></span></td>
+          <td class="col-oracle">ANALYTIC_TYPE</td>
+          <td><span class="tag tag-str">String</span></td>
+          <td><span class="tag tag-deprecated">Déprécié</span></td>
+          <td>Code analytique du type (codage analytique / paie). Hérité du parent si non renseigné. Ne pas utiliser côté Java.</td>
+        </tr>
+        <tr data-order="10" class="deprecated">
+          <td><span class="java-name has-tip">impliesAnalyticType<span class="tip">C++ : mcImpliesAnalyticType (ILS_ENTRY_BOOLEAN)</span></span></td>
+          <td class="col-oracle">IMPLIES_ANALYTIC_TYPE</td>
+          <td><span class="tag tag-int">Int</span></td>
+          <td><span class="tag tag-deprecated">Déprécié</span></td>
+          <td>Indique que ce type impose un codage analytique. Hérité du parent si false. Ne pas utiliser côté Java.</td>
+        </tr>
+        <tr data-order="11" class="deprecated">
+          <td><span class="java-name has-tip">impliesEquipmentToolAnalyticType<span class="tip">C++ : mcImpliesEquipmentToolAnalyticType (ILS_ENTRY_BOOLEAN)</span></span></td>
+          <td class="col-oracle">IMPLIES_EQ_TOOL_ANALYTIC_TYPE</td>
+          <td><span class="tag tag-int">Int</span></td>
+          <td><span class="tag tag-deprecated">Déprécié</span></td>
+          <td>Indique que le codage analytique reprend celui de l'appareil/engin. Hérité du parent si false. Ne pas utiliser côté Java.</td>
+        </tr>
+        <tr data-order="12">
+          <td><span class="java-name has-tip">sortingCode<span class="tip">Pas d'attribut serveur C++ — colonne Oracle gérée directement par le formulaire (absente du .dbd et du serveur)</span></span></td>
+          <td class="col-oracle">SORTING_CODE</td>
+          <td><span class="tag tag-str">String</span></td>
+          <td></td>
+          <td>Code de tri custom, indépendant du libellé. Géré par le formulaire, pas par le serveur (même cas que LENGTH / BEAM pour Activity).</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Relations -->
+  <div class="card">
+    <h3>Relations</h3>
+
+    <div class="rel-row">
+      <span class="rel-entity current">ActivityType</span>
+      <span class="rel-arrow">— <span class="rel-card">N:1</span> →</span>
+      <a class="rel-entity" onclick="show('activity-type')">ActivityType</a>
+      <span class="rel-desc">via AT_ID — type parent dans l'arborescence</span>
+    </div>
+    <div class="rel-row">
+      <span class="rel-entity current">ActivityType</span>
+      <span class="rel-arrow">— <span class="rel-card">N:N</span> →</span>
+      <span class="rel-entity">WorkContext</span>
+      <span class="rel-desc">via la table ACTIVITY_TYPE_CONTEXTS — contextes de travail où le type est disponible</span>
+    </div>
+
+    <h3 style="margin-top:1.2rem;">Relations inverses</h3>
+
+    <div class="rel-row">
+      <span class="rel-entity current">ActivityType</span>
+      <span class="rel-arrow">← <span class="rel-card">1:N</span> —</span>
+      <a class="rel-entity" onclick="show('activity-type')">ActivityType</a>
+      <span class="rel-desc">via AT_ID — sous-types (enfants dans l'arborescence)</span>
+    </div>
+    <div class="rel-row">
+      <span class="rel-entity current">ActivityType</span>
+      <span class="rel-arrow">← <span class="rel-card">1:N</span> —</span>
+      <a class="rel-entity" onclick="show('activity')">Activity</a>
+      <span class="rel-desc">via ACTIVITIES.AT_ID — activités de ce type</span>
+    </div>
+    <div class="rel-row">
+      <span class="rel-entity current">ActivityType</span>
+      <span class="rel-arrow">← <span class="rel-card">1:N</span> —</span>
+      <span class="rel-entity">HumanResourcePointageLine</span>
+      <span class="rel-desc">— lignes de pointage personnel rattachées à ce type</span>
+    </div>
+    <div class="rel-row">
+      <span class="rel-entity current">ActivityType</span>
+      <span class="rel-arrow">← <span class="rel-card">1:N</span> —</span>
+      <span class="rel-entity">DetailCode</span>
+      <span class="rel-desc">— détails analytiques associés au type</span>
+    </div>
+    <div class="rel-row">
+      <span class="rel-entity current">ActivityType</span>
+      <span class="rel-arrow">← <span class="rel-card">1:N</span> —</span>
+      <span class="rel-entity">VacationType</span>
+      <span class="rel-desc">— types d'absence contrôlés (e-Agir)</span>
+    </div>
+  </div>
+
 </section>
 
 <!-- ================================================================ -->
@@ -683,18 +968,209 @@
 </section>
 
 <!-- ================================================================ -->
-<!-- STEVEDORING SET (placeholder)                                    -->
+<!-- STEVEDORING SET                                                  -->
 <!-- ================================================================ -->
 <section class="entity" id="stevedoring-set">
+
   <div class="entity-header">
     <h2>StevedoringSet</h2>
-    <div class="aliases">Table Oracle : <code>STEVEDORING_SETS</code></div>
+    <div class="aliases">
+      Table Oracle : <code>STEVEDORING_SETS</code> &nbsp;|&nbsp;
+      Serveur C++ : <code>tcMrpsStevedoringSet</code> &nbsp;|&nbsp;
+      Client Rp : <code>tcMrpsRpStevedoringSet</code> &nbsp;|&nbsp;
+      Formulaire : <code>tcMrpsFormStevedoringSet</code>
+    </div>
   </div>
+
   <div class="card">
     <h3>Description fonctionnelle</h3>
-    <p>Configuration d'engin/équipe.</p>
-    <p class="placeholder-msg">Documentation complète à venir.</p>
+    <p>
+      La classe <strong>StevedoringSet</strong> représente une <strong>« Configuration
+      d'engin/équipe »</strong> (libellé Legacy : « Config. Engins / Equipe »).
+      C'est un <strong>gabarit de moyens</strong> pour une opération type : elle définit
+      les <strong>engins nécessaires</strong> (nombre par classe d'engin, via
+      <code>EQUIPMENT_QUANTITIES</code>) et la <strong>composition de l'équipe</strong>
+      (effectifs par spécialité, via <code>STRENGTH_DEFINITIONS</code>).
+    </p>
+    <p>
+      Elle est au point de départ de la chaîne commande → affectation : la
+      <a class="fk-link" onclick="show('order')">commande</a> référence une configuration
+      (<code>SS_ID</code>), et c'est elle qui détermine les
+      <a class="fk-link" onclick="show('post')">postes</a> générés. Une
+      <a class="fk-link" onclick="show('activity')">Activity</a> peut porter une
+      configuration <strong>par défaut</strong> : dans le panneau des commandes, choisir
+      cette activité sélectionne automatiquement sa configuration.
+    </p>
+    <p>
+      Une configuration est de <strong>conduite opérationnelle</strong>
+      (<code>driving = 1</code>) ou non — typiquement de <strong>maintenance</strong>
+      (<code>driving = 0</code>). La distinction est structurante : la conduite
+      opérationnelle exige un certain nombre de conducteurs pour tenir la cadence,
+      tandis qu'en maintenance le nombre de conducteurs dépend de l'opération (par
+      exemple un seul conducteur pour des déplacements d'engins ou des tests).
+    </p>
+    <p class="arch-note">
+      Note d'architecture : <code>STRENGTH_DEFINITIONS</code> et <code>SS_GRADE_SUMS</code>
+      sont plus ou moins redondantes (composition par spécialité vs totaux par catégorie).
+      Elles servent à <strong>générer</strong> les effectifs à la création de la commande.
+      Pour connaître les spécialités <strong>réellement commandées</strong> (par exemple à
+      l'initialisation d'un shift), interroger les <strong>postes de la commande</strong>,
+      pas la configuration.
+    </p>
   </div>
+
+  <!-- Attributes -->
+  <div class="card col-card">
+    <h3><span>Attributs — StevedoringSet</span><button class="reset-sort" onclick="resetSort(this)">↺ Ordre initial</button></h3>
+    <table class="sortable-table">
+      <thead>
+        <tr><th class="sortable" onclick="sortTable(this,0)">Attribut</th><th class="sortable" onclick="sortTable(this,1)">Colonne Oracle</th><th class="sortable" onclick="sortTable(this,2)">Type</th><th class="sortable" onclick="sortTable(this,3)">Contrainte</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr data-order="0">
+          <td><span class="java-name has-tip">id<span class="tip">C++ : getId() — hérité de tcMrpsObject</span></span></td>
+          <td class="col-oracle">ID</td>
+          <td><span class="tag tag-num">Number</span></td>
+          <td><span class="tag tag-pk">PK</span></td>
+          <td>Identifiant unique</td>
+        </tr>
+        <tr data-order="1">
+          <td><span class="java-name has-tip">complementSkill<span class="tip">C++ : mrComplementSkill (ILS_USES_1)</span></span></td>
+          <td class="col-oracle">SKILL_ID</td>
+          <td><span class="tag tag-fk">FK</span></td>
+          <td><span class="tag tag-fk">FK</span> <a class="fk-link" onclick="show('skill')">Skill</a></td>
+          <td>Spécialité de complément (« Conducteurs complémentaires ») : quand le total
+            d'agents saisi par catégorie sur la commande dépasse ce que définit la
+            configuration, le complément d'effectif est créé avec cette spécialité ;
+            à la baisse, ces effectifs sont retirés en priorité</td>
+        </tr>
+        <tr data-order="2">
+          <td><span class="java-name has-tip">defaultWorkingPeriod<span class="tip">C++ : mrDefaultWorkingPeriod (ILS_USES_1)</span></span></td>
+          <td class="col-oracle">DEFAULT_WORKING_PERIOD_ID</td>
+          <td><span class="tag tag-fk">FK</span></td>
+          <td><span class="tag tag-fk">FK</span> <a class="fk-link" onclick="show('working-period')">WorkingPeriod</a></td>
+          <td>Horaire de travail proposé par défaut lors de la création d'une commande
+            avec cette configuration</td>
+        </tr>
+        <tr data-order="3">
+          <td><span class="java-name has-tip">workType<span class="tip">C++ : mrWorkType (ILS_USES_1 vers WorkType)</span></span></td>
+          <td class="col-oracle">WORK_TYPE_ID</td>
+          <td><span class="tag tag-fk">FK</span></td>
+          <td><span class="tag tag-fk">FK</span> WorkType</td>
+          <td>Classe de travail (référentiel hiérarchique <code>WORK_TYPES</code>)
+            associée à la configuration</td>
+        </tr>
+        <tr data-order="4">
+          <td><span class="java-name has-tip">label<span class="tip">C++ : mcLabel (ILS_ENTRY_STRING)</span></span></td>
+          <td class="col-oracle">LABEL</td>
+          <td><span class="tag tag-str">String</span></td>
+          <td><strong>obligatoire</strong></td>
+          <td>Libellé court de la configuration</td>
+        </tr>
+        <tr data-order="5">
+          <td><span class="java-name has-tip">name<span class="tip">C++ : mcName (ILS_ENTRY_STRING)</span></span></td>
+          <td class="col-oracle">NAME</td>
+          <td><span class="tag tag-str">String</span></td>
+          <td><strong>obligatoire</strong></td>
+          <td>Nom complet de la configuration</td>
+        </tr>
+        <tr data-order="6">
+          <td><span class="java-name has-tip">driving<span class="tip">C++ : mcDriving (ILS_ENTRY_BOOLEAN)</span></span></td>
+          <td class="col-oracle">DRIVING</td>
+          <td><span class="tag tag-num">Number</span></td>
+          <td></td>
+          <td>1 = configuration de <strong>conduite opérationnelle</strong> (cadence
+            exigeant un nombre de conducteurs donné ; conditionne l'algorithme
+            d'affectation des engins) ; 0 = configuration hors conduite opérationnelle,
+            typiquement de maintenance (nombre de conducteurs selon l'opération)</td>
+        </tr>
+        <tr data-order="7">
+          <td><span class="java-name has-tip">typeOfDay<span class="tip">C++ : mcTypeOfDay (ILS_ENTRY_INT) — défaut 127 = toute la semaine</span></span></td>
+          <td class="col-oracle">TYPE_OF_DAY</td>
+          <td><span class="tag tag-num">Number</span></td>
+          <td></td>
+          <td>Jours de la semaine où la configuration s'applique (combinaison de jours ;
+            valeur par défaut : toute la semaine)</td>
+        </tr>
+        <tr data-order="8" class="deprecated">
+          <td><span class="java-name">handling</span></td>
+          <td class="col-oracle">HANDLING</td>
+          <td><span class="tag tag-num">Number</span></td>
+          <td><span class="tag tag-deprecated">Déprécié</span></td>
+          <td>Indicateur « Manutention ». Ne pas utiliser côté Java.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Relations -->
+  <div class="card">
+    <h3>Relations</h3>
+    <div class="rel-row">
+      <span class="rel-entity current">StevedoringSet</span>
+      <span class="rel-arrow">— <span class="rel-card">N:1</span> →</span>
+      <a class="rel-entity" onclick="show('skill')">Skill</a>
+      <span class="rel-desc">via SKILL_ID — spécialité de complément</span>
+    </div>
+    <div class="rel-row">
+      <span class="rel-entity current">StevedoringSet</span>
+      <span class="rel-arrow">— <span class="rel-card">N:1</span> →</span>
+      <a class="rel-entity" onclick="show('working-period')">WorkingPeriod</a>
+      <span class="rel-desc">via DEFAULT_WORKING_PERIOD_ID — horaire par défaut</span>
+    </div>
+    <div class="rel-row">
+      <span class="rel-entity current">StevedoringSet</span>
+      <span class="rel-arrow">— <span class="rel-card">N:1</span> →</span>
+      <span class="rel-entity">WorkType</span>
+      <span class="rel-desc">via WORK_TYPE_ID — classe de travail</span>
+    </div>
+    <div class="rel-row">
+      <span class="rel-entity current">StevedoringSet</span>
+      <span class="rel-arrow">← <span class="rel-card">1:N</span> —</span>
+      <span class="rel-entity">EquipmentQuantity</span>
+      <span class="rel-desc">via EQUIPMENT_QUANTITIES (SS_ID + EC1_ID + QUANTITY) — nombre
+        d'engins commandés par classe d'engin ; c'est cette table qui donne le nombre de
+        portiques commandés à l'initialisation d'un shift</span>
+    </div>
+    <div class="rel-row">
+      <span class="rel-entity current">StevedoringSet</span>
+      <span class="rel-arrow">← <span class="rel-card">1:N</span> —</span>
+      <span class="rel-entity">StrengthDefinition</span>
+      <span class="rel-desc">via STRENGTH_DEFINITIONS — composition de l'équipe par
+        spécialité (effectif, rang, niveau, type de jour) ; sert à générer les effectifs
+        commandés à la création de la commande</span>
+    </div>
+    <div class="rel-row">
+      <span class="rel-entity current">StevedoringSet</span>
+      <span class="rel-arrow">← <span class="rel-card">1:N</span> —</span>
+      <span class="rel-entity">StvdSetGradeSum</span>
+      <span class="rel-desc">via SS_GRADE_SUMS (SS_ID + GRAD_ID + QUANTITY) — totaux
+        d'agents par catégorie de personnel (plus ou moins redondant avec
+        STRENGTH_DEFINITIONS)</span>
+    </div>
+    <div class="rel-row">
+      <span class="rel-entity current">StevedoringSet</span>
+      <span class="rel-arrow">— <span class="rel-card">N:N</span> →</span>
+      <span class="rel-entity">WorkingArea</span>
+      <span class="rel-desc">via STEVEDORING_SETS_OF_AREAS — restreint les configurations
+        proposées selon la zone de travail (ex. : pas de commande de portiques sur un
+        quai sans portique) ; utilisé par le panneau des commandes Legacy, sans usage
+        Java prévu pour le moment</span>
+    </div>
+    <div class="rel-row">
+      <span class="rel-entity current">StevedoringSet</span>
+      <span class="rel-arrow">← <span class="rel-card">1:N</span> —</span>
+      <a class="rel-entity" onclick="show('order')">Order</a>
+      <span class="rel-desc">via ORDERS.SS_ID — commandes passées avec cette configuration</span>
+    </div>
+    <div class="rel-row">
+      <span class="rel-entity current">StevedoringSet</span>
+      <span class="rel-arrow">← <span class="rel-card">1:N</span> —</span>
+      <a class="rel-entity" onclick="show('activity')">Activity</a>
+      <span class="rel-desc">via ACTIVITIES.SS_ID — activités dont c'est la configuration par défaut</span>
+    </div>
+  </div>
+
 </section>
 
 <!-- ================================================================ -->
@@ -717,6 +1193,1073 @@
     <div class="aliases">Table Oracle : <code>ACTIVITIES_SETS</code></div>
   </div>
   <div class="card"><p class="placeholder-msg">Documentation à venir.</p></div>
+</section>
+
+<!-- ================================================================ -->
+<!-- GRADE                                                            -->
+<!-- ================================================================ -->
+<section class="entity" id="grade">
+
+  <div class="entity-header">
+    <h2>Grade</h2>
+    <div class="aliases">
+      Table Oracle : <code>GRADES</code> &nbsp;|&nbsp;
+      Serveur C++ : <code>tcMrpsGrade</code> &nbsp;|&nbsp;
+      Client Rp : <code>tcMrpsRpGrade</code> &nbsp;|&nbsp;
+      Formulaire : <code>tcMrpsFormGrade</code>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Description fonctionnelle</h3>
+    <p>
+      La classe <strong>Grade</strong> est le référentiel des <strong>« Catégories de
+      personnel »</strong> (terminologie de l'interface Legacy). Une catégorie classe
+      les agents (<em>HumanResource</em>) selon leur statut ou métier ; chaque agent est
+      rattaché à une et une seule catégorie.
+    </p>
+    <p>
+      La catégorie structure aussi les <strong>spécialités</strong> : chaque
+      <a class="fk-link" onclick="show('skill')">Skill</a> est rattachée à une catégorie.
+      C'est un maillon des contrôles d'affectation : lors de l'affectation d'un agent
+      à un poste, la compatibilité entre la catégorie de l'agent et celle exigée est
+      vérifiée (violation « Cet agent n'est pas de la catégorie » dans le Gantt
+      d'affectation).
+    </p>
+    <p>
+      La catégorie sert enfin d'axe d'agrégation : sommes de postes commandés par
+      catégorie (par commande, par configuration d'engin/équipe), compteurs et quotas
+      d'équité entre agents d'une même catégorie.
+    </p>
+    <p class="arch-note">
+      Note d'architecture : une catégorie référencée (agents, compteurs, sommes par
+      commande) ne peut pas être supprimée (<code>canBeDeleted</code>).
+    </p>
+  </div>
+
+  <!-- Attributes -->
+  <div class="card col-card">
+    <h3><span>Attributs — Grade</span><button class="reset-sort" onclick="resetSort(this)">↺ Ordre initial</button></h3>
+    <table class="sortable-table">
+      <thead>
+        <tr><th class="sortable" onclick="sortTable(this,0)">Attribut</th><th class="sortable" onclick="sortTable(this,1)">Colonne Oracle</th><th class="sortable" onclick="sortTable(this,2)">Type</th><th class="sortable" onclick="sortTable(this,3)">Contrainte</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr data-order="0">
+          <td><span class="java-name has-tip">id<span class="tip">C++ : getId() — hérité de tcMrpsObject</span></span></td>
+          <td class="col-oracle">ID</td>
+          <td><span class="tag tag-num">Number</span></td>
+          <td><span class="tag tag-pk">PK</span></td>
+          <td>Identifiant unique</td>
+        </tr>
+        <tr data-order="1">
+          <td><span class="java-name has-tip">label<span class="tip">C++ : mcLabel (ILS_ENTRY_STRING)</span></span></td>
+          <td class="col-oracle">LABEL</td>
+          <td><span class="tag tag-str">String</span></td>
+          <td><strong>obligatoire</strong></td>
+          <td>Libellé court de la catégorie</td>
+        </tr>
+        <tr data-order="2">
+          <td><span class="java-name has-tip">name<span class="tip">C++ : mcName (ILS_ENTRY_STRING)</span></span></td>
+          <td class="col-oracle">NAME</td>
+          <td><span class="tag tag-str">String</span></td>
+          <td><strong>obligatoire</strong></td>
+          <td>Nom complet de la catégorie</td>
+        </tr>
+        <tr data-order="3">
+          <td><span class="java-name has-tip">externalCode<span class="tip">C++ : mcExternalCode (ILS_ENTRY_STRING)</span></span></td>
+          <td class="col-oracle">EXTERNAL_CODE</td>
+          <td><span class="tag tag-str">String</span></td>
+          <td></td>
+          <td>Code externe — identifiant de la catégorie pour les échanges avec les systèmes tiers</td>
+        </tr>
+        <tr data-order="4">
+          <td><span class="java-name has-tip">sortingCode<span class="tip">Colonne Oracle uniquement — absente du serveur C++ et de la fiche Grade</span></span></td>
+          <td class="col-oracle">SORTING_CODE</td>
+          <td><span class="tag tag-str">String</span></td>
+          <td></td>
+          <td>Code de tri : permet un ordre d'affichage personnalisé, indépendant du libellé</td>
+        </tr>
+        <tr data-order="5">
+          <td><span class="java-name has-tip">gratificationCode<span class="tip">C++ : mcGratificationCode (ILS_ENTRY_STRING)</span></span></td>
+          <td class="col-oracle">GRATIFICATION_CODE</td>
+          <td><span class="tag tag-str">String</span></td>
+          <td></td>
+          <td>Code gratification — code utilisé pour le calcul du complément de paiement (gratification) des agents de cette catégorie</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Relations -->
+  <div class="card">
+    <h3>Relations inverses</h3>
+    <div class="rel-row">
+      <span class="rel-entity current">Grade</span>
+      <span class="rel-arrow">← <span class="rel-card">1:N</span> —</span>
+      <span class="rel-entity">HumanResource</span>
+      <span class="rel-desc">via HUMAN_RESOURCES.GRAD_ID — les agents de cette catégorie</span>
+    </div>
+    <div class="rel-row">
+      <span class="rel-entity current">Grade</span>
+      <span class="rel-arrow">← <span class="rel-card">1:N</span> —</span>
+      <a class="rel-entity" onclick="show('skill')">Skill</a>
+      <span class="rel-desc">via SKILLS.GRAD_ID — les spécialités rattachées à cette catégorie</span>
+    </div>
+    <div class="rel-row" style="opacity:0.55;">
+      <span class="rel-entity current">Grade</span>
+      <span class="rel-arrow">← <span class="rel-card">N:N</span> —</span>
+      <span class="rel-entity">Counter / QuotaAtom</span>
+      <span class="rel-desc">via GRADES_OF_COUNTERS et QUOTA_ATOMS — compteurs et quotas d'équité par catégorie (périmètre à confirmer)</span>
+    </div>
+  </div>
+
+</section>
+
+<!-- ================================================================ -->
+<!-- SKILL                                                            -->
+<!-- ================================================================ -->
+<section class="entity" id="skill">
+
+  <div class="entity-header">
+    <h2>Skill</h2>
+    <div class="aliases">
+      Table Oracle : <code>SKILLS</code> &nbsp;|&nbsp;
+      Serveur C++ : <code>tcMrpsSkill</code> &nbsp;|&nbsp;
+      Client Rp : <code>tcMrpsRpSkill</code> &nbsp;|&nbsp;
+      Formulaire : <code>tcMrpsFormSkill</code>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Description fonctionnelle</h3>
+    <p>
+      La classe <strong>Skill</strong> est le référentiel des <strong>« Spécialités »</strong>
+      (terminologie de l'interface Legacy). Une spécialité décrit une compétence exercée
+      par les agents : conduite d'un type d'engin, rôle dans une équipe, qualification
+      particulière. Chaque spécialité est rattachée à une
+      <a class="fk-link" onclick="show('grade')">catégorie de personnel</a> (Grade),
+      rattachement obligatoire dans la fiche.
+    </p>
+    <p>
+      La spécialité est au cœur de la chaîne commande → affectation : chaque
+      <a class="fk-link" onclick="show('post')">poste commandé</a> exige une spécialité,
+      et les contrôles d'affectation vérifient que l'agent proposé la pratique
+      (violations « Aucune spécialité de l'individu n'est compatible » dans le Gantt
+      d'affectation). Les niveaux de pratique des agents sont portés par l'entité
+      PracticeLevel (table <code>PRACTICE_LEVELS</code>, hors périmètre de cette fiche).
+    </p>
+    <p>
+      Une spécialité a une <strong>durée de vie contrôlée</strong> selon son
+      <code>type</code> : une spécialité « Simple » est toujours valide ; une spécialité
+      « Entretenue par la pratique » ou « Entretenue par le renouvellement » expire au bout
+      de <code>periodOfValidity</code> jours, avec une pré-alerte à
+      <code>periodOfAlert</code> jours (panneau « Alertes spécialités » ; violations
+      « période d'alerte » / « date de validité dépassée » lors des affectations).
+    </p>
+  </div>
+
+  <!-- Attributes -->
+  <div class="card col-card">
+    <h3><span>Attributs — Skill</span><button class="reset-sort" onclick="resetSort(this)">↺ Ordre initial</button></h3>
+    <table class="sortable-table">
+      <thead>
+        <tr><th class="sortable" onclick="sortTable(this,0)">Attribut</th><th class="sortable" onclick="sortTable(this,1)">Colonne Oracle</th><th class="sortable" onclick="sortTable(this,2)">Type</th><th class="sortable" onclick="sortTable(this,3)">Contrainte</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr data-order="0">
+          <td><span class="java-name has-tip">id<span class="tip">C++ : getId() — hérité de tcMrpsObject</span></span></td>
+          <td class="col-oracle">ID</td>
+          <td><span class="tag tag-num">Number</span></td>
+          <td><span class="tag tag-pk">PK</span></td>
+          <td>Identifiant unique</td>
+        </tr>
+        <tr data-order="1">
+          <td><span class="java-name has-tip">grade<span class="tip">C++ : mbGrade (ILS_INVERTED_1 vers tcMrpsGrade)</span></span></td>
+          <td class="col-oracle">GRAD_ID</td>
+          <td><span class="tag tag-fk">FK</span></td>
+          <td><span class="tag tag-fk">FK</span> <a class="fk-link" onclick="show('grade')">Grade</a> — <strong>obligatoire</strong></td>
+          <td>Catégorie de personnel à laquelle la spécialité est rattachée</td>
+        </tr>
+        <tr data-order="2">
+          <td><span class="java-name has-tip">label<span class="tip">C++ : mcLabel (ILS_ENTRY_STRING)</span></span></td>
+          <td class="col-oracle">LABEL</td>
+          <td><span class="tag tag-str">String</span></td>
+          <td><strong>obligatoire</strong></td>
+          <td>Libellé court de la spécialité</td>
+        </tr>
+        <tr data-order="3">
+          <td><span class="java-name has-tip">name<span class="tip">C++ : mcName (ILS_ENTRY_STRING)</span></span></td>
+          <td class="col-oracle">NAME</td>
+          <td><span class="tag tag-str">String</span></td>
+          <td><strong>obligatoire</strong></td>
+          <td>Nom complet de la spécialité</td>
+        </tr>
+        <tr data-order="4">
+          <td><span class="java-name has-tip">externalCode<span class="tip">C++ : mcExternalCode (ILS_ENTRY_STRING)</span></span></td>
+          <td class="col-oracle">EXTERNAL_CODE</td>
+          <td><span class="tag tag-str">String</span></td>
+          <td></td>
+          <td>Code externe — identifiant de la spécialité pour les échanges avec les systèmes tiers</td>
+        </tr>
+        <tr data-order="5">
+          <td><span class="java-name has-tip">skillGroup<span class="tip">C++ : mcGroup (ILS_ENTRY_STRING)</span></span></td>
+          <td class="col-oracle">SKILL_GROUP</td>
+          <td><span class="tag tag-str">String</span></td>
+          <td></td>
+          <td>Groupe de spécialités — regroupement libre utilisé pour organiser les spécialités dans les écrans</td>
+        </tr>
+        <tr data-order="6">
+          <td><span class="java-name has-tip">type<span class="tip">C++ : msType (ILS_ENTRY int) — enum meType {Simple, Practice, Renewal}</span></span></td>
+          <td class="col-oracle">TYPE</td>
+          <td><span class="tag tag-int">Int</span></td>
+          <td></td>
+          <td>Mode d'entretien de la spécialité : <code>0</code> = Simple (jamais obsolète), <code>1</code> = Entretenue par la pratique, <code>2</code> = Entretenue par le renouvellement. Conditionne l'usage des périodes de validité et d'alerte.</td>
+        </tr>
+        <tr data-order="7">
+          <td><span class="java-name has-tip">periodOfValidity<span class="tip">C++ : mcPeriodOfValidity (ILS_ENTRY tcMrpsTime)</span></span></td>
+          <td class="col-oracle">PERIOD_OF_VALIDITY</td>
+          <td><span class="tag tag-date">Time</span></td>
+          <td></td>
+          <td>Durée de validité en jours : au-delà, la spécialité de l'agent est considérée périmée (sans objet pour le type Simple)</td>
+        </tr>
+        <tr data-order="8">
+          <td><span class="java-name has-tip">periodOfAlert<span class="tip">C++ : mcPeriodOfAlert (ILS_ENTRY tcMrpsTime)</span></span></td>
+          <td class="col-oracle">PERIOD_OF_ALERT</td>
+          <td><span class="tag tag-date">Time</span></td>
+          <td></td>
+          <td>Période d'alerte en jours : seuil de pré-alerte avant expiration (panneau « Alertes spécialités », avertissement à l'affectation)</td>
+        </tr>
+        <tr data-order="9">
+          <td><span class="java-name has-tip">forRepresentativity<span class="tip">C++ : mcForRepresentativity (ILS_ENTRY IlsBoolean)</span></span></td>
+          <td class="col-oracle">FOR_REPRESENTATIVITY</td>
+          <td><span class="tag tag-num">Number</span></td>
+          <td></td>
+          <td>« Pour la représentativité » : la valeur 1 fait apparaître la spécialité dans la zone de représentativité des écrans de planification</td>
+        </tr>
+        <tr data-order="10" class="deprecated">
+          <td><span class="java-name has-tip">askForEquipment<span class="tip">C++ : mcAskForEquipment (ILS_ENTRY IlsBoolean)</span></span></td>
+          <td class="col-oracle">ASK_FOR_EQUIPMENT</td>
+          <td><span class="tag tag-num">Number</span></td>
+          <td><span class="tag tag-deprecated">Déprécié</span></td>
+          <td>« Demande explicite d'engin » : la valeur 1 impose de désigner un engin pour cette spécialité. Mécanisme Legacy non repris. Ne pas utiliser côté Java.</td>
+        </tr>
+        <tr data-order="11">
+          <td><span class="java-name has-tip">sortingCode<span class="tip">Colonne Oracle + fiche (SortingCodeField) — absente du serveur C++</span></span></td>
+          <td class="col-oracle">SORTING_CODE</td>
+          <td><span class="tag tag-str">String</span></td>
+          <td></td>
+          <td>Code de tri : permet un ordre d'affichage personnalisé, indépendant du libellé</td>
+        </tr>
+        <tr data-order="12">
+          <td><span class="java-name has-tip">driving<span class="tip">C++ : mcDriving (ILS_ENTRY IlsBoolean)</span></span></td>
+          <td class="col-oracle">DRIVING</td>
+          <td><span class="tag tag-num">Number</span></td>
+          <td></td>
+          <td>« Conduite » : la valeur 1 marque une spécialité de conduite d'engin (utilisée notamment pour le tour de conduite en exploitation)</td>
+        </tr>
+        <tr data-order="13">
+          <td><span class="java-name has-tip">remarkableCode<span class="tip">C++ : mcRemarkableCode (ILS_ENTRY_STRING)</span></span></td>
+          <td class="col-oracle">REMARKABLE_CODE</td>
+          <td><span class="tag tag-str">String</span></td>
+          <td></td>
+          <td>« Code remarquable » : code spécial permettant de distinguer certaines spécialités dans des traitements particuliers</td>
+        </tr>
+        <tr data-order="14" class="deprecated">
+          <td><span class="java-name has-tip">trainingRole<span class="tip">C++ : msTrainingRole (ILS_ENTRY int) — enum meTrainingRole {Study, Traine, Controle}</span></span></td>
+          <td class="col-oracle">TRAINING_ROLE</td>
+          <td><span class="tag tag-str">String</span></td>
+          <td><span class="tag tag-deprecated">Déprécié</span></td>
+          <td>« Rôle dans le contexte de formation » (à étudier / formateur / contrôleur). Module formation non repris côté Java. Ne pas utiliser côté Java.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Relations -->
+  <div class="card">
+    <h3>Relations</h3>
+    <div class="rel-row">
+      <span class="rel-entity current">Skill</span>
+      <span class="rel-arrow">— <span class="rel-card">N:1</span> →</span>
+      <a class="rel-entity" onclick="show('grade')">Grade</a>
+      <span class="rel-desc">via GRAD_ID — catégorie de personnel de rattachement (obligatoire)</span>
+    </div>
+    <div class="rel-row">
+      <span class="rel-entity current">Skill</span>
+      <span class="rel-arrow">← <span class="rel-card">1:N</span> —</span>
+      <a class="rel-entity" onclick="show('post')">Post</a>
+      <span class="rel-desc">via POSTS.SKILL_ID — postes commandés exigeant cette spécialité</span>
+    </div>
+    <div class="rel-row">
+      <span class="rel-entity current">Skill</span>
+      <span class="rel-arrow">← <span class="rel-card">1:N</span> —</span>
+      <a class="rel-entity" onclick="show('allocation')">Allocation</a>
+      <span class="rel-desc">via ALLOCATIONS.GROUND_SKILL_ID — spécialité réellement exercée sur le terrain</span>
+    </div>
+    <div class="rel-row">
+      <span class="rel-entity current">Skill</span>
+      <span class="rel-arrow">← <span class="rel-card">1:N</span> —</span>
+      <span class="rel-entity">PracticeLevel</span>
+      <span class="rel-desc">via PRACTICE_LEVELS.SKILL_ID — niveaux de pratique des agents pour cette spécialité</span>
+    </div>
+    <div class="rel-row">
+      <span class="rel-entity current">Skill</span>
+      <span class="rel-arrow">← <span class="rel-card">1:N</span> —</span>
+      <a class="rel-entity" onclick="show('stevedoring-set')">StevedoringSet</a>
+      <span class="rel-desc">via STEVEDORING_SETS.SKILL_ID — configurations d'engin/équipe utilisant cette spécialité</span>
+    </div>
+    <div class="rel-row">
+      <span class="rel-entity current">Skill</span>
+      <span class="rel-arrow">← <span class="rel-card">1:N</span> —</span>
+      <span class="rel-entity">EquipmentClass</span>
+      <span class="rel-desc">via EQUIPMENT_CLASSES.SKILL_ID — types d'engin dont la conduite requiert cette spécialité</span>
+    </div>
+  </div>
+
+</section>
+
+<!-- ================================================================ -->
+<!-- ORDER                                                            -->
+<!-- ================================================================ -->
+<section class="entity" id="order">
+
+  <div class="entity-header">
+    <h2>Order</h2>
+    <div class="aliases">
+      Table Oracle : <code>ORDERS</code> &nbsp;|&nbsp;
+      Serveur C++ : <code>tcMrpsOrder</code> &nbsp;|&nbsp;
+      Client Rp : <code>tcMrpsRpOrder</code> &nbsp;|&nbsp;
+      Panneau : <code>tcMrpsOrderSheet</code> (carnet de commandes)
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Description fonctionnelle</h3>
+    <p>
+      La classe <strong>Order</strong> représente une <strong>« Commande »</strong> de
+      ressources pour un <a class="fk-link" onclick="show('task')">chantier / escale</a>
+      (Task). C'est l'acte par lequel l'exploitation commande, pour une zone de travail,
+      un horaire et une configuration d'engin/équipe donnés, les moyens humains et
+      matériels nécessaires à une opération. La commande <strong>génère les
+      <a class="fk-link" onclick="show('post')">postes</a></strong> (Post) à pourvoir,
+      qui seront ensuite affectés nominativement (<a class="fk-link" onclick="show('allocation')">Allocation</a>).
+      Le panneau principal est le carnet de <strong>« Commandes »</strong>.
+    </p>
+    <p>
+      La commande porte <strong>deux couples de dates</strong>, reflet de la distinction
+      décrite sur la fiche <a class="fk-link" onclick="show('working-period')">WorkingPeriod</a> :
+      les dates de commande (<code>orderStartDate</code> / <code>orderEndDate</code>)
+      correspondent à l'<strong>horaire commercial</strong> — l'horaire de location des
+      engins (par exemple les portiques) ; les dates de travail
+      (<code>workStartDate</code> / <code>workEndDate</code>) correspondent à
+      l'<strong>horaire du personnel</strong>, plus large car il inclut l'équipement, la
+      préparation, la mise au repos (du matériel) et le déséquipement.
+    </p>
+    <p>
+      La commande suit un <strong>cycle de vie</strong> (<code>orderStatus</code>) jalonné
+      par un <strong>workflow de signatures</strong> : chaque passage d'état (planification,
+      pointage, validation, clôture) est signé par un utilisateur habilité (fonctions
+      <code>ORDER_SIGN_*</code>), l'historique étant conservé dans la table
+      <code>ORDERS_SIGNATURES</code>.
+    </p>
+    <div class="feature-intro">
+      <strong>Repris côté Java</strong> — le cycle de vie de la commande et son workflow
+      de signatures sont conservés dans la nouvelle application.
+    </div>
+    <div class="arch-warning">
+      <strong>Convention sur les intervalles de dates :</strong> comme partout dans Agir,
+      les deux couples de dates sont des intervalles où la date de début est
+      <strong>incluse</strong> et la date de fin est <strong>exclue</strong>.
+    </div>
+  </div>
+
+  <!-- Attributes -->
+  <div class="card col-card">
+    <h3><span>Attributs — Order</span><button class="reset-sort" onclick="resetSort(this)">↺ Ordre initial</button></h3>
+    <table class="sortable-table">
+      <thead>
+        <tr><th class="sortable" onclick="sortTable(this,0)">Attribut</th><th class="sortable" onclick="sortTable(this,1)">Colonne Oracle</th><th class="sortable" onclick="sortTable(this,2)">Type</th><th class="sortable" onclick="sortTable(this,3)">Contrainte</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr data-order="0">
+          <td><span class="java-name has-tip">id<span class="tip">C++ : getId() — hérité de tcMrpsObject</span></span></td>
+          <td class="col-oracle">ID</td>
+          <td><span class="tag tag-num">Number</span></td>
+          <td><span class="tag tag-pk">PK</span></td>
+          <td>Identifiant unique</td>
+        </tr>
+        <tr data-order="1">
+          <td><span class="java-name has-tip">task<span class="tip">C++ : mrTask (ILS_USES_1)</span></span></td>
+          <td class="col-oracle">TAS_ID</td>
+          <td><span class="tag tag-fk">FK</span></td>
+          <td><span class="tag tag-fk">FK</span> <a class="fk-link" onclick="show('task')">Task</a></td>
+          <td>Chantier / escale pour lequel la commande est passée</td>
+        </tr>
+        <tr data-order="2">
+          <td><span class="java-name has-tip">workingArea<span class="tip">C++ : mrWorkingArea (ILS_USES_1)</span></span></td>
+          <td class="col-oracle">AREA_ID</td>
+          <td><span class="tag tag-fk">FK</span></td>
+          <td><span class="tag tag-fk">FK</span> WorkingArea</td>
+          <td>Zone de travail où s'exécute la commande</td>
+        </tr>
+        <tr data-order="3">
+          <td><span class="java-name has-tip">stevedoringSet<span class="tip">C++ : mrStevedoringSet (ILS_USES_1)</span></span></td>
+          <td class="col-oracle">SS_ID</td>
+          <td><span class="tag tag-fk">FK</span></td>
+          <td><span class="tag tag-fk">FK</span> <a class="fk-link" onclick="show('stevedoring-set')">StevedoringSet</a></td>
+          <td>Configuration d'engin/équipe commandée : c'est elle qui détermine les postes à générer</td>
+        </tr>
+        <tr data-order="4">
+          <td><span class="java-name has-tip">workingPeriod<span class="tip">C++ : mrWorkingPeriod (ILS_USES_1)</span></span></td>
+          <td class="col-oracle">WPERIOD_ID</td>
+          <td><span class="tag tag-fk">FK</span></td>
+          <td><span class="tag tag-fk">FK</span> <a class="fk-link" onclick="show('working-period')">WorkingPeriod</a></td>
+          <td>Horaire de travail de la commande</td>
+        </tr>
+        <tr data-order="5">
+          <td><span class="java-name has-tip">cargo<span class="tip">C++ : mrCargo (ILS_USES_1)</span></span></td>
+          <td class="col-oracle">CAR_ID</td>
+          <td><span class="tag tag-fk">FK</span></td>
+          <td><span class="tag tag-fk">FK</span> <a class="fk-link" onclick="show('cargo')">Cargo</a></td>
+          <td>Cargaison traitée par la commande</td>
+        </tr>
+        <tr data-order="6">
+          <td><span class="java-name has-tip">customer<span class="tip">C++ : mrCustomer (ILS_USES_1)</span></span></td>
+          <td class="col-oracle">CUSTOMER_ID</td>
+          <td><span class="tag tag-fk">FK</span></td>
+          <td><span class="tag tag-fk">FK</span> Customer</td>
+          <td>Agent (notion voisine du manutentionnaire, comme sur Task)</td>
+        </tr>
+        <tr data-order="7">
+          <td><span class="java-name has-tip">receptacle<span class="tip">C++ : mrReceptacle (ILS_USES_1 vers Receptacle)</span></span></td>
+          <td class="col-oracle">RECEPTACLE_ID</td>
+          <td><span class="tag tag-fk">FK</span></td>
+          <td><span class="tag tag-fk">FK</span> Receptacle</td>
+          <td>« Contenant » concerné par la commande</td>
+        </tr>
+        <tr data-order="8">
+          <td><span class="java-name has-tip">orderStartDate<span class="tip">C++ : mcOrderStartDate (ILS_ENTRY tcMrpsDate)</span></span></td>
+          <td class="col-oracle">ORDER_START_DATE</td>
+          <td><span class="tag tag-date">Date</span></td>
+          <td></td>
+          <td>Début de l'horaire commercial — début de la location des engins (incluse)</td>
+        </tr>
+        <tr data-order="9">
+          <td><span class="java-name has-tip">orderEndDate<span class="tip">C++ : mcOrderEndDate (ILS_ENTRY tcMrpsDate)</span></span></td>
+          <td class="col-oracle">ORDER_END_DATE</td>
+          <td><span class="tag tag-date">Date</span></td>
+          <td></td>
+          <td>Fin de l'horaire commercial (exclue)</td>
+        </tr>
+        <tr data-order="10">
+          <td><span class="java-name has-tip">workStartDate<span class="tip">C++ : mcWorkStartDate (ILS_ENTRY tcMrpsDate)</span></span></td>
+          <td class="col-oracle">WORK_START_DATE</td>
+          <td><span class="tag tag-date">Date</span></td>
+          <td></td>
+          <td>Début de l'horaire du personnel : inclut l'équipement et la préparation avant l'opération (incluse)</td>
+        </tr>
+        <tr data-order="11">
+          <td><span class="java-name has-tip">workEndDate<span class="tip">C++ : mcWorkEndDate (ILS_ENTRY tcMrpsDate)</span></span></td>
+          <td class="col-oracle">WORK_END_DATE</td>
+          <td><span class="tag tag-date">Date</span></td>
+          <td></td>
+          <td>Fin de l'horaire du personnel : inclut la mise au repos du matériel et le déséquipement après l'opération (exclue)</td>
+        </tr>
+        <tr data-order="12">
+          <td><span class="java-name has-tip">orderKey<span class="tip">C++ : mcOrderKey (ILS_ENTRY_STRING)</span></span></td>
+          <td class="col-oracle">ORDER_KEY</td>
+          <td><span class="tag tag-str">String</span></td>
+          <td></td>
+          <td>Numéro de commande — identifiant affiché aux utilisateurs</td>
+        </tr>
+        <tr data-order="13">
+          <td><span class="java-name has-tip">quantity<span class="tip">C++ : mcQuantity (ILS_W_ENTRY_FLOAT, setQuantityC2S)</span></span></td>
+          <td class="col-oracle">QUANTITY</td>
+          <td><span class="tag tag-num">Number</span></td>
+          <td></td>
+          <td>Quantité commandée, saisie par l'utilisateur (ex : nombre de contenants). Sa modification recalcule le tonnage et re-déroule les affectations du poste.</td>
+        </tr>
+        <tr data-order="14">
+          <td><span class="java-name has-tip">tonnage<span class="tip">C++ : mcTonnage (ILS_ENTRY float, read-only) — computeTonnage()</span></span></td>
+          <td class="col-oracle">TONNAGE</td>
+          <td><span class="tag tag-num">Number</span></td>
+          <td></td>
+          <td>Tonnage commandé. <strong>Valeur calculée, jamais saisie</strong> : quantité × poids unitaire du contenant (<code>RECEPTACLES.WEIGHT_IN_KG</code>) / 1000 ; vaut 0 sans contenant. Recalculée à chaque changement de quantité ou de contenant. Ne pas modifier directement côté Java.</td>
+        </tr>
+        <tr data-order="15">
+          <td><span class="java-name has-tip">orderStatus<span class="tip">C++ : mcOrderStatus (ILS_ENTRY int) — datasource MdsGlobalOrderStatus</span></span></td>
+          <td class="col-oracle">ORDER_STATUS</td>
+          <td><span class="tag tag-int">Int</span></td>
+          <td></td>
+          <td>Statut de la commande : <code>0</code> = Brouillon, <code>1</code> = Planifiée, <code>2</code> = Pointé, <code>3</code> = Validé, <code>4</code> = Clos. Chaque transition est signée (workflow de signatures, repris côté Java).</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Relations -->
+  <div class="card">
+    <h3>Relations</h3>
+    <div class="rel-row">
+      <span class="rel-entity current">Order</span>
+      <span class="rel-arrow">— <span class="rel-card">N:1</span> →</span>
+      <a class="rel-entity" onclick="show('task')">Task</a>
+      <span class="rel-desc">via TAS_ID — chantier / escale de la commande</span>
+    </div>
+    <div class="rel-row">
+      <span class="rel-entity current">Order</span>
+      <span class="rel-arrow">— <span class="rel-card">N:1</span> →</span>
+      <span class="rel-entity">WorkingArea</span>
+      <span class="rel-desc">via AREA_ID — zone de travail</span>
+    </div>
+    <div class="rel-row">
+      <span class="rel-entity current">Order</span>
+      <span class="rel-arrow">— <span class="rel-card">N:1</span> →</span>
+      <a class="rel-entity" onclick="show('stevedoring-set')">StevedoringSet</a>
+      <span class="rel-desc">via SS_ID — configuration d'engin/équipe commandée</span>
+    </div>
+    <div class="rel-row">
+      <span class="rel-entity current">Order</span>
+      <span class="rel-arrow">— <span class="rel-card">N:1</span> →</span>
+      <a class="rel-entity" onclick="show('working-period')">WorkingPeriod</a>
+      <span class="rel-desc">via WPERIOD_ID — horaire de travail de la commande</span>
+    </div>
+    <div class="rel-row">
+      <span class="rel-entity current">Order</span>
+      <span class="rel-arrow">— <span class="rel-card">N:1</span> →</span>
+      <a class="rel-entity" onclick="show('cargo')">Cargo</a>
+      <span class="rel-desc">via CAR_ID — cargaison</span>
+    </div>
+    <div class="rel-row">
+      <span class="rel-entity current">Order</span>
+      <span class="rel-arrow">← <span class="rel-card">1:N</span> —</span>
+      <a class="rel-entity" onclick="show('post')">Post</a>
+      <span class="rel-desc">via POSTS.ORD_ID — postes générés par la commande</span>
+    </div>
+    <div class="rel-row">
+      <span class="rel-entity current">Order</span>
+      <span class="rel-arrow">← <span class="rel-card">1:N</span> —</span>
+      <span class="rel-entity">OrderSignature</span>
+      <span class="rel-desc">via ORDERS_SIGNATURES.ORDER_ID — historique des signatures du workflow</span>
+    </div>
+    <div class="rel-row">
+      <span class="rel-entity current">Order</span>
+      <span class="rel-arrow">← <span class="rel-card">1:N</span> —</span>
+      <span class="rel-entity">EquipmentAllocation / StrengthOrder</span>
+      <span class="rel-desc">via EQUIPMENT_ALLOCATIONS.ORD_ID et STRENGTH_ORDERS.ORD_ID — engins commandés et effectifs demandés par spécialité</span>
+    </div>
+  </div>
+
+  <!-- Requêtes -->
+  <div class="card">
+    <h3>Requêtes</h3>
+
+    <div class="feature-intro">
+      <strong>Fonctionnalité « <a class="feat-link" onclick="show('feat-demarrage-de-shift')">Démarrage de shift</a> »</strong> —
+      l'écran de démarrage présente les <strong>commandes du jour et de la plage horaire
+      en cours</strong>, regroupées par escale. La requête ci-dessous détermine quelles
+      commandes charger.
+    </div>
+
+    <div class="query-block" data-feature="feat-demarrage-de-shift" data-q-rank="2">
+      <h4><span class="q-tag">Requête</span> Commandes du shift</h4>
+      <p>
+        Objectif : charger les <strong>commandes à afficher au démarrage du shift</strong> —
+        celles du jour et de la (des) plage(s) horaire(s) courante(s) — regroupées par
+        escale.
+      </p>
+      <p><strong>Démarche :</strong></p>
+      <ul>
+        <li>
+          <strong>1. Partir des plages horaires courantes</strong> — le résultat de la
+          requête « Plages horaires courantes » (fiche
+          <a class="fk-link" onclick="show('allotted-slot')">AllottedSlot</a>) donne les
+          plages à considérer pour le centre d'activité courant.
+        </li>
+        <li>
+          <strong>2. Retenir les commandes de ces plages</strong> — l'horaire de travail
+          est porté <strong>directement par la commande</strong>
+          (<code>WPERIOD_ID</code>) : retenir les commandes dont
+          l'<a class="fk-link" onclick="show('working-period')">horaire de travail</a>
+          appartient à une des plages courantes (lien WorkingPeriod ↔ AllottedSlot via
+          <a class="fk-link" onclick="show('slot-definition')">SlotDefinition</a>), en se
+          restreignant au jour courant sur les dates de travail
+          (<code>workStartDate</code> / <code>workEndDate</code>). Aucun filtre sur le
+          statut de la commande.
+        </li>
+        <li>
+          <strong>3. Regrouper par escale et qualifier la commande</strong> — la commande
+          porte son <a class="fk-link" onclick="show('task')">chantier / escale</a>
+          (<code>TAS_ID</code>) ; joindre l'<a class="fk-link" onclick="show('activity')">Activity</a>
+          pour le nom du navire et son
+          <a class="fk-link" onclick="show('activity-type')">type d'activité</a>, qui
+          renseigne la <strong>nature de la commande</strong> (exploitation, assistance
+          au sol, encadrement de conduite…). Joindre aussi la zone de travail
+          (<code>AREA_ID</code>) pour le quai et, pour l'affichage, la configuration
+          commandée (<code>SS_ID</code>), la cargaison et l'agent
+          (<code>CUSTOMER_ID</code>).
+        </li>
+      </ul>
+      <p class="q-note">
+        Points de vigilance : (a) un même engin sur une même escale peut porter
+        <strong>plusieurs horaires de travail successifs</strong> (shift principal puis
+        prolongation) : ce sont des <strong>commandes distinctes</strong>, à rapprocher
+        pour l'affichage « horaires successifs » de l'écran ; (b) les deux couples de
+        dates suivent la convention semi-ouverte (début inclus, fin exclue).
+      </p>
+    </div>
+  </div>
+
+</section>
+
+<!-- ================================================================ -->
+<!-- POST                                                             -->
+<!-- ================================================================ -->
+<section class="entity" id="post">
+
+  <div class="entity-header">
+    <h2>Post</h2>
+    <div class="aliases">
+      Table Oracle : <code>POSTS</code> &nbsp;|&nbsp;
+      Serveur C++ : <code>tcMrpsPost</code> &nbsp;|&nbsp;
+      Client Rp : <code>tcMrpsRpPost</code> &nbsp;|&nbsp;
+      Panneau : Gantt d'affectation (<code>tcMrpsAllocationGantt</code>)
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Description fonctionnelle</h3>
+    <p>
+      La classe <strong>Post</strong> représente un <strong>« Poste »</strong> : une place
+      de travail à pourvoir, générée par une
+      <a class="fk-link" onclick="show('order')">commande</a>. Chaque poste exige une
+      <a class="fk-link" onclick="show('skill')">spécialité</a> et se déroule sur une
+      <a class="fk-link" onclick="show('allotted-slot')">plage horaire</a> et un
+      <a class="fk-link" onclick="show('working-period')">horaire de travail</a> donnés.
+      Le poste est la demande ; l'<a class="fk-link" onclick="show('allocation')">affectation</a>
+      (Allocation) est la réponse nominative qui y place un agent.
+    </p>
+    <p>
+      Les deux types de ressources sont traités différemment : l'affectation d'un
+      <strong>agent</strong> passe par l'entité
+      <a class="fk-link" onclick="show('allocation')">Allocation</a> (avec son cycle de
+      vie complet), tandis que l'affectation d'un <strong>engin</strong> est portée
+      directement par le poste (<code>equipment</code>).
+    </p>
+    <p class="arch-note">
+      Note d'architecture : le serveur calcule une « spécialité réelle »
+      (<code>mrRealSkill</code>, non stockée en base) : c'est la spécialité de l'engin
+      affecté s'il y en a un, sinon la spécialité commandée. Les contrôles d'affectation
+      raisonnent sur cette spécialité réelle.
+    </p>
+    <div class="arch-warning">
+      <strong>Convention sur les intervalles de dates :</strong> la date de début est
+      <strong>incluse</strong>, la date de fin est <strong>exclue</strong>.
+    </div>
+  </div>
+
+  <!-- Attributes -->
+  <div class="card col-card">
+    <h3><span>Attributs — Post</span><button class="reset-sort" onclick="resetSort(this)">↺ Ordre initial</button></h3>
+    <table class="sortable-table">
+      <thead>
+        <tr><th class="sortable" onclick="sortTable(this,0)">Attribut</th><th class="sortable" onclick="sortTable(this,1)">Colonne Oracle</th><th class="sortable" onclick="sortTable(this,2)">Type</th><th class="sortable" onclick="sortTable(this,3)">Contrainte</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr data-order="0">
+          <td><span class="java-name has-tip">id<span class="tip">C++ : getId() — hérité de tcMrpsObject</span></span></td>
+          <td class="col-oracle">ID</td>
+          <td><span class="tag tag-num">Number</span></td>
+          <td><span class="tag tag-pk">PK</span></td>
+          <td>Identifiant unique</td>
+        </tr>
+        <tr data-order="1">
+          <td><span class="java-name has-tip">order<span class="tip">C++ : mbOrder (ILS_INVERTED_1 vers tcMrpsOrder)</span></span></td>
+          <td class="col-oracle">ORD_ID</td>
+          <td><span class="tag tag-fk">FK</span></td>
+          <td><span class="tag tag-fk">FK</span> <a class="fk-link" onclick="show('order')">Order</a></td>
+          <td>Commande qui a généré ce poste</td>
+        </tr>
+        <tr data-order="2">
+          <td><span class="java-name has-tip">skill<span class="tip">C++ : mrSkill (ILS_USES_1)</span></span></td>
+          <td class="col-oracle">SKILL_ID</td>
+          <td><span class="tag tag-fk">FK</span></td>
+          <td><span class="tag tag-fk">FK</span> <a class="fk-link" onclick="show('skill')">Skill</a></td>
+          <td>Spécialité commandée pour ce poste</td>
+        </tr>
+        <tr data-order="3">
+          <td><span class="java-name has-tip">allottedSlot<span class="tip">C++ : mrAllottedSlot (ILS_USES_1)</span></span></td>
+          <td class="col-oracle">SLOT_ID</td>
+          <td><span class="tag tag-fk">FK</span></td>
+          <td><span class="tag tag-fk">FK</span> <a class="fk-link" onclick="show('allotted-slot')">AllottedSlot</a></td>
+          <td>Plage horaire du poste</td>
+        </tr>
+        <tr data-order="4">
+          <td><span class="java-name has-tip">equipment<span class="tip">C++ : mrEquipment (ILS_USES_1)</span></span></td>
+          <td class="col-oracle">EQU_ID</td>
+          <td><span class="tag tag-fk">FK</span></td>
+          <td><span class="tag tag-fk">FK</span> Equipment</td>
+          <td>Engin affecté au poste (l'affectation d'engin est portée directement par le poste, sans passer par Allocation)</td>
+        </tr>
+        <tr data-order="5">
+          <td><span class="java-name has-tip">workingPeriod<span class="tip">C++ : mrWorkingPeriod (ILS_USES_1)</span></span></td>
+          <td class="col-oracle">WPERIOD_ID</td>
+          <td><span class="tag tag-fk">FK</span></td>
+          <td><span class="tag tag-fk">FK</span> <a class="fk-link" onclick="show('working-period')">WorkingPeriod</a></td>
+          <td>Horaire de travail du poste</td>
+        </tr>
+        <tr data-order="6">
+          <td><span class="java-name has-tip">startDate<span class="tip">C++ : mcStartDate (ILS_ENTRY tcMrpsDate)</span></span></td>
+          <td class="col-oracle">START_DATE</td>
+          <td><span class="tag tag-date">Date</span></td>
+          <td></td>
+          <td>Date/heure de début du poste (incluse)</td>
+        </tr>
+        <tr data-order="7">
+          <td><span class="java-name has-tip">endDate<span class="tip">C++ : mcEndDate (ILS_ENTRY tcMrpsDate)</span></span></td>
+          <td class="col-oracle">END_DATE</td>
+          <td><span class="tag tag-date">Date</span></td>
+          <td></td>
+          <td>Date/heure de fin du poste (exclue)</td>
+        </tr>
+        <tr data-order="8">
+          <td><span class="java-name has-tip">orderedHours<span class="tip">C++ : mcOrderedHours (IlsDerived&lt;float, OrderedHoursEvaluator&gt;)</span></span></td>
+          <td class="col-oracle">ORDERED_HOURS</td>
+          <td><span class="tag tag-num">Number</span></td>
+          <td></td>
+          <td>Heures commandées. Valeur dérivée, calculée côté serveur puis stockée : ne pas la modifier directement côté Java.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Relations -->
+  <div class="card">
+    <h3>Relations</h3>
+    <div class="rel-row">
+      <span class="rel-entity current">Post</span>
+      <span class="rel-arrow">— <span class="rel-card">N:1</span> →</span>
+      <a class="rel-entity" onclick="show('order')">Order</a>
+      <span class="rel-desc">via ORD_ID — commande génératrice</span>
+    </div>
+    <div class="rel-row">
+      <span class="rel-entity current">Post</span>
+      <span class="rel-arrow">— <span class="rel-card">N:1</span> →</span>
+      <a class="rel-entity" onclick="show('skill')">Skill</a>
+      <span class="rel-desc">via SKILL_ID — spécialité commandée</span>
+    </div>
+    <div class="rel-row">
+      <span class="rel-entity current">Post</span>
+      <span class="rel-arrow">— <span class="rel-card">N:1</span> →</span>
+      <a class="rel-entity" onclick="show('allotted-slot')">AllottedSlot</a>
+      <span class="rel-desc">via SLOT_ID — plage horaire</span>
+    </div>
+    <div class="rel-row">
+      <span class="rel-entity current">Post</span>
+      <span class="rel-arrow">— <span class="rel-card">N:1</span> →</span>
+      <a class="rel-entity" onclick="show('working-period')">WorkingPeriod</a>
+      <span class="rel-desc">via WPERIOD_ID — horaire de travail</span>
+    </div>
+    <div class="rel-row">
+      <span class="rel-entity current">Post</span>
+      <span class="rel-arrow">← <span class="rel-card">1:1</span> —</span>
+      <a class="rel-entity" onclick="show('allocation')">Allocation</a>
+      <span class="rel-desc">via ALLOCATIONS.POST_ID — affectation nominative de l'agent (au plus une par poste)</span>
+    </div>
+  </div>
+
+  <!-- Requêtes -->
+  <div class="card">
+    <h3>Requêtes</h3>
+
+    <div class="feature-intro">
+      <strong>Fonctionnalité « <a class="feat-link" onclick="show('feat-demarrage-de-shift')">Démarrage de shift</a> »</strong> —
+      le panneau de démarrage se construit en <strong>deux temps</strong> : d'abord sa
+      <strong>structure</strong> (ce qui est commandé — requête ci-dessous), ensuite sa
+      <strong>décoration</strong> avec ce qui est déjà affecté (requête « Affectations
+      planifiées du shift », fiche <a class="fk-link" onclick="show('allocation')">Allocation</a>).
+      Au début du shift, <strong>tout est possible</strong> : le planificateur peut avoir
+      tout affecté, une partie seulement (un ou deux engins mais pas tous, quelques agents
+      mais pas tous), voire des agents sur les mauvais postes. La structure du panneau ne
+      doit donc dépendre que de la commande, jamais des affectations.
+    </div>
+
+    <div class="query-block" data-feature="feat-demarrage-de-shift" data-q-rank="3">
+      <h4><span class="q-tag">Requête</span> Structure du panneau de démarrage</h4>
+      <p>
+        Objectif : construire le <strong>squelette du panneau</strong> uniquement à partir
+        des données de commande — commandes, postes, configuration d'engin/équipe —
+        <strong>indépendamment de toute affectation</strong>.
+      </p>
+      <p><strong>Démarche :</strong></p>
+      <ul>
+        <li>
+          <strong>1. Qualifier chaque commande</strong> — pour chaque commande retenue
+          (cf. requête « Commandes du shift », fiche
+          <a class="fk-link" onclick="show('order')">Order</a>), sa nature est donnée par
+          le <a class="fk-link" onclick="show('activity-type')">type d'activité</a> :
+          exploitation (navire), assistance au sol, encadrement de conduite… C'est elle
+          qui détermine dans quel bloc du panneau la commande s'affiche.
+        </li>
+        <li>
+          <strong>2. Créer les emplacements d'engins</strong> — la configuration
+          d'engin/équipe de la commande
+          (<code>SS_ID</code> → <a class="fk-link" onclick="show('stevedoring-set')">StevedoringSet</a>)
+          donne le <strong>nombre d'engins commandés</strong> par classe d'engin
+          (table <code>EQUIPMENT_QUANTITIES</code> : <code>SS_ID + EC1_ID + QUANTITY</code>) :
+          un emplacement par engin commandé, <strong>même si aucun engin n'est encore
+          affecté</strong>.
+        </li>
+        <li>
+          <strong>3. Créer les places d'agents</strong> — les postes de la commande
+          (<code>POSTS.ORD_ID</code>) sont les cases à pourvoir, chacune avec sa
+          spécialité (<code>SKILL_ID</code>) et son horaire de travail
+          (<code>WPERIOD_ID</code>), à grouper par horaires successifs (shift principal,
+          prolongation).
+        </li>
+      </ul>
+      <p class="q-note">
+        La structure est entièrement déterminée par commande + configuration + postes.
+        Les engins et agents déjà affectés viennent ensuite la « décorer » — voir la
+        requête « Affectations planifiées du shift ».
+      </p>
+    </div>
+  </div>
+
+</section>
+
+<!-- ================================================================ -->
+<!-- ALLOCATION                                                       -->
+<!-- ================================================================ -->
+<section class="entity" id="allocation">
+
+  <div class="entity-header">
+    <h2>Allocation</h2>
+    <div class="aliases">
+      Table Oracle : <code>ALLOCATIONS</code> &nbsp;|&nbsp;
+      Serveur C++ : <code>tcMrpsAllocation</code> &nbsp;|&nbsp;
+      Client Rp : <code>tcMrpsRpAllocation</code> &nbsp;|&nbsp;
+      Panneau : Gantt d'affectation (<code>tcMrpsAllocationGantt</code>, « Affectations »)
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Description fonctionnelle</h3>
+    <p>
+      La classe <strong>Allocation</strong> représente une <strong>« Affectation »</strong> :
+      le placement nominatif d'un <strong>agent</strong> (HumanResource) sur un
+      <a class="fk-link" onclick="show('post')">poste</a>. C'est une entité relationnelle
+      à clé composite (<code>POST_ID + HR_ID</code>) : le poste est la demande issue de la
+      <a class="fk-link" onclick="show('order')">commande</a>, l'affectation est la réponse
+      nominative — au plus une par poste. Le panneau principal est le Gantt
+      d'« Affectations ».
+    </p>
+    <p>
+      L'affectation porte un <strong>cycle de vie</strong> (<code>status</code>) qui trace
+      la communication avec l'agent : planifiée, puis <strong>publiée</strong> (portée à la
+      connaissance de l'agent, date en <code>pubDate</code>), <strong>consultée</strong>
+      (l'agent en a pris connaissance, date en <code>consultDate</code>),
+      <strong>gelée</strong> ou <strong>consolidée</strong>.
+    </p>
+    <p>
+      Les contrôles de règles (catégorie, spécialité, validité, repos…) s'appliquent au
+      moment de l'affectation. Une affectation peut être <strong>forcée</strong> malgré une
+      violation : le motif est alors tracé dans <code>reasonOfForcing</code>.
+    </p>
+    <p class="arch-note">
+      Note d'architecture : les colonnes « terrain » (<code>GROUND_SKILL_ID</code>,
+      <code>GROUND_DELETION</code>, <code>GROUND_DELETOR</code>) appartiennent au circuit
+      Legacy des rectifications terrain (« Voir rectif. terrain ») alimentant la saisie du
+      réalisé. Ce circuit n'est pas repris côté Java : attributs dépréciés.
+    </p>
+  </div>
+
+  <!-- Attributes -->
+  <div class="card col-card">
+    <h3><span>Attributs — Allocation</span><button class="reset-sort" onclick="resetSort(this)">↺ Ordre initial</button></h3>
+    <table class="sortable-table">
+      <thead>
+        <tr><th class="sortable" onclick="sortTable(this,0)">Attribut</th><th class="sortable" onclick="sortTable(this,1)">Colonne Oracle</th><th class="sortable" onclick="sortTable(this,2)">Type</th><th class="sortable" onclick="sortTable(this,3)">Contrainte</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr data-order="0">
+          <td><span class="java-name has-tip">post<span class="tip">C++ : mbPost (ILS_INVERTED_1 vers tcMrpsPost)</span></span></td>
+          <td class="col-oracle">POST_ID</td>
+          <td><span class="tag tag-fk">FK</span></td>
+          <td><span class="tag tag-pk">PK</span> <span class="tag tag-fk">FK</span> <a class="fk-link" onclick="show('post')">Post</a></td>
+          <td>Poste affecté (clé composite avec HR_ID)</td>
+        </tr>
+        <tr data-order="1">
+          <td><span class="java-name has-tip">humanResource<span class="tip">C++ : mbHumanResource (ILS_INVERTED_1 vers tcMrpsHumanResource)</span></span></td>
+          <td class="col-oracle">HR_ID</td>
+          <td><span class="tag tag-fk">FK</span></td>
+          <td><span class="tag tag-pk">PK</span> <span class="tag tag-fk">FK</span> HumanResource</td>
+          <td>Agent affecté au poste (clé composite avec POST_ID)</td>
+        </tr>
+        <tr data-order="2" class="deprecated">
+          <td><span class="java-name has-tip">assigned<span class="tip">C++ : mcAssigned (ILS_ENTRY int)</span></span></td>
+          <td class="col-oracle">ASSIGNED</td>
+          <td><span class="tag tag-num">Number</span></td>
+          <td><span class="tag tag-deprecated">Déprécié</span></td>
+          <td>Colonne non utilisée : initialisée à 0 par le serveur, jamais modifiée ni lue par le code. Ne pas utiliser côté Java.</td>
+        </tr>
+        <tr data-order="3">
+          <td><span class="java-name has-tip">status<span class="tip">C++ : mcStatus (ILS_ENTRY int) — datasource MdsGlobalAllocStatus</span></span></td>
+          <td class="col-oracle">STATUS</td>
+          <td><span class="tag tag-str">String</span></td>
+          <td></td>
+          <td>Statut de l'affectation : <code>0</code> = Invalide, <code>1</code> = Planifiée, <code>2</code> = Publiée, <code>3</code> = Consultée, <code>4</code> = Gelée, <code>5</code> = Consolidée</td>
+        </tr>
+        <tr data-order="4">
+          <td><span class="java-name has-tip">pubDate<span class="tip">C++ : mcPubDate (ILS_ENTRY tcMrpsDate)</span></span></td>
+          <td class="col-oracle">PUB_DATE</td>
+          <td><span class="tag tag-date">Date</span></td>
+          <td></td>
+          <td>Date de publication : moment où l'affectation a été portée à la connaissance de l'agent</td>
+        </tr>
+        <tr data-order="5">
+          <td><span class="java-name has-tip">consultDate<span class="tip">C++ : mcConsultDate (ILS_ENTRY tcMrpsDate)</span></span></td>
+          <td class="col-oracle">CONSULT_DATE</td>
+          <td><span class="tag tag-date">Date</span></td>
+          <td></td>
+          <td>Date de consultation : moment où l'agent a pris connaissance de son affectation</td>
+        </tr>
+        <tr data-order="6">
+          <td><span class="java-name has-tip">allocationDate<span class="tip">C++ : mcAllocationDate (ILS_DERIVED tcMrpsDate)</span></span></td>
+          <td class="col-oracle">ALLOCATION_DATE</td>
+          <td><span class="tag tag-date">Date</span></td>
+          <td></td>
+          <td>Date de référence de l'affectation (la journée d'exploitation concernée). Valeur dérivée, calculée côté serveur : ne pas la modifier directement côté Java.</td>
+        </tr>
+        <tr data-order="7">
+          <td><span class="java-name has-tip">reasonOfForcing<span class="tip">C++ : mcReasonOfForcing (ILS_ENTRY_STRING)</span></span></td>
+          <td class="col-oracle">REASON_OF_FORCING</td>
+          <td><span class="tag tag-str">String</span></td>
+          <td></td>
+          <td>Motif saisi lorsqu'une affectation est forcée malgré une violation de règle (traçabilité)</td>
+        </tr>
+        <tr data-order="8">
+          <td><span class="java-name has-tip">updateDate<span class="tip">Colonne Oracle — non exposée comme entrée du serveur C++</span></span></td>
+          <td class="col-oracle">UPDATE_DATE</td>
+          <td><span class="tag tag-date">Date</span></td>
+          <td></td>
+          <td>Date de dernière modification de l'affectation</td>
+        </tr>
+        <tr data-order="9" class="deprecated">
+          <td><span class="java-name has-tip">groundSkill<span class="tip">C++ : mbGroundSkill (ILS_INVERTED_1 vers tcMrpsSkill)</span></span></td>
+          <td class="col-oracle">GROUND_SKILL_ID</td>
+          <td><span class="tag tag-fk">FK</span></td>
+          <td><span class="tag tag-deprecated">Déprécié</span> <span class="tag tag-fk">FK</span> <a class="fk-link" onclick="show('skill')">Skill</a></td>
+          <td>Spécialité réellement exercée, déclarée par les rectifications terrain. Circuit terrain non repris. Ne pas utiliser côté Java.</td>
+        </tr>
+        <tr data-order="10" class="deprecated">
+          <td><span class="java-name has-tip">groundDeletion<span class="tip">C++ : mcGroundDeletion (ILS_ENTRY_BOOLEAN)</span></span></td>
+          <td class="col-oracle">GROUND_DELETION</td>
+          <td><span class="tag tag-num">Number</span></td>
+          <td><span class="tag tag-deprecated">Déprécié</span></td>
+          <td>La valeur 1 marque une affectation supprimée depuis le terrain (suppression logique, exploitée par la saisie du réalisé). Circuit terrain non repris. Ne pas utiliser côté Java.</td>
+        </tr>
+        <tr data-order="11" class="deprecated">
+          <td><span class="java-name has-tip">groundDeletor<span class="tip">C++ : mcGroundDeletor (ILS_ENTRY_STRING)</span></span></td>
+          <td class="col-oracle">GROUND_DELETOR</td>
+          <td><span class="tag tag-str">String</span></td>
+          <td><span class="tag tag-deprecated">Déprécié</span></td>
+          <td>Login de l'auteur de la suppression terrain. Circuit terrain non repris. Ne pas utiliser côté Java.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Relations -->
+  <div class="card">
+    <h3>Relations</h3>
+    <div class="rel-row">
+      <span class="rel-entity current">Allocation</span>
+      <span class="rel-arrow">— <span class="rel-card">1:1</span> →</span>
+      <a class="rel-entity" onclick="show('post')">Post</a>
+      <span class="rel-desc">via POST_ID — poste affecté (au plus une affectation par poste)</span>
+    </div>
+    <div class="rel-row">
+      <span class="rel-entity current">Allocation</span>
+      <span class="rel-arrow">— <span class="rel-card">N:1</span> →</span>
+      <span class="rel-entity">HumanResource</span>
+      <span class="rel-desc">via HR_ID — agent affecté</span>
+    </div>
+    <div class="rel-row" style="opacity:0.55;">
+      <span class="rel-entity current">Allocation</span>
+      <span class="rel-arrow">— <span class="rel-card">N:1</span> →</span>
+      <a class="rel-entity" onclick="show('skill')">Skill</a>
+      <span class="rel-desc">via GROUND_SKILL_ID — spécialité terrain (Legacy non repris)</span>
+    </div>
+    <div class="rel-row">
+      <span class="rel-entity current">Allocation</span>
+      <span class="rel-arrow">← <span class="rel-card">1:N</span> —</span>
+      <span class="rel-entity">RuleViolation</span>
+      <span class="rel-desc">via RULE_VIOLATIONS — violations de règles constatées lors de l'affectation</span>
+    </div>
+  </div>
+
+  <!-- Requêtes -->
+  <div class="card">
+    <h3>Requêtes</h3>
+
+    <div class="feature-intro">
+      <strong>Fonctionnalité « <a class="feat-link" onclick="show('feat-demarrage-de-shift')">Démarrage de shift</a> »</strong> —
+      une fois la <strong>structure</strong> du panneau construite (requête « Structure du
+      panneau de démarrage », fiche <a class="fk-link" onclick="show('post')">Post</a>),
+      la requête ci-dessous la <strong>décore</strong> avec ce que le planificateur a déjà
+      affecté : les engins et les agents.
+    </div>
+
+    <div class="query-block" data-feature="feat-demarrage-de-shift" data-q-rank="4">
+      <h4><span class="q-tag">Requête</span> Affectations planifiées du shift</h4>
+      <p>
+        Objectif : <strong>décorer la structure du panneau</strong> avec les affectations
+        issues de la planification Agir — les engins affectés aux commandes et les agents
+        affectés aux <a class="fk-link" onclick="show('post')">postes</a> — sachant
+        qu'elles peuvent être <strong>complètes, partielles ou absentes</strong>.
+      </p>
+      <p><strong>Démarche :</strong></p>
+      <ul>
+        <li>
+          <strong>1. Partir des postes de la structure</strong> — les postes chargés par
+          la requête « Structure du panneau de démarrage » (fiche
+          <a class="fk-link" onclick="show('post')">Post</a>).
+        </li>
+        <li>
+          <strong>2. Rattacher les engins déjà affectés</strong> — si le planificateur a
+          affecté un engin à la commande, on le retrouve sur <strong>un ou plusieurs
+          postes de cette commande</strong> (<code>EQU_ID</code> renseigné), autant que
+          d'agents nécessaires pour le conduire : placer cet engin sur un emplacement
+          d'engin de la commande. Des emplacements peuvent rester vides — l'engin sera
+          choisi pendant le shift.
+        </li>
+        <li>
+          <strong>3. Rattacher les agents</strong> — pour chaque poste, charger
+          l'affectation nominative (au plus une : <code>ALLOCATIONS.POST_ID</code>) et
+          son agent (<code>HR_ID</code>). Écarter les affectations en statut
+          <strong>Invalide</strong> (<code>allocationStatus = 0</code>). Des places
+          peuvent rester vides.
+        </li>
+        <li>
+          <strong>4. Constituer le vivier d'agents</strong> — l'union des agents affectés
+          sur l'ensemble de ces postes alimente le sélecteur d'ajout d'agent de l'écran.
+        </li>
+      </ul>
+      <p class="q-note">
+        Points de vigilance : (a) au début du shift, <strong>tout est possible</strong> —
+        tout peut être affecté, une partie seulement (un ou deux engins mais pas tous,
+        quelques agents mais pas tous), et des agents peuvent se trouver sur des postes
+        qui ne sont pas les bons : c'est le démarrage du shift qui finalise les
+        affectations, l'écran doit donc absorber tous ces cas ; (b) un agent ne peut être
+        affecté qu'à <strong>un seul poste par horaire de travail</strong> — un
+        déplacement d'agent à l'écran doit <strong>déplacer</strong> l'affectation
+        (supprimer l'ancienne sur le même horaire), jamais la dupliquer.
+      </p>
+    </div>
+  </div>
+
 </section>
 
 <!-- ================================================================ -->
@@ -883,22 +2426,24 @@
       <code>canUseAgir = 0</code> existe en base mais ne pourra ouvrir aucune session.
     </p>
     <p class="arch-note" style="margin-top:1rem;">
-      <strong>Mécanisme Legacy : sensibilité poste et dépendances</strong> — Agir Legacy
-      supporte un mécanisme de restriction par poste de travail qui n'a pas vocation à
-      être repris côté Java mais qu'il faut connaître pour ne pas être surpris par les
-      tables associées. Quand un profil est marqué <code>computerSensitive = 1</code>, les
-      autorisations qu'il accorde ne s'appliquent pas globalement : elles sont filtrées
-      en fonction de la machine depuis laquelle l'utilisateur se connecte. Une table
-      <code>COMPUTER_ACCESS</code> (hors périmètre de cette doc) précise quelles
-      activity centers sont accessibles depuis chaque machine, et la table
+      <strong>Autorisations par centre d'activité (repris côté Java)</strong> — au-delà des
+      droits globaux, un profil peut accorder un droit <code>(profil, fonction)</code> sur un
+      <strong>centre d'activité</strong> précis, via la table
       <code>PROFILE_DEPENDENCES</code> (clé composite <code>PROFILE_ID + FUNCTION_ID +
-      ACTIVITY_CENTER_ID</code>) permet d'<strong>élargir</strong> l'autorisation : pour
-      un couple <code>(profil, fonction)</code>, elle énumère les activity centers où la
-      fonction est toujours autorisée, quelle que soit la machine. La logique complète
-      est implémentée dans <code>RightsManagement::Profile::isAllowedTo*</code> (variantes
-      contextualisées). Côté Java, ce mécanisme ne sera pas réimplémenté :
-      <code>COMPUTER_SENSITIVE</code> est marqué déprécié et les enregistrements
-      <code>PROFILE_DEPENDENCES</code> peuvent être ignorés.
+      ACTIVITY_CENTER_ID</code> — voir la fiche
+      <a class="fk-link" onclick="show('profile-dependence')">ProfileDependence</a>). Cette
+      notion d'autorisation par périmètre est <strong>conservée dans la nouvelle architecture</strong>.
+    </p>
+    <p class="arch-note">
+      <strong>Mécanisme Legacy « sensibilité poste » (non repris)</strong> — dans Agir Legacy,
+      ces autorisations par centre étaient couplées à une restriction par machine : quand un
+      profil a <code>computerSensitive = 1</code>, ses droits étaient filtrés selon la machine
+      de connexion (table <code>COMPUTER_ACCESS</code>, hors périmètre), et PROFILE_DEPENDENCES
+      servait à élargir l'autorisation « quelle que soit la machine ». Côté Java, <strong>seule
+      la partie machine est abandonnée</strong> : <code>COMPUTER_SENSITIVE</code> reste déprécié,
+      mais les enregistrements <code>PROFILE_DEPENDENCES</code> sont, eux, repris (lus directement
+      comme « ce profil a ce droit sur ce centre »). Logique d'origine :
+      <code>RightsManagement::Profile::isAllowedTo*</code>.
     </p>
     <p class="arch-note">
       Le profil porte également la liste des types d'absence qu'il est autorisé à
@@ -977,11 +2522,11 @@
       <a class="rel-entity" onclick="show('function')">Function</a>
       <span class="rel-desc">à travers Right — fonctions sur lesquelles le profil a un niveau d'accès</span>
     </div>
-    <div class="rel-row" style="opacity:0.55;">
+    <div class="rel-row">
       <span class="rel-entity current">Profile</span>
       <span class="rel-arrow">← <span class="rel-card">1:N</span> —</span>
       <a class="rel-entity" onclick="show('profile-dependence')">ProfileDependence</a>
-      <span class="rel-desc">via PROFILE_DEPENDENCES.PROFILE_ID — mécanisme Legacy (non repris côté Java)</span>
+      <span class="rel-desc">via PROFILE_DEPENDENCES.PROFILE_ID — autorisations accordées par centre d'activité (repris côté Java)</span>
     </div>
     <div class="rel-row">
       <span class="rel-entity current">Profile</span>
@@ -1187,11 +2732,11 @@
       <a class="rel-entity" onclick="show('profile')">Profile</a>
       <span class="rel-desc">à travers Right — profils ayant un niveau d'accès sur cette fonction</span>
     </div>
-    <div class="rel-row" style="opacity:0.55;">
+    <div class="rel-row">
       <span class="rel-entity current">Function</span>
       <span class="rel-arrow">← <span class="rel-card">1:N</span> —</span>
       <a class="rel-entity" onclick="show('profile-dependence')">ProfileDependence</a>
-      <span class="rel-desc">via PROFILE_DEPENDENCES.FUNCTION_ID — mécanisme Legacy (non repris côté Java)</span>
+      <span class="rel-desc">via PROFILE_DEPENDENCES.FUNCTION_ID — autorisations accordées par centre d'activité (repris côté Java)</span>
     </div>
   </div>
 
@@ -1213,48 +2758,38 @@
 
   <div class="card">
     <h3>Description fonctionnelle</h3>
-    <div class="arch-warning">
-      <strong>Mécanisme Legacy non repris côté Java.</strong>
-      Cette entité est documentée par exhaustivité du modèle, mais ne doit pas être
-      réimplémentée dans la nouvelle architecture. Les enregistrements existants en base
-      peuvent être ignorés côté Java.
-    </div>
-    <p style="margin-top:0.8rem;">
+    <p>
       <strong>ProfileDependence</strong> est une entité relationnelle pure (clé composite
       <code>(PROFILE_ID, FUNCTION_ID, ACTIVITY_CENTER_ID)</code>, aucun attribut métier
-      propre) qui intervient dans le mécanisme Legacy de <em>restriction par poste de
-      travail</em>.
+      propre) qui exprime une <strong>autorisation par centre d'activité</strong> : chaque
+      enregistrement déclare un triplet <code>(profil, fonction, activity center)</code>
+      pour lequel le <a class="fk-link" onclick="show('profile')">Profile</a> obtient le
+      droit d'accès à la <a class="fk-link" onclick="show('function')">Function</a> sur le
+      périmètre de cet <a class="fk-link" onclick="show('activity-center')">ActivityCenter</a>.
     </p>
-    <p>
-      Pour rappel, quand un <a class="fk-link" onclick="show('profile')">Profile</a> a
-      <code>computerSensitive = 1</code>, les droits qu'il accorde ne s'appliquent pas
-      globalement : ils sont filtrés selon l'<em>activity center</em> auquel la machine
-      de connexion donne accès (via la table <code>COMPUTER_ACCESS</code>). Concrètement,
-      même si un profil détient un droit en édition sur une
-      <a class="fk-link" onclick="show('function')">Function</a>, ce droit n'est effectif
-      que pour les activity centers que la machine peut atteindre.
-    </p>
-    <p>
-      <strong>Le rôle de ProfileDependence est d'<em>élargir</em></strong> cette
-      autorisation : chaque enregistrement déclare un triplet
-      <code>(profil, fonction, activity center)</code> pour lequel le droit est
-      <strong>toujours accordé</strong>, quelle que soit la machine de connexion.
-      En d'autres termes, ProfileDependence permet d'écrire « ce profil peut accéder à
-      cette fonction sur ce périmètre, indépendamment du poste utilisé ».
+    <div class="feature-intro">
+      <strong>Repris côté Java.</strong> Cette entité conserve sa sémantique actuelle — un
+      droit <code>(profil, fonction)</code> accordé sur un centre d'activité donné. Le
+      concept d'autorisation par périmètre est conservé dans la nouvelle architecture.
+    </div>
+    <p style="margin-top:0.8rem;">
+      <strong>Découplage du mécanisme « machine ».</strong> Dans Agir Legacy,
+      ProfileDependence était associé à la <em>restriction par poste de travail</em> : quand
+      un Profile a <code>computerSensitive = 1</code>, ses droits étaient filtrés selon
+      l'activity center atteignable par la machine de connexion (table
+      <code>COMPUTER_ACCESS</code>), et ProfileDependence servait à <em>élargir</em>
+      l'autorisation à un activity center « quelle que soit la machine ». Côté Java,
+      <strong>seul ProfileDependence est repris</strong> : la partie machine
+      (<code>computerSensitive</code>, Computer, <code>COMPUTER_ACCESS</code>) reste Legacy et
+      n'est pas reprise. ProfileDependence se lit donc directement comme « ce profil détient
+      ce droit sur ce centre d'activité ».
     </p>
     <p class="arch-note">
-      Note d'architecture : la logique combinée est implémentée dans
-      <code>RightsManagement::Profile::isAllowedTo*</code> (variantes contextualisées avec
-      <em>activity center</em> et adresse machine). Un droit est effectif si la machine
-      donne accès à l'activity center <strong>ou</strong> si un ProfileDependence existe
-      pour ce triplet. Auparavant nommé en termes de « working area », renommé en
+      Logique Legacy d'origine : implémentée dans
+      <code>RightsManagement::Profile::isAllowedTo*</code> (un droit était effectif si la
+      machine donnait accès à l'activity center <strong>ou</strong> si un ProfileDependence
+      existait pour le triplet). Auparavant exprimé en « working area », renommé en
       « activity center » en 07/2008 (cf. historique de <code>ProfileDependence.h</code>).
-    </p>
-    <p class="arch-note">
-      Côté Java, la nouvelle UI devra définir son propre modèle d'habilitations si une
-      notion de périmètre est nécessaire. Le mécanisme de filtrage par machine n'a pas
-      vocation à être conservé : il était lié à des postes physiques fixes dans
-      l'environnement Legacy.
     </p>
   </div>
 
@@ -1284,7 +2819,7 @@
           <td><span class="java-name has-tip">activityCenter<span class="tip">C++ : mbActivityCenter (ILS_INVERTED_RELATION vers ActivityCenter)</span></span></td>
           <td class="col-oracle">ACTIVITY_CENTER_ID</td>
           <td><span class="tag tag-fk">FK</span></td>
-          <td><span class="tag tag-pk">PK</span> · → ActivityCenter</td>
+          <td><span class="tag tag-pk">PK</span> · → <a class="fk-link" onclick="show('activity-center')">ActivityCenter</a></td>
           <td>Activity center sur lequel le droit est toujours accordé, indépendamment du poste de connexion</td>
         </tr>
       </tbody>
@@ -1309,13 +2844,229 @@
     <div class="rel-row">
       <span class="rel-entity current">ProfileDependence</span>
       <span class="rel-arrow">— <span class="rel-card">N:1</span> →</span>
-      <span class="rel-entity">ActivityCenter</span>
+      <a class="rel-entity" onclick="show('activity-center')">ActivityCenter</a>
       <span class="rel-desc">via ACTIVITY_CENTER_ID — périmètre de l'élargissement</span>
     </div>
   </div>
 
 </section>
 
+
+<!-- ================================================================ -->
+<!-- ACTIVITY CENTER                                                  -->
+<!-- ================================================================ -->
+<section class="entity" id="activity-center">
+
+  <div class="entity-header">
+    <h2>ActivityCenter</h2>
+    <div class="aliases">
+      Table Oracle : <code>ACTIVITY_CENTERS</code> &nbsp;|&nbsp;
+      Serveur C++ : <code>ActivityCenter</code> &nbsp;|&nbsp;
+      Client Rp : <code>RpActivityCenter</code> &nbsp;|&nbsp;
+      Formulaire : <code>ActivityCenterSqlForm</code>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Description fonctionnelle</h3>
+    <p>
+      <strong>ActivityCenter</strong> (libellé Legacy : « <em>Centre d'activité</em> ») désigne
+      un <strong>périmètre d'exploitation</strong> : l'unité d'organisation qui rattache une
+      <strong>zone de travail</strong> (<a class="fk-link" onclick="show('working-period')">WorkingArea</a>)
+      à un <strong>Commandement</strong> (Company). C'est le contexte dans lequel se déroule la
+      planification : les plages horaires, les horaires de travail et les types d'absence sont
+      définis <em>par centre d'activité</em>.
+    </p>
+    <p>
+      Un centre d'activité porte deux jeux de libellés : le couple <code>label</code> /
+      <code>name</code> (libellé et nom du centre) et le couple <code>labelInCompany</code> /
+      <code>nameInCompany</code> (libellé et nom tels qu'<strong>affichés au sein du
+      Commandement</strong> de rattachement).
+    </p>
+    <p>
+      C'est l'entité pivot des requêtes de la <strong>Feuille de shift</strong> : on part du
+      centre d'activité courant pour retrouver ses
+      <a class="fk-link" onclick="show('allotted-slot')">AllottedSlot</a> (plages horaires)
+      via la table <code>SLOTS_OF_ACTIVITY_CENTERS</code>.
+    </p>
+    <div class="arch-warning">
+      <strong>Note Legacy :</strong> un centre d'activité participe au mécanisme de
+      <strong>restriction par machine</strong> (relation vers Computer via
+      <code>COMPUTER_ACTIVITY_CENTERS</code>, mécanisme « computerSensitive » décrit dans la
+      fiche Profile). Cette partie <strong>n'est pas reprise côté Java</strong> ; la relation
+      correspondante est grisée ci-dessous. En revanche, les autorisations par centre
+      d'activité portées par
+      <a class="fk-link" onclick="show('profile-dependence')">ProfileDependence</a> sont,
+      elles, <strong>reprises côté Java</strong>.
+    </div>
+  </div>
+
+  <!-- Attributes -->
+  <div class="card col-card">
+    <h3><span>Attributs — ActivityCenter</span><button class="reset-sort" onclick="resetSort(this)">↺ Ordre initial</button></h3>
+    <table class="sortable-table">
+      <thead>
+        <tr><th class="sortable" onclick="sortTable(this,0)">Attribut</th><th class="sortable" onclick="sortTable(this,1)">Colonne Oracle</th><th class="sortable" onclick="sortTable(this,2)">Type</th><th class="sortable" onclick="sortTable(this,3)">Contrainte</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr data-order="0">
+          <td><span class="java-name has-tip">id<span class="tip">C++ : getId() — hérité de tcMrpsObject</span></span></td>
+          <td class="col-oracle">ID</td>
+          <td><span class="tag tag-num">Number</span></td>
+          <td><span class="tag tag-pk">PK</span></td>
+          <td>Identifiant unique</td>
+        </tr>
+        <tr data-order="1">
+          <td><span class="java-name has-tip">company<span class="tip">C++ : mbCompany (ILS_INVERTED_1)</span></span></td>
+          <td class="col-oracle">COMPANY_ID</td>
+          <td><span class="tag tag-fk">FK</span></td>
+          <td>→ Company (Commandement) · <strong>obligatoire</strong></td>
+          <td>Commandement de rattachement du centre d'activité</td>
+        </tr>
+        <tr data-order="2">
+          <td><span class="java-name has-tip">workingArea<span class="tip">C++ : mbWorkingArea (ILS_INVERTED_1)</span></span></td>
+          <td class="col-oracle">WORKING_AREA_ID</td>
+          <td><span class="tag tag-fk">FK</span></td>
+          <td>→ WorkingArea · <strong>obligatoire</strong></td>
+          <td>Zone de travail couverte par le centre d'activité</td>
+        </tr>
+        <tr data-order="3">
+          <td><span class="java-name has-tip">label<span class="tip">C++ : mcLabel (ILS_ENTRY_STRING)</span></span></td>
+          <td class="col-oracle">LABEL</td>
+          <td><span class="tag tag-str">String</span></td>
+          <td><strong>obligatoire</strong></td>
+          <td>Libellé court du centre d'activité</td>
+        </tr>
+        <tr data-order="4">
+          <td><span class="java-name has-tip">name<span class="tip">C++ : mcName (ILS_ENTRY_STRING)</span></span></td>
+          <td class="col-oracle">NAME</td>
+          <td><span class="tag tag-str">String</span></td>
+          <td><strong>obligatoire</strong></td>
+          <td>Nom complet du centre d'activité</td>
+        </tr>
+        <tr data-order="5">
+          <td><span class="java-name has-tip">labelInCompany<span class="tip">C++ : mcLabelInCompany (ILS_ENTRY_STRING)</span></span></td>
+          <td class="col-oracle">LABEL_IN_COMPANY</td>
+          <td><span class="tag tag-str">String</span></td>
+          <td><strong>obligatoire</strong></td>
+          <td>Libellé du centre tel qu'affiché au sein du Commandement</td>
+        </tr>
+        <tr data-order="6">
+          <td><span class="java-name has-tip">nameInCompany<span class="tip">C++ : mcNameInCompany (ILS_ENTRY_STRING)</span></span></td>
+          <td class="col-oracle">NAME_IN_COMPANY</td>
+          <td><span class="tag tag-str">String</span></td>
+          <td><strong>obligatoire</strong></td>
+          <td>Nom du centre tel qu'affiché au sein du Commandement</td>
+        </tr>
+        <tr data-order="7" class="deprecated">
+          <td><span class="java-name has-tip">validationWidth<span class="tip">C++ : mcValidationWidth (ILS_ENTRY_INT) — enum Shared::ActivityCenterWidth (défaut Day)</span></span></td>
+          <td class="col-oracle">VALIDATION_WIDTH</td>
+          <td><span class="tag tag-int">Int</span></td>
+          <td><span class="tag tag-deprecated">Déprécié</span></td>
+          <td>Granularité du cycle de validation e-agir (défaut « jour »). Spécifique e-agir, non repris côté Java.</td>
+        </tr>
+        <tr data-order="8" class="deprecated">
+          <td><span class="java-name has-tip">confirmationWidth<span class="tip">C++ : mcConfirmationWidth (ILS_ENTRY_INT) — enum Shared::ActivityCenterWidth (défaut Day)</span></span></td>
+          <td class="col-oracle">CONFIRMATION_WIDTH</td>
+          <td><span class="tag tag-int">Int</span></td>
+          <td><span class="tag tag-deprecated">Déprécié</span></td>
+          <td>Granularité du cycle de confirmation e-agir (défaut « jour »). Spécifique e-agir, non repris côté Java.</td>
+        </tr>
+        <tr data-order="9">
+          <td><span class="java-name has-tip">mails<span class="tip">C++ : mcMails (ILS_ENTRY_STRING)</span></span></td>
+          <td class="col-oracle">MAILS</td>
+          <td><span class="tag tag-str">String</span></td>
+          <td></td>
+          <td>Adresses mail de notification rattachées au centre d'activité</td>
+        </tr>
+        <tr data-order="10">
+          <td><span class="java-name has-tip">removalAsked<span class="tip">C++ : non exposé côté serveur — colonne Oracle / drapeau de suppression</span></span></td>
+          <td class="col-oracle">REMOVAL_ASKED</td>
+          <td><span class="tag tag-num">Number</span></td>
+          <td></td>
+          <td>1 = suppression demandée. Le centre reste en base le temps que les processus libèrent ses références, puis pourra être effectivement supprimé.</td>
+        </tr>
+        <tr data-order="11">
+          <td><span class="java-name has-tip">sortingCode<span class="tip">C++ : non exposé côté serveur — colonne Oracle, gérée par le formulaire</span></span></td>
+          <td class="col-oracle">SORTING_CODE</td>
+          <td><span class="tag tag-str">String</span></td>
+          <td></td>
+          <td>Code servant à ordonner les centres dans les listes (tri custom indépendant du libellé)</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Relations -->
+  <div class="card">
+    <h3>Relations</h3>
+
+    <div class="rel-row">
+      <span class="rel-entity current">ActivityCenter</span>
+      <span class="rel-arrow">— <span class="rel-card">N:1</span> →</span>
+      <span class="rel-entity">Company</span>
+      <span class="rel-desc">via COMPANY_ID — Commandement de rattachement (obligatoire)</span>
+    </div>
+    <div class="rel-row">
+      <span class="rel-entity current">ActivityCenter</span>
+      <span class="rel-arrow">— <span class="rel-card">N:1</span> →</span>
+      <span class="rel-entity">WorkingArea</span>
+      <span class="rel-desc">via WORKING_AREA_ID — zone de travail (obligatoire)</span>
+    </div>
+    <div class="rel-row">
+      <span class="rel-entity current">ActivityCenter</span>
+      <span class="rel-arrow">— <span class="rel-card">N:N</span> →</span>
+      <a class="rel-entity" onclick="show('allotted-slot')">AllottedSlot</a>
+      <span class="rel-desc">à travers SLOTS_OF_ACTIVITY_CENTERS — plages horaires disponibles dans ce périmètre</span>
+    </div>
+    <div class="rel-row">
+      <span class="rel-entity current">ActivityCenter</span>
+      <span class="rel-arrow">— <span class="rel-card">N:N</span> →</span>
+      <a class="rel-entity" onclick="show('working-period')">WorkingPeriod</a>
+      <span class="rel-desc">à travers WPERIODS_OF_ACTIVITY_CENTERS — horaires de travail applicables</span>
+    </div>
+    <div class="rel-row">
+      <span class="rel-entity current">ActivityCenter</span>
+      <span class="rel-arrow">— <span class="rel-card">N:N</span> →</span>
+      <span class="rel-entity">VacationType</span>
+      <span class="rel-desc">à travers VAC_TYPES_OF_ACTIVITY_CENTERS — types d'absence gérés par le centre</span>
+    </div>
+    <div class="rel-row" style="opacity:0.55;">
+      <span class="rel-entity current">ActivityCenter</span>
+      <span class="rel-arrow">— <span class="rel-card">N:N</span> →</span>
+      <span class="rel-entity">Computer</span>
+      <span class="rel-desc">à travers COMPUTER_ACTIVITY_CENTERS — restriction par machine (Legacy, non repris côté Java)</span>
+    </div>
+    <div class="rel-row">
+      <span class="rel-entity current">ActivityCenter</span>
+      <span class="rel-arrow">— <span class="rel-card">1:N</span> →</span>
+      <a class="rel-entity" onclick="show('profile-dependence')">ProfileDependence</a>
+      <span class="rel-desc">via PROFILE_DEPENDENCES.ACTIVITY_CENTER_ID — autorisations (profil, fonction) accordées sur ce centre (repris côté Java)</span>
+    </div>
+
+    <h3 style="margin-top:1.2rem;">Relations inverses</h3>
+
+    <div class="rel-row">
+      <span class="rel-entity current">ActivityCenter</span>
+      <span class="rel-arrow">← <span class="rel-card">1:N</span> —</span>
+      <span class="rel-entity">WeekStatus</span>
+      <span class="rel-desc">— statuts hebdomadaires du centre (cycle e-agir)</span>
+    </div>
+    <div class="rel-row">
+      <span class="rel-entity current">ActivityCenter</span>
+      <span class="rel-arrow">← <span class="rel-card">1:N</span> —</span>
+      <span class="rel-entity">CheckDayStatus</span>
+      <span class="rel-desc">— statuts de contrôle journalier</span>
+    </div>
+    <div class="rel-row">
+      <span class="rel-entity current">ActivityCenter</span>
+      <span class="rel-arrow">← <span class="rel-card">1:N</span> —</span>
+      <span class="rel-entity">Alarm</span>
+      <span class="rel-desc">— alarmes rattachées au centre d'activité</span>
+    </div>
+  </div>
+
+</section>
 
 <!-- ================================================================ -->
 <!-- ALLOTTED SLOT                                                    -->
@@ -1349,6 +3100,11 @@
       <a class="fk-link" onclick="show('slot-definition')">SlotDefinition</a>, qui porte
       un attribut <code>rank</code> définissant des priorités (horaire par défaut de la
       plage, plage par défaut de l'horaire — voir la fiche SlotDefinition pour le détail).
+    </p>
+    <p>
+      Une plage horaire est par ailleurs <strong>rattachée à un ou plusieurs centres
+      d'activité</strong> (ActivityCenter) via la table <code>SLOTS_OF_ACTIVITY_CENTERS</code> :
+      cette relation N:N détermine dans quels périmètres d'exploitation la plage est disponible.
     </p>
     <p>
       Deux types de plages existent :
@@ -1525,6 +3281,12 @@
       <a class="rel-entity" onclick="show('working-period')">WorkingPeriod</a>
       <span class="rel-desc">à travers <a class="fk-link" onclick="show('slot-definition')">SlotDefinition</a> — horaires de travail rattachés (avec rang)</span>
     </div>
+    <div class="rel-row">
+      <span class="rel-entity current">AllottedSlot</span>
+      <span class="rel-arrow">— <span class="rel-card">N:N</span> →</span>
+      <a class="rel-entity" onclick="show('activity-center')">ActivityCenter</a>
+      <span class="rel-desc">à travers la table SLOTS_OF_ACTIVITY_CENTERS — centres d'activité où la plage est disponible</span>
+    </div>
 
     <h3 style="margin-top:1.2rem;">Relations inverses</h3>
     <div class="rel-row">
@@ -1556,6 +3318,59 @@
       <span class="rel-arrow">← <span class="rel-card">1:N</span> —</span>
       <span class="rel-entity">SlotProhibition</span>
       <span class="rel-desc">via SLOT_PROHIBITIONS.SLOT_ID — interdictions par inaptitude</span>
+    </div>
+  </div>
+
+  <!-- Requêtes -->
+  <div class="card">
+    <h3>Requêtes</h3>
+
+    <div class="feature-intro">
+      <strong>Fonctionnalité « <a class="feat-link" onclick="show('feat-demarrage-de-shift')">Démarrage de shift</a> »</strong> — écran (côté Java/Angular) qui
+      travaille dans le contexte d'un <strong>centre d'activité courant</strong> et d'un
+      <strong>moment donné</strong> (l'heure courante). Pour s'afficher correctement, il a
+      besoin de savoir <strong>quelle plage horaire considérer</strong> à cet instant.
+      <br>
+      <strong>Attention au vocabulaire :</strong> un AllottedSlot <em>n'est pas</em> un shift.
+      C'est une <strong>plage horaire</strong> (Matin, Après-midi, Nuit…). La requête ci-dessous
+      sert à déterminer la plage horaire applicable, pas à lister des shifts.
+    </div>
+
+    <div class="query-block" data-feature="feat-demarrage-de-shift" data-q-rank="1">
+      <h4><span class="q-tag">Requête</span> Plages horaires courantes</h4>
+      <p>
+        Objectif : déterminer <strong>les plages horaires à considérer</strong> pour le centre
+        d'activité courant, en fonction de <strong>l'heure qu'il est</strong>. Le résultat
+        attendu est l'<strong>ensemble des plages horaires (AllottedSlot) compatibles</strong>
+        avec le moment présent — il n'y en a souvent qu'une, mais il peut y en avoir plusieurs.
+      </p>
+      <p><strong>Démarche :</strong></p>
+      <ul>
+        <li>
+          <strong>1. Restreindre au centre d'activité courant</strong> — ne considérer que les
+          <a class="fk-link" onclick="show('allotted-slot')">AllottedSlot</a> rattachés au
+          centre d'activité courant via la table <code>SLOTS_OF_ACTIVITY_CENTERS</code>
+          (relation N:N). On obtient ainsi l'ensemble des plages horaires définies pour ce
+          périmètre (typiquement Matin / Après-midi / Nuit).
+        </li>
+        <li>
+          <strong>2. Retenir toutes les plages compatibles avec l'heure courante</strong> — parmi
+          ces plages, garder <strong>toutes celles dont la tranche horaire contient l'heure qu'il
+          est</strong> : l'heure courante doit tomber entre l'heure de début et l'heure de fin de
+          la plage (<code>displayingBeginTime</code> / <code>displayingEndTime</code>). Le plus
+          souvent une seule plage convient, mais plusieurs peuvent se chevaucher et être retenues
+          ensemble.
+        </li>
+      </ul>
+      <p class="q-note">
+        Points de vigilance : (a) une plage de <strong>nuit</strong> peut chevaucher minuit
+        (heure de fin &lt; heure de début) — le test de compatibilité doit gérer ce passage de
+        jour ; (b) les <strong>bornes de tolérance</strong> de la plage
+        (<code>startTime…Bound</code> / <code>endTime…Bound</code>) peuvent affiner la fenêtre
+        retenue si l'on veut tenir compte des marges autour des heures théoriques ; (c) les
+        plages <strong>fictives</strong> (<code>fictitious = 1</code>, « Intervalle seul »)
+        sont à écarter, elles ne correspondent pas à une tranche de travail réelle.
+      </p>
     </div>
   </div>
 
@@ -1625,7 +3440,7 @@
       Le <code>rank</code> de la SlotDefinition détermine si la plage est la
       <em>plage par défaut</em> de cet horaire ou non. Un horaire est aussi associé à
       des zones de travail (<code>WORKING_PERIODS_OF_AREAS</code>), des centres
-      d'activité (<code>WORKING_PERIODS_OF_ACTIVITY_CENTERS</code>), des règles
+      d'activité (<code>WPERIODS_OF_ACTIVITY_CENTERS</code>), des règles
       d'allocation et des contextes (tables relationnelles).
     </p>
     <div class="arch-warning">
@@ -1850,8 +3665,8 @@
     <div class="rel-row">
       <span class="rel-entity current">WorkingPeriod</span>
       <span class="rel-arrow">— <span class="rel-card">N:N</span> →</span>
-      <span class="rel-entity">ActivityCenter</span>
-      <span class="rel-desc">à travers WORKING_PERIODS_OF_ACTIVITY_CENTERS — centres d'activité compatibles</span>
+      <a class="rel-entity" onclick="show('activity-center')">ActivityCenter</a>
+      <span class="rel-desc">à travers WPERIODS_OF_ACTIVITY_CENTERS — centres d'activité compatibles</span>
     </div>
     <div class="rel-row">
       <span class="rel-entity current">WorkingPeriod</span>
@@ -2064,6 +3879,32 @@ function resetSort(btn) {
   // Hide reset button
   btn.classList.remove('visible');
 }
+
+// Pages fonctionnalités : les requêtes sont écrites UNE SEULE FOIS, sur la fiche
+// de l'entité concernée (query-block portant un attribut data-feature). Au chargement,
+// chaque page fonctionnalité clone les query-blocks qui lui sont rattachés, en ajoutant
+// une ligne "Documentée sur l'entité X" avec lien vers la fiche source.
+document.querySelectorAll('.feature-queries').forEach(function(container) {
+  var feat = container.getAttribute('data-feature');
+  var blocks = Array.from(document.querySelectorAll('.entity:not(.feature-page) .query-block[data-feature="' + feat + '"]'));
+  blocks.sort(function(a, b) {
+    return (parseInt(a.getAttribute('data-q-rank')) || 999) - (parseInt(b.getAttribute('data-q-rank')) || 999);
+  });
+  if (blocks.length === 0) {
+    container.innerHTML = '<p class="placeholder-msg">Aucune requête documentée pour l\'instant.</p>';
+    return;
+  }
+  blocks.forEach(function(block) {
+    var entity = block.closest('.entity');
+    var entityName = entity.querySelector('.entity-header h2').textContent;
+    var clone = block.cloneNode(true);
+    var src = document.createElement('p');
+    src.className = 'q-source';
+    src.innerHTML = 'Documentée sur l\'entité <a onclick="show(\'' + entity.id + '\')">' + entityName + '</a>';
+    clone.insertBefore(src, clone.children[1] || null);
+    container.appendChild(clone);
+  });
+});
 
 function filterNav(query) {
   var items = document.querySelectorAll('#navList li');
