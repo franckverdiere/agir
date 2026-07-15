@@ -303,9 +303,13 @@
       les dates.
     </p>
     <div class="arch-warning">
-      <strong>Requêtes sans limite :</strong> il reste possible de requêter une classe
-      volatile non datée sans restriction — par exemple pour proposer l'ensemble des
-      navires dans une liste — mais cela doit rester <strong>rare et motivé</strong>.
+      <strong>Requêtes sans limite :</strong> la tolérance ne concerne que les classes
+      volatiles <strong>non datées</strong> : pour elles seulement, une requête sans
+      restriction reste possible — par exemple pour proposer l'ensemble des navires dans
+      une liste — mais cela doit rester <strong>rare et motivé</strong>.
+      Les classes volatiles <strong>datées</strong> (chantiers/escales, commandes,
+      postes, affectations…) doivent <strong>systématiquement</strong> faire l'objet de
+      requêtes avec contraintes de date, sans exception.
     </div>
   </div>
 
