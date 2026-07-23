@@ -204,6 +204,22 @@
   }
   .fk-link:hover { border-bottom-style: solid; }
 
+  /* Marquage des fiches récemment modifiées */
+  .nav-updated {
+    display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+    background: #dd6b20; margin-left: 0.4rem; vertical-align: middle;
+    box-shadow: 0 0 0 2px rgba(221, 107, 32, 0.2);
+  }
+  .updated-badge {
+    display: inline-block; margin-top: 0.5rem; padding: 0.3rem 0.7rem;
+    border-radius: 5px; font-size: 0.8rem;
+    background: #fffaf0; border: 1px solid #fbd38d; color: #7b341e;
+  }
+  .updated-badge .updated-dot {
+    display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+    background: #dd6b20; margin-right: 0.4rem;
+  }
+
   /* Relations */
   .rel-row { display: flex; align-items: center; gap: 0.6rem; font-size: 0.88rem; margin-bottom: 0.5rem; }
   .rel-entity {
@@ -231,6 +247,7 @@
   <ul id="navList">
     <li class="group-label">Fonctionnalités</li>
     <li><a onclick="show('generalites')" data-id="generalites">Généralités</a></li>
+    <li><a onclick="show('feat-demandes-de-portiques')" data-id="feat-demandes-de-portiques">Demandes de portiques</a></li>
     <li><a onclick="show('feat-demarrage-de-shift')" data-id="feat-demarrage-de-shift">Démarrage de shift</a></li>
     <li><a onclick="show('feat-feuille-de-shift')" data-id="feat-feuille-de-shift">Feuille de shift</a></li>
     <li class="group-label">Exploitation</li>
@@ -238,6 +255,7 @@
     <li><a onclick="show('activity')" data-id="activity" class="active">Activity <span class="tbl">ACTIVITIES</span></a></li>
     <li><a onclick="show('activity-type')" data-id="activity-type">ActivityType <span class="tbl">ACTIVITY_TYPES</span></a></li>
     <li><a onclick="show('cargo')" data-id="cargo">Cargo <span class="tbl">CARGOS</span><span class="soon">(bientôt)</span></a></li>
+    <li><a onclick="show('stevedore-company')" data-id="stevedore-company">StevedoreCompany <span class="tbl">STEVEDORES</span></a></li>
     <li><a onclick="show('stevedoring-set')" data-id="stevedoring-set">StevedoringSet <span class="tbl">STEVEDORING_SETS</span></a></li>
     <li><a onclick="show('task')" data-id="task">Task <span class="tbl">TASKS</span></a></li>
     <li class="group-label">Commande &amp; affectation</li>
@@ -251,12 +269,13 @@
     <li><a onclick="show('profile')" data-id="profile">Profile <span class="tbl">PROFILES</span></a></li>
     <li><a onclick="show('profile-dependence')" data-id="profile-dependence">ProfileDependence <span class="tbl">PROFILE_DEPENDENCES</span></a></li>
     <li><a onclick="show('right')" data-id="right">Right <span class="tbl">RIGHTS</span></a></li>
-    <li><a onclick="show('user')" data-id="user">User <span class="tbl">USERS</span></a></li>
     <li class="group-label">Planification</li>
     <li><a onclick="show('activity-center')" data-id="activity-center">ActivityCenter <span class="tbl">ACTIVITY_CENTERS</span></a></li>
     <li><a onclick="show('allotted-slot')" data-id="allotted-slot">AllottedSlot <span class="tbl">ALLOTTED_SLOTS</span></a></li>
     <li><a onclick="show('slot-definition')" data-id="slot-definition">SlotDefinition <span class="tbl">SLOT_DEFINITIONS</span></a></li>
     <li><a onclick="show('working-period')" data-id="working-period">WorkingPeriod <span class="tbl">WORKING_PERIODS</span></a></li>
+    <li class="group-label">Paramétrage</li>
+    <li><a onclick="show('main-resource')" data-id="main-resource">MainResource <span class="tbl">MAIN_RESOURCES</span></a></li>
   </ul>
 </nav>
 
@@ -287,12 +306,60 @@
     <div class="freshness fresh-specific" style="margin: 0.4rem 0;"><span class="fresh-dot"></span><strong>Spécifique</strong>&nbsp;— modalités décrites au cas par cas, selon les cas particuliers de la fiche</div>
   </div>
 
+  <div class="card" id="journee-portuaire">
+    <h3>Très important : la « journée portuaire » ne commence pas à minuit</h3>
+    <p>
+      Dans Agir, la notion de <strong>jour</strong> attachée aux données d'exploitation ne
+      correspond pas au jour civil : la <strong>journée portuaire</strong> commence à une
+      <strong>heure de référence</strong>, pas à minuit. Cette heure est paramétrée
+      <strong>en base</strong> : ressource <code>REFERENCE_TIME</code> de la table
+      <code>MAIN_RESOURCES</code> (voir la fiche
+      <a class="fk-link" onclick="show('main-resource')">MainResource</a>). Sa valeur est
+      une date/heure au <strong>1<sup>er</sup> janvier 1971</strong> — la
+      <em>ReferenceDate</em>, voir la règle ci-dessous — dont seule la partie
+      <strong>heure</strong> est significative.
+    </p>
+    <p>
+      Un instant appartient donc à la journée portuaire du jour J s'il tombe entre
+      <strong>J à l'heure de référence</strong> (incluse) et <strong>J+1 à l'heure de
+      référence</strong> (exclue). Exemple : <strong>le 23/07 à 3h du matin, on est encore
+      dans la journée portuaire du 22/07</strong> — c'est le shift de nuit du 22/07.
+    </p>
+    <div class="arch-warning">
+      <strong>Si l'on n'en tient pas compte, tout est faux.</strong> Toute requête qui
+      manipule un « jour courant », une date de shift ou un discriminant de date doit
+      d'abord convertir l'instant courant en journée portuaire. Dans l'équipe Agir,
+      l'oubli de cette règle porte un nom : le <strong>« Bug de Poisot »</strong>.
+    </div>
+  </div>
+
+  <div class="card" id="reference-date">
+    <h3>ReferenceDate : le 1<sup>er</sup> janvier 1971</h3>
+    <p>
+      La <strong>ReferenceDate</strong> est une <strong>constante</strong> :
+      le <strong>1<sup>er</sup> janvier 1971</strong> (Legacy :
+      <code>Calendar::Date::ReferenceDate()</code>). Elle est
+      <strong>indispensable pour interpréter les champs de durée ou d'heure</strong>
+      de la base Legacy : ces valeurs y sont stockées sous forme de
+      <strong>dates ancrées au 1<sup>er</sup> janvier 1971</strong>.
+    </p>
+    <p>
+      Pour lire une <strong>heure de la journée</strong>, ne garder que la partie heure de
+      la date stockée (ex. la ressource <code>REFERENCE_TIME</code> de
+      <a class="fk-link" onclick="show('main-resource')">MainResource</a>) ; pour lire une
+      <strong>durée</strong>, soustraire la ReferenceDate de la valeur stockée.
+    </p>
+  </div>
+
   <div class="card">
     <h3>Règle : les classes volatiles se requêtent avec un discriminant de date</h3>
     <p>
       Sauf cas particulier, une classe volatile ne doit pas être requêtée « en entier » :
       la requête doit porter un <strong>élément discriminant de date</strong>.
       Exemple : les commandes <em>d'une journée</em>, ou <em>d'une plage de dates</em>.
+      Ces contraintes s'entendent en
+      <a class="fk-link" onclick="showAnchor('generalites','journee-portuaire')">journée
+      portuaire</a> (voir la règle ci-dessus).
     </p>
     <p>
       Certaines classes volatiles <strong>n'ont pas d'attribut de date</strong> — par
@@ -311,6 +378,68 @@
       postes, affectations…) doivent <strong>systématiquement</strong> faire l'objet de
       requêtes avec contraintes de date, sans exception.
     </div>
+  </div>
+
+  <div class="card">
+    <h3>Restriction par manutentionnaire</h3>
+    <p>
+      Un <a class="fk-link" onclick="show('profile')">Profile</a> peut être associé à une
+      liste de <strong>manutentionnaires</strong>
+      (<a class="fk-link" onclick="show('stevedore-company')">StevedoreCompany</a>), via la
+      table N:N <code>STEVEDORES_OF_PROFILES</code> (nouveau 07/2026). Dès que cette liste
+      contient au moins une entreprise, la restriction est <strong>ferme</strong> : les
+      utilisateurs du profil ne voient que les <strong>escales</strong>
+      (<a class="fk-link" onclick="show('task')">Task</a>) dont le manutentionnaire
+      (<code>STVD_ID</code>) figure dans la liste, ainsi que les <strong>objets associés à
+      ces escales</strong> — commandes, postes, affectations, pointages, etc. (liste non
+      exhaustive) — et aucune autre donnée d'exploitation.
+    </p>
+    <div class="arch-warning">
+      <strong>Règles à respecter côté proxy :</strong> (a) le filtrage s'applique
+      <strong>au chargement des données</strong>, pas à l'affichage ; (b) une escale
+      <strong>sans manutentionnaire</strong> (<code>STVD_ID</code> non renseigné, ex.
+      maintenance interne) est <strong>invisible</strong> pour un profil restreint ;
+      (c) une liste <strong>vide</strong> = aucune restriction.
+    </div>
+  </div>
+
+</section>
+
+<!-- ================================================================ -->
+<!-- FONCTIONNALITÉ : DEMANDES DE PORTIQUES                           -->
+<!-- ================================================================ -->
+<section class="entity feature-page" id="feat-demandes-de-portiques">
+
+  <div class="entity-header">
+    <h2>Demandes de portiques</h2>
+    <div class="aliases">Fonctionnalité — nouvelle application Java/Angular</div>
+  </div>
+
+  <div class="card">
+    <h3>Description</h3>
+    <p>
+      Fonctionnalité dont le demandeur est <strong>l'entreprise de manutention</strong>
+      (<a class="fk-link" onclick="show('stevedore-company')">StevedoreCompany</a>) : elle
+      formule des demandes de portiques pour <strong>ses escales</strong>. L'utilisateur est
+      associé à un ou plusieurs manutentionnaires via son
+      <a class="fk-link" onclick="show('profile')">Profile</a> et n'accède qu'aux données de
+      ces manutentionnaires — les escales qui leur sont associées, et aucune autre (voir la
+      règle transverse dans les <a class="fk-link" onclick="show('generalites')">Généralités</a>).
+    </p>
+    <p>
+      La demande de portique se situe <strong>en amont de la commande</strong>
+      (<a class="fk-link" onclick="show('order')">Order</a>) : ce sont deux classes
+      distinctes. La commande est créée ensuite, manuellement, par le planificateur.
+    </p>
+  </div>
+
+  <div class="card">
+    <h3>Requêtes de la fonctionnalité</h3>
+    <p>
+      Toutes les requêtes documentées pour cette fonctionnalité. Chacune est également
+      visible sur la fiche de l'entité concernée (indiquée en tête de requête).
+    </p>
+    <div class="feature-queries" data-feature="feat-demandes-de-portiques"></div>
   </div>
 
 </section>
@@ -889,8 +1018,8 @@
           <td><span class="java-name has-tip">stevedoreCompany<span class="tip">C++ : mrStevedoreCompany (ILS_USES_1)</span></span></td>
           <td class="col-oracle">STVD_ID</td>
           <td><span class="tag tag-fk">FK</span></td>
-          <td>→ StevedoreCompany</td>
-          <td>Manutentionnaire en charge du chantier</td>
+          <td>→ <a class="fk-link" onclick="show('stevedore-company')">StevedoreCompany</a></td>
+          <td>Manutentionnaire en charge du chantier. Porte la <strong>restriction par manutentionnaire</strong> des profils (voir <a class="fk-link" onclick="show('generalites')">Généralités</a>).</td>
         </tr>
         <tr data-order="7">
           <td><span class="java-name has-tip">callNumber<span class="tip">C++ : mcCallNumber (ILS_ENTRY_STRING)</span></span></td>
@@ -1003,8 +1132,8 @@
     <div class="rel-row">
       <span class="rel-entity current">Task</span>
       <span class="rel-arrow">— <span class="rel-card">N:1</span> →</span>
-      <span class="rel-entity">StevedoreCompany</span>
-      <span class="rel-desc">via STVD_ID — manutentionnaire</span>
+      <a class="rel-entity" onclick="show('stevedore-company')">StevedoreCompany</a>
+      <span class="rel-desc">via STVD_ID — manutentionnaire (porte la restriction par manutentionnaire des profils)</span>
     </div>
 
     <h3 style="margin-top:1.2rem;">Relations inverses</h3>
@@ -1013,7 +1142,7 @@
       <span class="rel-entity current">Task</span>
       <span class="rel-arrow">← <span class="rel-card">1:N</span> —</span>
       <span class="rel-entity">Order</span>
-      <span class="rel-desc">via ORDERS.TASK_ID — commandes liées à ce chantier</span>
+      <span class="rel-desc">via ORDERS.TAS_ID — commandes liées à ce chantier</span>
     </div>
     <div class="rel-row">
       <span class="rel-entity current">Task</span>
@@ -1032,6 +1161,158 @@
       <span class="rel-arrow">← <span class="rel-card">1:N</span> —</span>
       <span class="rel-entity">GroundOrderAssignment</span>
       <span class="rel-desc">— affectations terrain</span>
+    </div>
+  </div>
+
+  <!-- Requêtes -->
+  <div class="card">
+    <h3>Requêtes</h3>
+
+    <div class="feature-intro">
+      <strong>Fonctionnalité « <a class="feat-link" onclick="show('feat-demandes-de-portiques')">Demandes de portiques</a> »</strong> —
+      l'entreprise de manutention formule ses demandes sur <strong>ses escales</strong> :
+      l'écran présente les escales des manutentionnaires autorisés du profil de
+      l'utilisateur, et uniquement celles-là.
+    </div>
+
+    <div class="query-block" data-feature="feat-demandes-de-portiques" data-q-rank="2">
+      <h4><span class="q-tag">Requête</span> Escales des manutentionnaires autorisés</h4>
+      <p>
+        Objectif : charger les <strong>chantiers/escales visibles par l'utilisateur</strong>,
+        c'est-à-dire ceux dont le manutentionnaire figure dans la liste établie par la
+        requête « Manutentionnaires autorisés du profil » (fiche
+        <a class="fk-link" onclick="show('profile')">Profile</a>).
+      </p>
+      <p><strong>Démarche :</strong></p>
+      <ul>
+        <li>
+          <strong>1. Restreindre par date</strong> — Task est une classe volatile
+          <strong>datée</strong> : la requête doit porter un discriminant de date sur
+          <code>startDate</code> / <code>endDate</code> (ex. les escales de la période à venir).
+          <div class="arch-warning" style="margin-top:0.4rem;">
+            <strong>Journée portuaire :</strong> ce discriminant de date s'entend en
+            <a class="fk-link" onclick="showAnchor('generalites','journee-portuaire')">journée
+            portuaire</a>, qui commence à l'heure de référence, pas à minuit. Ne pas en
+            tenir compte fausse tout (« Bug de Poisot »).
+          </div>
+        </li>
+        <li>
+          <strong>2. Filtrer par manutentionnaire</strong> — ne retenir que les escales dont
+          <code>STVD_ID</code> appartient aux manutentionnaires autorisés. Les escales
+          <strong>sans manutentionnaire</strong> (<code>STVD_ID</code> non renseigné, ex.
+          maintenance interne) sont exclues.
+        </li>
+        <li>
+          <strong>3. Joindre l'Activity</strong> — pour présenter le navire
+          (<a class="fk-link" onclick="show('activity')">Activity</a> via <code>ACT_ID</code>).
+        </li>
+      </ul>
+      <p class="q-note">
+        Points de vigilance : (a) le filtrage par manutentionnaire s'applique <strong>au
+        chargement des données</strong>, pas à l'affichage (voir la règle transverse dans les
+        <a class="fk-link" onclick="show('generalites')">Généralités</a>) ; (b) ne pas requêter
+        les commandes (<a class="fk-link" onclick="show('order')">Order</a>) ici : la demande
+        de portique se situe <strong>en amont</strong> de la commande, créée ensuite
+        manuellement par le planificateur.
+      </p>
+    </div>
+  </div>
+
+</section>
+
+<!-- ================================================================ -->
+<!-- STEVEDORE COMPANY                                                -->
+<!-- ================================================================ -->
+<section class="entity" id="stevedore-company">
+
+  <div class="entity-header">
+    <h2>StevedoreCompany</h2>
+    <div class="aliases">
+      Table Oracle : <code>STEVEDORES</code> &nbsp;|&nbsp;
+      Serveur C++ : <code>tcMrpsStevedoreCompany</code> &nbsp;|&nbsp;
+      Client Rp : <code>tcMrpsRpStevedoreCompany</code> &nbsp;|&nbsp;
+      Formulaire : <code>tcMrpsFormStevedoreCompany</code>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Description fonctionnelle</h3>
+    <p>
+      La classe <strong>StevedoreCompany</strong> représente un
+      <strong>manutentionnaire</strong> : l'entreprise de manutention en charge d'un
+      chantier/escale. C'est un référentiel simple (libellé, nom, commentaires), géré dans
+      la fiche « Manutentionnaires » du client Legacy.
+    </p>
+    <p>
+      Le manutentionnaire est porté par le <strong>chantier/escale</strong>
+      (<a class="fk-link" onclick="show('task')">Task</a>, colonne <code>STVD_ID</code>) :
+      c'est là que se joue le rattachement des données d'exploitation à une entreprise de
+      manutention. Une escale peut ne pas avoir de manutentionnaire (ex. maintenance interne).
+    </p>
+    <p class="arch-note">
+      <strong>Restriction par manutentionnaire (nouveau 07/2026)</strong> — un
+      <a class="fk-link" onclick="show('profile')">Profile</a> peut être restreint à un ou
+      plusieurs manutentionnaires via la table N:N <code>STEVEDORES_OF_PROFILES</code> :
+      les utilisateurs de ce profil ne voient alors que les escales de ces manutentionnaires
+      et les objets qui leur sont associés. Règle transverse détaillée dans les
+      <a class="fk-link" onclick="show('generalites')">Généralités</a>.
+    </p>
+  </div>
+
+  <!-- Attributes -->
+  <div class="card col-card">
+    <h3><span>Attributs — StevedoreCompany</span><button class="reset-sort" onclick="resetSort(this)">↺ Ordre initial</button></h3>
+    <table class="sortable-table">
+      <thead>
+        <tr><th class="sortable" onclick="sortTable(this,0)">Attribut</th><th class="sortable" onclick="sortTable(this,1)">Colonne Oracle</th><th class="sortable" onclick="sortTable(this,2)">Type</th><th class="sortable" onclick="sortTable(this,3)">Contrainte</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr data-order="0">
+          <td><span class="java-name has-tip">id<span class="tip">C++ : getId() — hérité de tcMrpsObject</span></span></td>
+          <td class="col-oracle">ID</td>
+          <td><span class="tag tag-num">Number</span></td>
+          <td><span class="tag tag-pk">PK</span></td>
+          <td>Identifiant unique</td>
+        </tr>
+        <tr data-order="1">
+          <td><span class="java-name has-tip">label<span class="tip">C++ : mcLabel (ILS_ENTRY_STRING)</span></span></td>
+          <td class="col-oracle">LABEL</td>
+          <td><span class="tag tag-str">String</span></td>
+          <td><strong>obligatoire</strong></td>
+          <td>Libellé court du manutentionnaire (affiché dans les plannings et les listes)</td>
+        </tr>
+        <tr data-order="2">
+          <td><span class="java-name has-tip">name<span class="tip">C++ : mcName (ILS_ENTRY_STRING)</span></span></td>
+          <td class="col-oracle">NAME</td>
+          <td><span class="tag tag-str">String</span></td>
+          <td><strong>obligatoire</strong></td>
+          <td>Nom complet de l'entreprise de manutention</td>
+        </tr>
+        <tr data-order="3">
+          <td><span class="java-name has-tip">notes<span class="tip">C++ : mcNotes (ILS_ENTRY_STRING)</span></span></td>
+          <td class="col-oracle">NOTES</td>
+          <td><span class="tag tag-str">String</span></td>
+          <td></td>
+          <td>Commentaires libres</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Relations -->
+  <div class="card">
+    <h3>Relations inverses</h3>
+    <div class="rel-row">
+      <span class="rel-entity current">StevedoreCompany</span>
+      <span class="rel-arrow">← <span class="rel-card">1:N</span> —</span>
+      <a class="rel-entity" onclick="show('task')">Task</a>
+      <span class="rel-desc">via TASKS.STVD_ID — chantiers/escales dont ce manutentionnaire a la charge</span>
+    </div>
+    <div class="rel-row">
+      <span class="rel-entity current">StevedoreCompany</span>
+      <span class="rel-arrow">— <span class="rel-card">N:N</span> →</span>
+      <a class="rel-entity" onclick="show('profile')">Profile</a>
+      <span class="rel-desc">à travers STEVEDORES_OF_PROFILES — profils restreints aux données de ce manutentionnaire (nouveau 07/2026)</span>
     </div>
   </div>
 
@@ -1857,6 +2138,13 @@
           restreignant au jour courant sur les dates de travail
           (<code>workStartDate</code> / <code>workEndDate</code>). Aucun filtre sur le
           statut de la commande.
+          <div class="arch-warning" style="margin-top:0.4rem;">
+            <strong>Journée portuaire :</strong> le « jour courant » s'entend en
+            <a class="fk-link" onclick="showAnchor('generalites','journee-portuaire')">journée
+            portuaire</a>, qui commence à l'heure de référence, pas à minuit : le 23/07 à 3h
+            du matin, les commandes du shift sont celles <strong>du 22/07</strong>. Ne pas
+            en tenir compte fausse tout (« Bug de Poisot »).
+          </div>
         </li>
         <li>
           <strong>3. Regrouper par escale et qualifier la commande</strong> — la commande
@@ -2333,134 +2621,6 @@
 </section>
 
 <!-- ================================================================ -->
-<!-- USER                                                              -->
-<!-- ================================================================ -->
-<section class="entity" id="user">
-
-  <div class="entity-header">
-    <h2>User</h2>
-    <div class="aliases">
-      Table Oracle : <code>USERS</code> &nbsp;|&nbsp;
-      Serveur C++ : <code>tcMrpsUser</code> &nbsp;|&nbsp;
-      Client Rp : <code>tcMrpsRpUser</code> &nbsp;|&nbsp;
-      Formulaire : <code>UserForm</code>
-    </div>
-  </div>
-
-  <div class="card">
-    <h3>Description fonctionnelle</h3>
-    <p>
-      La classe <strong>User</strong> représente un <strong>utilisateur nommé</strong> d'Agir Legacy.
-      Chaque utilisateur est identifié par un <strong>login</strong> (colonne <code>LABEL</code>) et
-      porte un nom complet d'affichage (colonne <code>NAME</code>).
-    </p>
-    <p>
-      Un utilisateur est <strong>rattaché à un et un seul</strong>
-      <a class="fk-link" onclick="show('profile')">Profile</a> (relation <code>PROF_ID</code>).
-      C'est ce profil qui détermine ce que l'utilisateur a le droit de faire :
-      l'utilisateur lui-même ne porte aucun droit en propre, il <em>hérite</em> de tous les
-      droits définis sur son profil.
-    </p>
-    <p>
-      Côté Legacy, l'authentification repose sur un mot de passe haché stocké en base
-      (<code>PASSWORD</code>) avec un grain de sel (<code>SALT</code>). Ces colonnes
-      <strong>ne doivent pas être exploitées côté Java</strong> : les mots de passe sont
-      désormais gérés par <strong>Keycloak</strong>, et les méthodes
-      <code>checkPassword</code> / <code>changePassword</code> du Legacy n'ont pas vocation
-      à être réimplémentées.
-    </p>
-    <p class="arch-note">
-      Note d'architecture : la fiche utilisateur Legacy (<code>UserForm</code>) distingue
-      un « super-utilisateur » (titulaire de la fonction <code>USERADMIN</code>) qui peut
-      créer/supprimer des utilisateurs et changer n'importe quel mot de passe, des
-      utilisateurs courants qui ne peuvent modifier que leur propre mot de passe.
-      Cette logique d'administration restera à reproduire dans la nouvelle UI selon sa
-      propre logique d'habilitation.
-    </p>
-  </div>
-
-  <!-- Attributes -->
-  <div class="card col-card">
-    <h3><span>Attributs — User</span><button class="reset-sort" onclick="resetSort(this)">↺ Ordre initial</button></h3>
-    <table class="sortable-table">
-      <thead>
-        <tr><th class="sortable" onclick="sortTable(this,0)">Attribut</th><th class="sortable" onclick="sortTable(this,1)">Colonne Oracle</th><th class="sortable" onclick="sortTable(this,2)">Type</th><th class="sortable" onclick="sortTable(this,3)">Contrainte</th><th>Description</th></tr>
-      </thead>
-      <tbody>
-        <tr data-order="0">
-          <td><span class="java-name has-tip">id<span class="tip">C++ : getId() — hérité de tcMrpsObject</span></span></td>
-          <td class="col-oracle">ID</td>
-          <td><span class="tag tag-num">Number</span></td>
-          <td><span class="tag tag-pk">PK</span></td>
-          <td>Identifiant unique</td>
-        </tr>
-        <tr data-order="1">
-          <td><span class="java-name has-tip">profile<span class="tip">C++ : mbProfile (ILS_INVERTED_RELATION vers tcMrpsProfile)</span></span></td>
-          <td class="col-oracle">PROF_ID</td>
-          <td><span class="tag tag-fk">FK</span></td>
-          <td>→ <a class="fk-link" onclick="show('profile')">Profile</a> · <strong>obligatoire</strong></td>
-          <td>Profil de l'utilisateur. C'est lui qui porte les droits. Un utilisateur n'a qu'un profil ; un profil peut être partagé par plusieurs utilisateurs.</td>
-        </tr>
-        <tr data-order="2">
-          <td><span class="java-name has-tip">login<span class="tip">C++ : mcLabel (ILS_ENTRY_STRING) — hérité de LabelledObject</span></span></td>
-          <td class="col-oracle">LABEL</td>
-          <td><span class="tag tag-str">String</span></td>
-          <td><strong>obligatoire</strong></td>
-          <td>Identifiant de connexion (login) de l'utilisateur. Unique en base.</td>
-        </tr>
-        <tr data-order="3">
-          <td><span class="java-name has-tip">name<span class="tip">C++ : mcName (ILS_ENTRY_STRING)</span></span></td>
-          <td class="col-oracle">NAME</td>
-          <td><span class="tag tag-str">String</span></td>
-          <td><strong>obligatoire</strong></td>
-          <td>Nom complet de l'utilisateur (libellé d'affichage)</td>
-        </tr>
-        <tr data-order="4" class="deprecated">
-          <td><span class="java-name has-tip">password<span class="tip">C++ : mcPassword (ILS_ENTRY_STRING)</span></span></td>
-          <td class="col-oracle">PASSWORD</td>
-          <td><span class="tag tag-str">String</span></td>
-          <td><span class="tag tag-deprecated">Déprécié</span></td>
-          <td>Empreinte (hash) du mot de passe utilisée par l'authentification Legacy. Ne pas utiliser côté Java : les mots de passe sont désormais gérés par Keycloak.</td>
-        </tr>
-        <tr data-order="5" class="deprecated">
-          <td><span class="java-name has-tip">salt<span class="tip">C++ : mcSalt (ILS_ENTRY_STRING)</span></span></td>
-          <td class="col-oracle">SALT</td>
-          <td><span class="tag tag-str">String</span></td>
-          <td><span class="tag tag-deprecated">Déprécié</span></td>
-          <td>Grain de sel associé au hash du mot de passe Legacy. Ne pas utiliser côté Java.</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <!-- Relations -->
-  <div class="card">
-    <h3>Relations</h3>
-    <div class="rel-row">
-      <span class="rel-entity current">User</span>
-      <span class="rel-arrow">— <span class="rel-card">N:1</span> →</span>
-      <a class="rel-entity" onclick="show('profile')">Profile</a>
-      <span class="rel-desc">via PROF_ID — profil porteur des droits (obligatoire)</span>
-    </div>
-
-    <h3 style="margin-top:1.2rem;">Relations inverses</h3>
-    <div class="rel-row">
-      <span class="rel-entity current">User</span>
-      <span class="rel-arrow">← <span class="rel-card">1:N</span> —</span>
-      <span class="rel-entity">RuleViolation</span>
-      <span class="rel-desc">via RULE_VIOLATIONS.USR_ID — violations de règles signalées à cet utilisateur</span>
-    </div>
-    <div class="rel-row">
-      <span class="rel-entity current">User</span>
-      <span class="rel-arrow">← <span class="rel-card">1:N</span> —</span>
-      <span class="rel-entity">Session</span>
-      <span class="rel-desc">— sessions de connexion ouvertes (transient, pas en base)</span>
-    </div>
-  </div>
-
-</section>
-
-<!-- ================================================================ -->
 <!-- PROFILE                                                           -->
 <!-- ================================================================ -->
 <section class="entity" id="profile">
@@ -2480,8 +2640,16 @@
     <p>
       La classe <strong>Profile</strong> est le pivot de la gestion des habilitations d'Agir.
       Un profil regroupe un <strong>jeu de droits</strong> sur les différentes fonctions
-      applicatives, et un ou plusieurs <a class="fk-link" onclick="show('user')">User</a> y
-      sont rattachés. Tous les utilisateurs d'un même profil ont exactement les mêmes droits.
+      applicatives ; un ou plusieurs utilisateurs y sont rattachés, et tous les utilisateurs
+      d'un même profil ont exactement les mêmes droits.
+    </p>
+    <p class="arch-note">
+      <strong>Rattachement utilisateur → profil : Keycloak</strong> — l'identification des
+      utilisateurs est désormais assurée par <strong>Keycloak</strong>, et c'est dans
+      Keycloak qu'est paramétré le profil à utiliser, <strong>par son label</strong>
+      (colonne <code>LABEL</code>). La table Legacy <code>USERS</code> et son lien
+      <code>PROF_ID</code> vers PROFILES sont <strong>dépréciés</strong> et ne sont pas
+      documentés ici : ne pas les utiliser côté Java.
     </p>
     <p>
       Concrètement, les droits sont matérialisés par les enregistrements
@@ -2522,6 +2690,33 @@
       <strong>liste vide = tous les types autorisés</strong> ; une liste non vide
       restreint explicitement aux types listés.
     </p>
+    <p class="arch-note">
+      <strong>Restriction par manutentionnaire (nouveau 07/2026)</strong> — le profil peut
+      porter la liste des manutentionnaires
+      (<a class="fk-link" onclick="show('stevedore-company')">StevedoreCompany</a>) dont il
+      voit les données, via la table relationnelle <code>STEVEDORES_OF_PROFILES</code>
+      (clé composite <code>PROFILE_ID + STEVEDORE_ID</code>). Convention :
+      <strong>liste vide = aucune restriction</strong> ; une liste non vide restreint
+      <strong>fermement</strong> aux escales de ces manutentionnaires et aux objets qui leur
+      sont associés — règle transverse détaillée dans les
+      <a class="fk-link" onclick="show('generalites')">Généralités</a>.
+    </p>
+    <p class="arch-note">
+      La fiche des profils du client Legacy propose depuis 07/2026 un bouton
+      <strong>Dupliquer</strong> (copie complète du profil sélectionné : droits, dépendances,
+      types d'absences et manutentionnaires) et un bouton
+      <strong>Initialiser les droits</strong> (quand la liste des droits est vide, crée une
+      ligne « Aucun » par fonctionnalité, à ouvrir ensuite une par une).
+    </p>
+    <div class="arch-warning">
+      <strong>Génération des identifiants — vigilance :</strong> deux mécanismes coexistent
+      historiquement. Le client C++ alloue les ID de profils via la table
+      <code>SEQUENCES</code> (ligne <code>PF_SEQ</code> = dernier ID utilisé), tandis que la
+      séquence Oracle <code>PROFILES_SEQ</code> existe pour Hibernate. Si vous créez des
+      profils côté Java, vérifiez après coup que
+      <code>SEQUENCES.PF_SEQ &ge; max(PROFILES.ID)</code>, sinon le prochain profil créé
+      depuis le client C++ risque une collision d'ID.
+    </div>
   </div>
 
   <!-- Attributes -->
@@ -2544,7 +2739,7 @@
           <td class="col-oracle">LABEL</td>
           <td><span class="tag tag-str">String</span></td>
           <td><strong>obligatoire</strong></td>
-          <td>Libellé court du profil (identifiant fonctionnel utilisé dans les écrans)</td>
+          <td>Libellé court du profil (identifiant fonctionnel utilisé dans les écrans). C'est ce label qui est paramétré dans <strong>Keycloak</strong> pour rattacher un utilisateur à son profil.</td>
         </tr>
         <tr data-order="2">
           <td><span class="java-name has-tip">name<span class="tip">C++ : mcName (ILS_ENTRY_STRING)</span></span></td>
@@ -2577,12 +2772,6 @@
     <div class="rel-row">
       <span class="rel-entity current">Profile</span>
       <span class="rel-arrow">← <span class="rel-card">1:N</span> —</span>
-      <a class="rel-entity" onclick="show('user')">User</a>
-      <span class="rel-desc">via USERS.PROF_ID — utilisateurs rattachés à ce profil</span>
-    </div>
-    <div class="rel-row">
-      <span class="rel-entity current">Profile</span>
-      <span class="rel-arrow">← <span class="rel-card">1:N</span> —</span>
       <a class="rel-entity" onclick="show('right')">Right</a>
       <span class="rel-desc">via RIGHTS.PROF_ID — droits accordés sur les fonctions</span>
     </div>
@@ -2603,6 +2792,57 @@
       <span class="rel-arrow">— <span class="rel-card">N:N</span> →</span>
       <span class="rel-entity">VacationType</span>
       <span class="rel-desc">à travers VACATION_TYPES_OF_PROFILES — types d'absence autorisés (vide = tous)</span>
+    </div>
+    <div class="rel-row">
+      <span class="rel-entity current">Profile</span>
+      <span class="rel-arrow">— <span class="rel-card">N:N</span> →</span>
+      <a class="rel-entity" onclick="show('stevedore-company')">StevedoreCompany</a>
+      <span class="rel-desc">à travers STEVEDORES_OF_PROFILES — manutentionnaires dont le profil voit les données (vide = aucune restriction) — nouveau 07/2026</span>
+    </div>
+  </div>
+
+  <!-- Requêtes -->
+  <div class="card">
+    <h3>Requêtes</h3>
+
+    <div class="feature-intro">
+      <strong>Fonctionnalité « <a class="feat-link" onclick="show('feat-demandes-de-portiques')">Demandes de portiques</a> »</strong> —
+      écran destiné à <strong>l'entreprise de manutention</strong>. L'utilisateur connecté
+      n'a accès qu'aux données des manutentionnaires associés à son profil : la première
+      chose à établir est donc <strong>la liste de ces manutentionnaires</strong>.
+    </div>
+
+    <div class="query-block" data-feature="feat-demandes-de-portiques" data-q-rank="1">
+      <h4><span class="q-tag">Requête</span> Manutentionnaires autorisés du profil</h4>
+      <p>
+        Objectif : déterminer les <strong>manutentionnaires dont l'utilisateur connecté voit
+        les données</strong>. Le résultat est un ensemble de
+        <a class="fk-link" onclick="show('stevedore-company')">StevedoreCompany</a> — souvent
+        un seul, parfois plusieurs.
+      </p>
+      <p><strong>Démarche :</strong></p>
+      <ul>
+        <li>
+          <strong>1. Partir du profil de l'utilisateur connecté</strong> — l'identification
+          est assurée par <strong>Keycloak</strong>, qui porte le <strong>label du
+          profil</strong> à utiliser : retrouver le Profile par sa colonne
+          <code>LABEL</code>. (Ne pas passer par la table Legacy <code>USERS</code>,
+          dépréciée.)
+        </li>
+        <li>
+          <strong>2. Lire la liste des manutentionnaires du profil</strong> — via la table
+          <code>STEVEDORES_OF_PROFILES</code> (<code>PROFILE_ID</code> →
+          <code>STEVEDORE_ID</code>), joindre <code>STEVEDORES</code> pour obtenir les
+          libellés.
+        </li>
+      </ul>
+      <p class="q-note">
+        Points de vigilance : une liste <strong>vide</strong> signifie « aucune
+        restriction » — l'utilisateur voit alors tout ; pour cette fonctionnalité, le profil
+        du demandeur est normalement restreint à son entreprise. Les classes concernées sont
+        <strong>stables</strong> : la liste peut être établie une fois pour toutes au
+        chargement de la session.
+      </p>
     </div>
   </div>
 
@@ -3430,6 +3670,14 @@
           la plage (<code>displayingBeginTime</code> / <code>displayingEndTime</code>). Le plus
           souvent une seule plage convient, mais plusieurs peuvent se chevaucher et être retenues
           ensemble.
+          <div class="arch-warning" style="margin-top:0.4rem;">
+            <strong>Journée portuaire :</strong> le jour auquel se rattachent l'heure
+            courante et le shift s'entend en
+            <a class="fk-link" onclick="showAnchor('generalites','journee-portuaire')">journée
+            portuaire</a>, qui commence à l'heure de référence, pas à minuit : le 23/07 à 3h
+            du matin, on est dans le shift de nuit <strong>du 22/07</strong>. Ne pas en
+            tenir compte fausse tout (« Bug de Poisot »).
+          </div>
         </li>
       </ul>
       <p class="q-note">
@@ -3876,6 +4124,96 @@
 
 </section>
 
+<!-- ================================================================ -->
+<!-- MAIN RESOURCE                                                    -->
+<!-- ================================================================ -->
+<section class="entity" id="main-resource">
+
+  <div class="entity-header">
+    <h2>MainResource</h2>
+    <div class="aliases">
+      Table Oracle : <code>MAIN_RESOURCES</code> &nbsp;|&nbsp;
+      Serveur C++ : <code>tcMrpsMainResource</code> &nbsp;|&nbsp;
+      Client Rp : <code>tcMrpsRpMainResource</code>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Description fonctionnelle</h3>
+    <p>
+      La classe <strong>MainResource</strong> est le <strong>registre clé/valeur</strong>
+      des paramètres globaux d'Agir : chaque enregistrement associe un nom de ressource
+      (<code>RESOURCE_NAME</code>) à une valeur (<code>RESOURCE_VALUE</code>), toutes deux
+      des chaînes. Les différents modules du serveur y lisent leur configuration.
+    </p>
+    <p class="arch-note">
+      Cette fiche ne documente <strong>pas l'exhaustivité des ressources</strong> : la
+      table en contient beaucoup, propres aux modules Legacy. Les ressources utiles à la
+      nouvelle application sont documentées ci-dessous, <strong>au fil des besoins</strong>.
+    </p>
+  </div>
+
+  <!-- Attributes -->
+  <div class="card col-card">
+    <h3><span>Attributs — MainResource</span><button class="reset-sort" onclick="resetSort(this)">↺ Ordre initial</button></h3>
+    <table class="sortable-table">
+      <thead>
+        <tr><th class="sortable" onclick="sortTable(this,0)">Attribut</th><th class="sortable" onclick="sortTable(this,1)">Colonne Oracle</th><th class="sortable" onclick="sortTable(this,2)">Type</th><th class="sortable" onclick="sortTable(this,3)">Contrainte</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr data-order="0">
+          <td><span class="java-name has-tip">id<span class="tip">C++ : getId() — hérité de tcMrpsObject</span></span></td>
+          <td class="col-oracle">ID</td>
+          <td><span class="tag tag-num">Number</span></td>
+          <td><span class="tag tag-pk">PK</span></td>
+          <td>Identifiant unique</td>
+        </tr>
+        <tr data-order="1">
+          <td><span class="java-name has-tip">name<span class="tip">C++ : mcName (ILS_ENTRY_STRING)</span></span></td>
+          <td class="col-oracle">RESOURCE_NAME</td>
+          <td><span class="tag tag-str">String</span></td>
+          <td><strong>obligatoire</strong></td>
+          <td>Nom (clé) de la ressource, ex. <code>REFERENCE_TIME</code>. C'est par ce nom que les modules recherchent leur paramètre.</td>
+        </tr>
+        <tr data-order="2">
+          <td><span class="java-name has-tip">value<span class="tip">C++ : mcValue (ILS_ENTRY_STRING)</span></span></td>
+          <td class="col-oracle">RESOURCE_VALUE</td>
+          <td><span class="tag tag-str">String</span></td>
+          <td></td>
+          <td>Valeur de la ressource, sous forme de chaîne. L'interprétation (nombre, date, heure…) dépend de la ressource.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Ressources documentées -->
+  <div class="card">
+    <h3>Ressources documentées</h3>
+    <table>
+      <thead>
+        <tr><th>RESOURCE_NAME</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="col-oracle">REFERENCE_TIME</td>
+          <td>
+            <strong>Heure de référence de la
+            <a class="fk-link" onclick="showAnchor('generalites','journee-portuaire')">journée
+            portuaire</a></strong> (l'heure à laquelle commence la journée d'exploitation,
+            à la place de minuit). La valeur est une date/heure au
+            <strong>1<sup>er</sup> janvier 1971</strong>
+            (<a class="fk-link" onclick="showAnchor('generalites','reference-date')">ReferenceDate</a>) :
+            seule la partie <strong>heure</strong> est significative. C'est
+            <strong>cette ressource</strong> que la nouvelle application doit lire pour
+            déterminer le début de la journée portuaire.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</section>
+
 
 </main>
 </div>
@@ -3899,6 +4237,13 @@ function show(id) {
   // Scroll main to top
   document.querySelector('main').scrollTop = 0;
   window.scrollTo(0, 0);
+}
+
+// Affiche une section puis défile jusqu'à un bloc précis (ex. règle des Généralités)
+function showAnchor(id, anchorId) {
+  show(id);
+  var el = document.getElementById(anchorId);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 function sortTable(th, colIndex) {
@@ -3958,13 +4303,13 @@ var FRESHNESS = {
   'activity': 'volatile',
   'activity-type': 'stable',
   'task': 'volatile',
+  'stevedore-company': 'stable',
   'stevedoring-set': 'stable',
   'grade': 'stable',
   'skill': 'stable',
   'order': 'volatile',
   'post': 'volatile',
   'allocation': 'volatile',
-  'user': 'stable',
   'profile': 'stable',
   'profile-dependence': 'stable',
   'right': 'stable',
@@ -3972,12 +4317,12 @@ var FRESHNESS = {
   'activity-center': 'stable',
   'allotted-slot': 'stable',
   'slot-definition': 'stable',
-  'working-period': 'stable'
+  'working-period': 'stable',
+  'main-resource': 'stable'
 };
 // Précision optionnelle affichée à la suite du badge (cas particuliers).
 var FRESH_NOTES = {
-  'activity': 'classe non datée : à charger par jointure depuis les chantiers/escales (Task)',
-  'user': 'les mots de passe sont désormais gérés par Keycloak et n\'ont pas besoin d\'être (re)chargés'
+  'activity': 'classe non datée : à charger par jointure depuis les chantiers/escales (Task)'
 };
 var FRESH_LABELS = {
   'stable':   ['fresh-static', 'Stable', 'pas de rechargement à chaque appel — un chargement initial (cache) suffit'],
@@ -3995,6 +4340,36 @@ Object.keys(FRESHNESS).forEach(function(id) {
   if (FRESH_NOTES[id]) html += ' <em>(' + FRESH_NOTES[id] + ')</em>';
   div.innerHTML = html;
   header.appendChild(div);
+});
+
+// Marquage des fiches récemment modifiées : pastille orange dans le menu +
+// ligne « Mis à jour » en tête de fiche. Une seule table à maintenir ci-dessous ;
+// la vider quand Franck demande la réinitialisation.
+var UPDATED_LABEL = 'Mis à jour le 23/07/2026';
+var UPDATED = {
+  'generalites': 'journée portuaire (« Bug de Poisot »), ReferenceDate, restriction par manutentionnaire',
+  'feat-demandes-de-portiques': 'nouvelle page (2 requêtes)',
+  'stevedore-company': 'nouvelle fiche',
+  'main-resource': 'nouvelle fiche (ressource REFERENCE_TIME)',
+  'profile': 'restriction par manutentionnaire, rattachement Keycloak, boutons Dupliquer / Initialiser les droits, vigilance SEQUENCES, requête Demandes de portiques',
+  'task': 'lien manutentionnaire, requête Demandes de portiques, rappel journée portuaire',
+  'order': 'rappel journée portuaire (requête Commandes du shift)',
+  'allotted-slot': 'rappel journée portuaire (requête Plages horaires courantes)'
+};
+Object.keys(UPDATED).forEach(function(id) {
+  var link = document.querySelector('#navList a[data-id="' + id + '"]');
+  if (link) {
+    var dot = document.createElement('span');
+    dot.className = 'nav-updated';
+    dot.title = UPDATED_LABEL + ' — ' + UPDATED[id];
+    link.appendChild(dot);
+  }
+  var header = document.querySelector('#' + id + ' .entity-header');
+  if (header) {
+    var div = document.createElement('div');
+    div.innerHTML = '<span class="updated-badge"><span class="updated-dot"></span><strong>' + UPDATED_LABEL + '</strong> — ' + UPDATED[id] + '</span>';
+    header.appendChild(div);
+  }
 });
 
 // Pages fonctionnalités : les requêtes sont écrites UNE SEULE FOIS, sur la fiche
