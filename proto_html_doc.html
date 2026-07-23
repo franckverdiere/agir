@@ -219,6 +219,7 @@
     display: inline-block; width: 8px; height: 8px; border-radius: 50%;
     background: #dd6b20; margin-right: 0.4rem;
   }
+  .blk-updated { margin-left: 0; margin-right: 0.45rem; }
 
   /* Relations */
   .rel-row { display: flex; align-items: center; gap: 0.6rem; font-size: 0.88rem; margin-bottom: 0.5rem; }
@@ -306,7 +307,7 @@
     <div class="freshness fresh-specific" style="margin: 0.4rem 0;"><span class="fresh-dot"></span><strong>Spécifique</strong>&nbsp;— modalités décrites au cas par cas, selon les cas particuliers de la fiche</div>
   </div>
 
-  <div class="card" id="journee-portuaire">
+  <div class="card" id="journee-portuaire" data-updated="23/07/2026">
     <h3>Très important : la « journée portuaire » ne commence pas à minuit</h3>
     <p>
       Dans Agir, la notion de <strong>jour</strong> attachée aux données d'exploitation ne
@@ -333,7 +334,7 @@
     </div>
   </div>
 
-  <div class="card" id="reference-date">
+  <div class="card" id="reference-date" data-updated="23/07/2026">
     <h3>ReferenceDate : le 1<sup>er</sup> janvier 1971</h3>
     <p>
       La <strong>ReferenceDate</strong> est une <strong>constante</strong> :
@@ -380,7 +381,7 @@
     </div>
   </div>
 
-  <div class="card">
+  <div class="card" data-updated="23/07/2026">
     <h3>Restriction par manutentionnaire</h3>
     <p>
       Un <a class="fk-link" onclick="show('profile')">Profile</a> peut être associé à une
@@ -1014,7 +1015,7 @@
           <td>→ Customer</td>
           <td>Agent (notion voisine du manutentionnaire). Non visible dans le panneau Gantt, mais présent dans le modèle. Gardé pour Java.</td>
         </tr>
-        <tr data-order="6">
+        <tr data-order="6" data-updated="23/07/2026">
           <td><span class="java-name has-tip">stevedoreCompany<span class="tip">C++ : mrStevedoreCompany (ILS_USES_1)</span></span></td>
           <td class="col-oracle">STVD_ID</td>
           <td><span class="tag tag-fk">FK</span></td>
@@ -1129,7 +1130,7 @@
       <span class="rel-entity">Customer</span>
       <span class="rel-desc">via CUS_ID — agent</span>
     </div>
-    <div class="rel-row">
+    <div class="rel-row" data-updated="23/07/2026">
       <span class="rel-entity current">Task</span>
       <span class="rel-arrow">— <span class="rel-card">N:1</span> →</span>
       <a class="rel-entity" onclick="show('stevedore-company')">StevedoreCompany</a>
@@ -1175,7 +1176,7 @@
       l'utilisateur, et uniquement celles-là.
     </div>
 
-    <div class="query-block" data-feature="feat-demandes-de-portiques" data-q-rank="2">
+    <div class="query-block" data-feature="feat-demandes-de-portiques" data-q-rank="2" data-updated="23/07/2026">
       <h4><span class="q-tag">Requête</span> Escales des manutentionnaires autorisés</h4>
       <p>
         Objectif : charger les <strong>chantiers/escales visibles par l'utilisateur</strong>,
@@ -2138,7 +2139,7 @@
           restreignant au jour courant sur les dates de travail
           (<code>workStartDate</code> / <code>workEndDate</code>). Aucun filtre sur le
           statut de la commande.
-          <div class="arch-warning" style="margin-top:0.4rem;">
+          <div class="arch-warning" style="margin-top:0.4rem;" data-updated="23/07/2026">
             <strong>Journée portuaire :</strong> le « jour courant » s'entend en
             <a class="fk-link" onclick="showAnchor('generalites','journee-portuaire')">journée
             portuaire</a>, qui commence à l'heure de référence, pas à minuit : le 23/07 à 3h
@@ -2643,7 +2644,7 @@
       applicatives ; un ou plusieurs utilisateurs y sont rattachés, et tous les utilisateurs
       d'un même profil ont exactement les mêmes droits.
     </p>
-    <p class="arch-note">
+    <p class="arch-note" data-updated="23/07/2026">
       <strong>Rattachement utilisateur → profil : Keycloak</strong> — l'identification des
       utilisateurs est désormais assurée par <strong>Keycloak</strong>, et c'est dans
       Keycloak qu'est paramétré le profil à utiliser, <strong>par son label</strong>
@@ -2690,7 +2691,7 @@
       <strong>liste vide = tous les types autorisés</strong> ; une liste non vide
       restreint explicitement aux types listés.
     </p>
-    <p class="arch-note">
+    <p class="arch-note" data-updated="23/07/2026">
       <strong>Restriction par manutentionnaire (nouveau 07/2026)</strong> — le profil peut
       porter la liste des manutentionnaires
       (<a class="fk-link" onclick="show('stevedore-company')">StevedoreCompany</a>) dont il
@@ -2701,14 +2702,14 @@
       sont associés — règle transverse détaillée dans les
       <a class="fk-link" onclick="show('generalites')">Généralités</a>.
     </p>
-    <p class="arch-note">
+    <p class="arch-note" data-updated="23/07/2026">
       La fiche des profils du client Legacy propose depuis 07/2026 un bouton
       <strong>Dupliquer</strong> (copie complète du profil sélectionné : droits, dépendances,
       types d'absences et manutentionnaires) et un bouton
       <strong>Initialiser les droits</strong> (quand la liste des droits est vide, crée une
       ligne « Aucun » par fonctionnalité, à ouvrir ensuite une par une).
     </p>
-    <div class="arch-warning">
+    <div class="arch-warning" data-updated="23/07/2026">
       <strong>Génération des identifiants — vigilance :</strong> deux mécanismes coexistent
       historiquement. Le client C++ alloue les ID de profils via la table
       <code>SEQUENCES</code> (ligne <code>PF_SEQ</code> = dernier ID utilisé), tandis que la
@@ -2793,7 +2794,7 @@
       <span class="rel-entity">VacationType</span>
       <span class="rel-desc">à travers VACATION_TYPES_OF_PROFILES — types d'absence autorisés (vide = tous)</span>
     </div>
-    <div class="rel-row">
+    <div class="rel-row" data-updated="23/07/2026">
       <span class="rel-entity current">Profile</span>
       <span class="rel-arrow">— <span class="rel-card">N:N</span> →</span>
       <a class="rel-entity" onclick="show('stevedore-company')">StevedoreCompany</a>
@@ -2812,7 +2813,7 @@
       chose à établir est donc <strong>la liste de ces manutentionnaires</strong>.
     </div>
 
-    <div class="query-block" data-feature="feat-demandes-de-portiques" data-q-rank="1">
+    <div class="query-block" data-feature="feat-demandes-de-portiques" data-q-rank="1" data-updated="23/07/2026">
       <h4><span class="q-tag">Requête</span> Manutentionnaires autorisés du profil</h4>
       <p>
         Objectif : déterminer les <strong>manutentionnaires dont l'utilisateur connecté voit
@@ -3670,7 +3671,7 @@
           la plage (<code>displayingBeginTime</code> / <code>displayingEndTime</code>). Le plus
           souvent une seule plage convient, mais plusieurs peuvent se chevaucher et être retenues
           ensemble.
-          <div class="arch-warning" style="margin-top:0.4rem;">
+          <div class="arch-warning" style="margin-top:0.4rem;" data-updated="23/07/2026">
             <strong>Journée portuaire :</strong> le jour auquel se rattachent l'heure
             courante et le shift s'entend en
             <a class="fk-link" onclick="showAnchor('generalites','journee-portuaire')">journée
@@ -4369,6 +4370,27 @@ Object.keys(UPDATED).forEach(function(id) {
     var div = document.createElement('div');
     div.innerHTML = '<span class="updated-badge"><span class="updated-dot"></span><strong>' + UPDATED_LABEL + '</strong> — ' + UPDATED[id] + '</span>';
     header.appendChild(div);
+  }
+});
+
+// Pastille sur les blocs modifiés DANS le corps des fiches : tout élément portant
+// un attribut data-updated="JJ/MM/AAAA" reçoit la pastille orange à côté de son
+// titre (h3/h4) ou en tête de bloc. À réinitialiser en même temps que UPDATED
+// (supprimer les attributs data-updated du HTML).
+document.querySelectorAll('[data-updated]').forEach(function(el) {
+  var dot = document.createElement('span');
+  dot.title = 'Mis à jour le ' + el.getAttribute('data-updated');
+  var heading = el.querySelector('h3, h4');
+  if (heading) {
+    dot.className = 'nav-updated';
+    heading.appendChild(dot);
+  } else if (el.tagName === 'TR') {
+    dot.className = 'nav-updated';
+    var td = el.querySelector('td');
+    if (td) td.appendChild(dot);
+  } else {
+    dot.className = 'nav-updated blk-updated';
+    el.insertBefore(dot, el.firstChild);
   }
 });
 
