@@ -276,6 +276,8 @@
     <li><a onclick="show('slot-definition')" data-id="slot-definition">SlotDefinition <span class="tbl">SLOT_DEFINITIONS</span></a></li>
     <li><a onclick="show('working-period')" data-id="working-period">WorkingPeriod <span class="tbl">WORKING_PERIODS</span></a></li>
     <li class="group-label">Paramétrage</li>
+    <li><a onclick="show('api-rest')" data-id="api-rest">API REST <span class="tbl">référentiels</span></a></li>
+    <li><a onclick="show('day-off')" data-id="day-off">DayOff <span class="tbl">DAY_OFFS</span><span class="soon">(bientôt)</span></a></li>
     <li><a onclick="show('main-resource')" data-id="main-resource">MainResource <span class="tbl">MAIN_RESOURCES</span></a></li>
   </ul>
 </nav>
@@ -307,7 +309,7 @@
     <div class="freshness fresh-specific" style="margin: 0.4rem 0;"><span class="fresh-dot"></span><strong>Spécifique</strong>&nbsp;— modalités décrites au cas par cas, selon les cas particuliers de la fiche</div>
   </div>
 
-  <div class="card" id="journee-portuaire" data-updated="23/07/2026">
+  <div class="card" id="journee-portuaire">
     <h3>Très important : la « journée portuaire » ne commence pas à minuit</h3>
     <p>
       Dans Agir, la notion de <strong>jour</strong> attachée aux données d'exploitation ne
@@ -334,7 +336,7 @@
     </div>
   </div>
 
-  <div class="card" id="reference-date" data-updated="23/07/2026">
+  <div class="card" id="reference-date">
     <h3>ReferenceDate : le 1<sup>er</sup> janvier 1971</h3>
     <p>
       La <strong>ReferenceDate</strong> est une <strong>constante</strong> :
@@ -381,7 +383,149 @@
     </div>
   </div>
 
-  <div class="card" data-updated="23/07/2026">
+  <div class="card" id="droits-fonctionnalite" data-updated="25/07/2026">
+    <h3>Droits d'accès d'une fonctionnalité</h3>
+    <p>
+      Le périmètre de données qu'un utilisateur voit dans une fonctionnalité est déterminé
+      par son <a class="fk-link" onclick="show('profile')">Profile</a> (fourni par Keycloak,
+      par son label) selon <strong>deux dimensions indépendantes</strong> :
+    </p>
+    <p>
+      <strong>1. Les centres d'activité</strong> — pour chaque fonctionnalité, les
+      <a class="fk-link" onclick="show('activity-center')">centres d'activité</a> accessibles
+      au profil sont ceux paramétrés dans
+      <a class="fk-link" onclick="show('profile-dependence')">ProfileDependence</a>
+      (triplet profil + fonction + centre d'activité).
+      <strong>Si aucun centre d'activité n'est paramétré pour la fonctionnalité, aucun
+      centre n'est accessible</strong> — la fonctionnalité est inutilisable pour ce profil.
+    </p>
+    <p>
+      <strong>2. Les manutentionnaires</strong> — le profil peut porter une liste de
+      manutentionnaires autorisés (règle « Restriction par manutentionnaire » ci-dessous).
+      Convention <strong>inverse</strong> de la précédente : <strong>si le profil ne prévoit
+      aucun manutentionnaire, toutes les données sont accessibles</strong>.
+    </p>
+    <div class="arch-warning">
+      <strong>Attention à l'asymétrie des deux conventions :</strong> liste de centres
+      d'activité vide = <strong>aucun accès</strong> ; liste de manutentionnaires vide =
+      <strong>tout est accessible</strong>. Par ailleurs, chaque fonctionnalité précise
+      quelles règles s'appliquent à elle : une fonctionnalité purement interne (ex.
+      <a class="fk-link" onclick="show('feat-demarrage-de-shift')">Démarrage de shift</a>)
+      suit la règle des centres d'activité mais <strong>pas</strong> celle des
+      manutentionnaires.
+    </div>
+  </div>
+
+  <div class="card" id="convention-tri" data-updated="25/07/2026">
+    <h3>Convention de tri : le « code de tri »</h3>
+    <p>
+      Dans Agir, lorsqu'un objet possède un attribut <strong>code de tri</strong>
+      (<code>sortingCode</code>, colonne <code>SORTING_CODE</code>), le tri à appliquer est,
+      sauf indication contraire : <strong>par code de tri, puis par libellé</strong>. Le code
+      de tri permet un ordre métier indépendant de l'ordre alphabétique ; le libellé départage
+      les ex æquo. Les objets sans code de tri se trient par libellé.
+    </p>
+  </div>
+
+  <div class="card" id="types-de-jour" data-updated="25/07/2026">
+    <h3>Les types de jour (masque de bits)</h3>
+    <p>
+      Plusieurs objets de paramétrage portent un <strong>type de jour</strong> qui
+      restreint les jours où l'objet s'applique : <code>WORKING_PERIODS.VALID_TYPES_OF_DAY</code>
+      (<a class="fk-link" onclick="show('working-period')">WorkingPeriod</a>),
+      <code>STEVEDORING_SETS.TYPE_OF_DAY</code>
+      (<a class="fk-link" onclick="show('stevedoring-set')">StevedoringSet</a>) — ainsi que
+      les compositions <code>STRENGTH_DEFINITIONS</code> et <code>STVD_SET_GRADE_SUMS</code>.
+      C'est un <strong>masque de bits</strong>, dont la référence C++ est
+      <code>Calendar::TypeOfDay</code> et l'évaluation
+      <code>Calendar::Date::isTypeOfDay()</code>. Le type de jour indique si une instance
+      est <strong>définie ou non un jour donné</strong>, en fonction des caractéristiques
+      de ce jour.
+    </p>
+    <div class="arch-warning">
+      <strong>Stockage en libellé, pas en masque :</strong> ces colonnes stockent le
+      <strong>libellé, esperluette comprise</strong> (ex. <code>&amp;AllWeek</code>,
+      <code>&amp;WeekOnly</code>, <code>&amp;Never</code>) — le masque entier est le
+      format d'échange avec le moteur. La table de correspondance libellé ↔ masque est le
+      jeu de données <code>MdsGlobalWeekDays</code> (64 libellés paramétrés), à demander
+      au Legacy via
+      <a class="fk-link" onclick="show('api-rest')">GET /api/globalds</a> — jamais à
+      recopier.
+    </div>
+    <table>
+      <thead><tr><th>Valeur</th><th>Signification</th><th>Valeur</th><th>Signification</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>Dimanche</td><td>128</td><td>Jour chômé</td></tr>
+        <tr><td>2</td><td>Lundi</td><td>256</td><td>Jour non chômé</td></tr>
+        <tr><td>4</td><td>Mardi</td><td>512</td><td>Veille de jour chômé</td></tr>
+        <tr><td>8</td><td>Mercredi</td><td>1024</td><td>Lendemain de jour chômé</td></tr>
+        <tr><td>16</td><td>Jeudi</td><td>16384</td><td>Avant-veille de jour chômé</td></tr>
+        <tr><td>32</td><td>Vendredi</td><td>32768</td><td>Avant-avant-veille de jour chômé</td></tr>
+        <tr><td>64</td><td>Samedi</td><td>65536</td><td>Jour férié</td></tr>
+        <tr><td><strong>2048</strong></td><td><strong>OU logique</strong></td><td>131072</td><td>Jour non férié</td></tr>
+        <tr><td><strong>4096</strong></td><td><strong>ET logique</strong></td><td>262144</td><td>Veille de jour férié</td></tr>
+        <tr><td><strong>8192</strong></td><td><strong>Distributif</strong></td><td>524288</td><td>Lendemain de jour férié</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:0.8rem;">
+      <strong>Caractérisation d'une date</strong> — chaque date possède : son jour de la
+      semaine, chômé <em>ou</em> non chômé, férié <em>ou</em> non férié, et les qualités
+      veille/lendemain correspondantes. Attention : « férié » n'implique pas « chômé ».
+      Les jours <strong>chômés</strong> et <strong>fériés</strong> sont les dates
+      enregistrées dans la table <code>DAY_OFFS</code> (colonne <code>TYPE</code> :
+      libellé <code>&amp;DayOff</code> = chômé ou <code>&amp;PublicHoliday</code> = férié,
+      du jeu <code>MdsGlobalTypeDayOffs</code> ; fiche
+      <a class="fk-link" onclick="show('day-off')">DayOff</a>, à documenter) — à charger
+      <strong>en mémoire</strong> une fois au démarrage : qualifier un seul jour consulte
+      jusqu'à cinq dates.
+    </p>
+    <p>
+      <strong>Évaluation du masque</strong> pour une date donnée :
+    </p>
+    <ul style="margin: 0.4rem 0 0.8rem 1.6rem; font-size: 0.92rem;">
+      <li><strong>OU logique</strong> (bit 2048 présent, ou aucun opérateur) — la date
+        convient si <strong>au moins un</strong> bit du masque figure parmi ses
+        caractéristiques. C'est le cas usuel : 127 (tous les jours de semaine cochés) =
+        tous les jours conviennent.</li>
+      <li><strong>ET logique</strong> (bit 4096) — la date doit posséder
+        <strong>toutes</strong> les caractéristiques du masque.</li>
+      <li><strong>Distributif</strong> (bit 8192, sans OU) — la date doit être
+        <strong>l'un des jours de semaine listés</strong> ET posséder
+        <strong>toutes les autres caractéristiques</strong> du masque (l'opérateur ET est
+        « distribué » sur la liste des jours).</li>
+    </ul>
+    <p>
+      Exemples : <code>127</code> = toute la semaine (défaut) ; <code>62</code> = semaine
+      (lundi → vendredi) ; <code>65</code> = week-end ; <code>2241</code> = 64 + 1 + 128 +
+      2048 = « samedi, dimanche <em>ou</em> jour chômé ».
+    </p>
+    <div class="feature-intro">
+      <strong>Ne pas réinventer la roue : le module Java <code>agir-calendar</code>
+      existe.</strong> Le moteur C++ (<code>Baseline/Calendar/Calendar/TypeOfDay.h/.cpp</code>,
+      <code>Date.cpp</code> — <code>typeOfDay()</code> / <code>isTypeOfDay()</code>) a été
+      <strong>porté en Java</strong> (package <code>com.docaposte.agir.calendar</code>,
+      Java 17, aucune dépendance d'exécution) et <strong>communiqué à l'équipe Java</strong>
+      (07/2026). Il est identique bit à bit au moteur C++ (vérifié par comparaison
+      différentielle : 61,8 millions d'évaluations, zéro écart). Utilisation :
+      <code>TypeOfDayCatalog.readFrom()</code> sur le flux de
+      <a class="fk-link" onclick="show('api-rest')">GET /api/globalds?datasource=MdsGlobalWeekDays</a>
+      (une fois au démarrage), <code>SpecialDays</code> alimenté en mémoire depuis
+      <code>DAY_OFFS</code>, puis <code>TypeOfDayCalendar.isTypeOfDay(date, critère)</code>
+      (et <code>nextMatchingDay</code> / <code>previousMatchingDay</code>, recherche
+      bornée à 630 jours comme le Legacy).
+    </div>
+    <p class="arch-note">
+      Note d'architecture : le module reproduit fidèlement le Legacy, <strong>y compris
+      ses particularités</strong> — <code>&amp;Never</code> est encodé comme un « et »
+      impossible (dimanche <em>et</em> lundi), un critère distributif sans « et »
+      dégénère en « ou », les caractéristiques de voisinage ne sont pas calculées hors du
+      calendrier 1971-2038, « férié » n'implique pas « chômé ». <strong>Ne pas
+      « corriger » ces règles</strong> : diverger du moteur de planification serait un
+      bug plus grave.
+    </p>
+  </div>
+
+  <div class="card">
     <h3>Restriction par manutentionnaire</h3>
     <p>
       Un <a class="fk-link" onclick="show('profile')">Profile</a> peut être associé à une
@@ -431,6 +575,16 @@
       La demande de portique se situe <strong>en amont de la commande</strong>
       (<a class="fk-link" onclick="show('order')">Order</a>) : ce sont deux classes
       distinctes. La commande est créée ensuite, manuellement, par le planificateur.
+    </p>
+    <p data-updated="25/07/2026">
+      <strong>Droits d'accès</strong> — la fonctionnalité suit les <strong>deux</strong>
+      règles des
+      « <a class="fk-link" onclick="showAnchor('generalites','droits-fonctionnalite')">Droits
+      d'accès d'une fonctionnalité</a> » : la <strong>restriction par
+      manutentionnaire</strong> (les escales visibles) et la règle des <strong>centres
+      d'activité</strong> — les horaires proposés dans le formulaire de saisie sont ceux
+      des centres d'activité autorisés du profil (requête « Horaires proposables pour une
+      demande », fiche <a class="fk-link" onclick="show('allotted-slot')">AllottedSlot</a>).
     </p>
   </div>
 
@@ -485,6 +639,16 @@
       <strong>moment donné</strong> (l'heure courante). Au démarrage, elle doit déterminer
       quelle(s) <strong>plage(s) horaire(s)</strong>
       (<a class="fk-link" onclick="show('allotted-slot')">AllottedSlot</a>) considérer à cet instant.
+    </p>
+    <p data-updated="25/07/2026">
+      <strong>Droits d'accès</strong> — fonctionnalité <strong>purement interne</strong> :
+      elle suit la règle des <strong>centres d'activité</strong> (le profil n'accède qu'aux
+      centres paramétrés pour cette fonctionnalité dans
+      <a class="fk-link" onclick="show('profile-dependence')">ProfileDependence</a> ; aucun
+      centre paramétré = aucun accès) mais <strong>pas</strong> la restriction par
+      manutentionnaire. Voir la règle transverse
+      « <a class="fk-link" onclick="showAnchor('generalites','droits-fonctionnalite')">Droits
+      d'accès d'une fonctionnalité</a> » des Généralités.
     </p>
   </div>
 
@@ -1015,7 +1179,7 @@
           <td>→ Customer</td>
           <td>Agent (notion voisine du manutentionnaire). Non visible dans le panneau Gantt, mais présent dans le modèle. Gardé pour Java.</td>
         </tr>
-        <tr data-order="6" data-updated="23/07/2026">
+        <tr data-order="6">
           <td><span class="java-name has-tip">stevedoreCompany<span class="tip">C++ : mrStevedoreCompany (ILS_USES_1)</span></span></td>
           <td class="col-oracle">STVD_ID</td>
           <td><span class="tag tag-fk">FK</span></td>
@@ -1130,7 +1294,7 @@
       <span class="rel-entity">Customer</span>
       <span class="rel-desc">via CUS_ID — agent</span>
     </div>
-    <div class="rel-row" data-updated="23/07/2026">
+    <div class="rel-row">
       <span class="rel-entity current">Task</span>
       <span class="rel-arrow">— <span class="rel-card">N:1</span> →</span>
       <a class="rel-entity" onclick="show('stevedore-company')">StevedoreCompany</a>
@@ -1176,7 +1340,7 @@
       l'utilisateur, et uniquement celles-là.
     </div>
 
-    <div class="query-block" data-feature="feat-demandes-de-portiques" data-q-rank="2" data-updated="23/07/2026">
+    <div class="query-block" data-feature="feat-demandes-de-portiques" data-q-rank="2">
       <h4><span class="q-tag">Requête</span> Escales des manutentionnaires autorisés</h4>
       <p>
         Objectif : charger les <strong>chantiers/escales visibles par l'utilisateur</strong>,
@@ -1436,13 +1600,14 @@
             d'affectation des engins) ; 0 = configuration hors conduite opérationnelle,
             typiquement de maintenance (nombre de conducteurs selon l'opération)</td>
         </tr>
-        <tr data-order="7">
+        <tr data-order="7" data-updated="25/07/2026">
           <td><span class="java-name has-tip">typeOfDay<span class="tip">C++ : mcTypeOfDay (ILS_ENTRY_INT) — défaut 127 = toute la semaine</span></span></td>
           <td class="col-oracle">TYPE_OF_DAY</td>
           <td><span class="tag tag-num">Number</span></td>
           <td></td>
-          <td>Jours de la semaine où la configuration s'applique (combinaison de jours ;
-            valeur par défaut : toute la semaine)</td>
+          <td>Jours où la configuration s'applique : <strong>masque de bits</strong>
+            « <a class="fk-link" onclick="showAnchor('generalites','types-de-jour')">type de
+            jour</a> » (voir Généralités). Défaut 127 = toute la semaine.</td>
         </tr>
         <tr data-order="8" class="deprecated">
           <td><span class="java-name">handling</span></td>
@@ -1534,6 +1699,20 @@
     <div class="aliases">Table Oracle : <code>CARGOS</code></div>
   </div>
   <div class="card"><p class="placeholder-msg">Documentation à venir.</p></div>
+</section>
+
+<!-- ================================================================ -->
+<!-- DAY OFF (placeholder)                                            -->
+<!-- ================================================================ -->
+<section class="entity" id="day-off">
+  <div class="entity-header">
+    <h2>DayOff</h2>
+    <div class="aliases">Table Oracle : <code>DAY_OFFS</code> &nbsp;|&nbsp; Serveur C++ : <code>tcMrpsDayOff</code></div>
+  </div>
+  <div class="card"><p class="placeholder-msg">Documentation à venir. — Jours chômés et
+    fériés du calendrier (référencés par les
+    <a class="fk-link" onclick="showAnchor('generalites','types-de-jour')">types de jour</a>
+    des Généralités).</p></div>
 </section>
 
 <!-- ================================================================ -->
@@ -2114,7 +2293,7 @@
       commandes charger.
     </div>
 
-    <div class="query-block" data-feature="feat-demarrage-de-shift" data-q-rank="2">
+    <div class="query-block" data-feature="feat-demarrage-de-shift" data-q-rank="3">
       <h4><span class="q-tag">Requête</span> Commandes du shift</h4>
       <p>
         Objectif : charger les <strong>commandes à afficher au démarrage du shift</strong> —
@@ -2139,7 +2318,7 @@
           restreignant au jour courant sur les dates de travail
           (<code>workStartDate</code> / <code>workEndDate</code>). Aucun filtre sur le
           statut de la commande.
-          <div class="arch-warning" style="margin-top:0.4rem;" data-updated="23/07/2026">
+          <div class="arch-warning" style="margin-top:0.4rem;">
             <strong>Journée portuaire :</strong> le « jour courant » s'entend en
             <a class="fk-link" onclick="showAnchor('generalites','journee-portuaire')">journée
             portuaire</a>, qui commence à l'heure de référence, pas à minuit : le 23/07 à 3h
@@ -2158,6 +2337,19 @@
           (<code>AREA_ID</code>) pour le quai et, pour l'affichage, la configuration
           commandée (<code>SS_ID</code>), la cargaison et l'agent
           (<code>CUSTOMER_ID</code>).
+        </li>
+        <li data-updated="25/07/2026">
+          <strong>4. Ordonner les blocs d'escales</strong> — l'affichage principal est
+          constitué de blocs qui s'appuient sur les
+          <a class="fk-link" onclick="show('task')">chantiers/escales</a>. Ils se trient
+          par <strong>type d'activité</strong>
+          (<a class="fk-link" onclick="show('activity-type')">ActivityType</a> de
+          l'activité de l'escale), puis par <strong>activité</strong>
+          (<a class="fk-link" onclick="show('activity')">Activity</a>). Le tri des types
+          d'activité suit la
+          <a class="fk-link" onclick="showAnchor('generalites','convention-tri')">convention
+          du code de tri</a> (code de tri puis libellé) ; les activités se trient par
+          libellé.
         </li>
       </ul>
       <p class="q-note">
@@ -2344,7 +2536,7 @@
       doit donc dépendre que de la commande, jamais des affectations.
     </div>
 
-    <div class="query-block" data-feature="feat-demarrage-de-shift" data-q-rank="3">
+    <div class="query-block" data-feature="feat-demarrage-de-shift" data-q-rank="4">
       <h4><span class="q-tag">Requête</span> Structure du panneau de démarrage</h4>
       <p>
         Objectif : construire le <strong>squelette du panneau</strong> uniquement à partir
@@ -2571,7 +2763,7 @@
       affecté : les engins et les agents.
     </div>
 
-    <div class="query-block" data-feature="feat-demarrage-de-shift" data-q-rank="4">
+    <div class="query-block" data-feature="feat-demarrage-de-shift" data-q-rank="5">
       <h4><span class="q-tag">Requête</span> Affectations planifiées du shift</h4>
       <p>
         Objectif : <strong>décorer la structure du panneau</strong> avec les affectations
@@ -2644,7 +2836,7 @@
       applicatives ; un ou plusieurs utilisateurs y sont rattachés, et tous les utilisateurs
       d'un même profil ont exactement les mêmes droits.
     </p>
-    <p class="arch-note" data-updated="23/07/2026">
+    <p class="arch-note">
       <strong>Rattachement utilisateur → profil : Keycloak</strong> — l'identification des
       utilisateurs est désormais assurée par <strong>Keycloak</strong>, et c'est dans
       Keycloak qu'est paramétré le profil à utiliser, <strong>par son label</strong>
@@ -2691,7 +2883,7 @@
       <strong>liste vide = tous les types autorisés</strong> ; une liste non vide
       restreint explicitement aux types listés.
     </p>
-    <p class="arch-note" data-updated="23/07/2026">
+    <p class="arch-note">
       <strong>Restriction par manutentionnaire (nouveau 07/2026)</strong> — le profil peut
       porter la liste des manutentionnaires
       (<a class="fk-link" onclick="show('stevedore-company')">StevedoreCompany</a>) dont il
@@ -2702,14 +2894,14 @@
       sont associés — règle transverse détaillée dans les
       <a class="fk-link" onclick="show('generalites')">Généralités</a>.
     </p>
-    <p class="arch-note" data-updated="23/07/2026">
+    <p class="arch-note">
       La fiche des profils du client Legacy propose depuis 07/2026 un bouton
       <strong>Dupliquer</strong> (copie complète du profil sélectionné : droits, dépendances,
       types d'absences et manutentionnaires) et un bouton
       <strong>Initialiser les droits</strong> (quand la liste des droits est vide, crée une
       ligne « Aucun » par fonctionnalité, à ouvrir ensuite une par une).
     </p>
-    <div class="arch-warning" data-updated="23/07/2026">
+    <div class="arch-warning">
       <strong>Génération des identifiants — vigilance :</strong> deux mécanismes coexistent
       historiquement. Le client C++ alloue les ID de profils via la table
       <code>SEQUENCES</code> (ligne <code>PF_SEQ</code> = dernier ID utilisé), tandis que la
@@ -2794,7 +2986,7 @@
       <span class="rel-entity">VacationType</span>
       <span class="rel-desc">à travers VACATION_TYPES_OF_PROFILES — types d'absence autorisés (vide = tous)</span>
     </div>
-    <div class="rel-row" data-updated="23/07/2026">
+    <div class="rel-row">
       <span class="rel-entity current">Profile</span>
       <span class="rel-arrow">— <span class="rel-card">N:N</span> →</span>
       <a class="rel-entity" onclick="show('stevedore-company')">StevedoreCompany</a>
@@ -2813,7 +3005,7 @@
       chose à établir est donc <strong>la liste de ces manutentionnaires</strong>.
     </div>
 
-    <div class="query-block" data-feature="feat-demandes-de-portiques" data-q-rank="1" data-updated="23/07/2026">
+    <div class="query-block" data-feature="feat-demandes-de-portiques" data-q-rank="1">
       <h4><span class="q-tag">Requête</span> Manutentionnaires autorisés du profil</h4>
       <p>
         Objectif : déterminer les <strong>manutentionnaires dont l'utilisateur connecté voit
@@ -3157,6 +3349,56 @@
       <span class="rel-arrow">— <span class="rel-card">N:1</span> →</span>
       <a class="rel-entity" onclick="show('activity-center')">ActivityCenter</a>
       <span class="rel-desc">via ACTIVITY_CENTER_ID — périmètre de l'élargissement</span>
+    </div>
+  </div>
+
+  <!-- Requêtes -->
+  <div class="card">
+    <h3>Requêtes</h3>
+
+    <div class="feature-intro" data-updated="25/07/2026">
+      <strong>Fonctionnalité « <a class="feat-link" onclick="show('feat-demarrage-de-shift')">Démarrage de shift</a> »</strong> —
+      fonctionnalité <strong>purement interne</strong> : la restriction par manutentionnaire
+      ne s'y applique <strong>pas</strong> ; seule la règle des <strong>centres
+      d'activité</strong> s'applique. La première chose à établir est donc la liste des
+      centres d'activité sur lesquels l'utilisateur peut démarrer un shift.
+    </div>
+
+    <div class="query-block" data-feature="feat-demarrage-de-shift" data-q-rank="1" data-updated="25/07/2026">
+      <h4><span class="q-tag">Requête</span> Centres d'activité autorisés du profil</h4>
+      <p>
+        Objectif : déterminer les <strong>centres d'activité</strong>
+        (<a class="fk-link" onclick="show('activity-center')">ActivityCenter</a>) sur
+        lesquels l'utilisateur connecté peut utiliser la fonctionnalité. Le « centre
+        d'activité courant » des requêtes suivantes est choisi parmi ce résultat.
+      </p>
+      <p><strong>Démarche :</strong></p>
+      <ul>
+        <li>
+          <strong>1. Partir du profil de l'utilisateur connecté</strong> — l'identification
+          est assurée par <strong>Keycloak</strong>, qui porte le <strong>label du
+          profil</strong> à utiliser : retrouver le
+          <a class="fk-link" onclick="show('profile')">Profile</a> par sa colonne
+          <code>LABEL</code>. (Ne pas passer par la table Legacy <code>USERS</code>,
+          dépréciée.)
+        </li>
+        <li>
+          <strong>2. Lire les centres d'activité paramétrés pour la fonctionnalité</strong> —
+          dans <code>PROFILE_DEPENDENCES</code>, retenir les enregistrements du profil pour
+          la <a class="fk-link" onclick="show('function')">fonction</a> correspondant à la
+          fonctionnalité ; joindre <code>ACTIVITY_CENTERS</code> pour les libellés.
+        </li>
+      </ul>
+      <p class="q-note">
+        Points de vigilance : contrairement à la liste des manutentionnaires, une liste
+        <strong>vide ne signifie pas « tous »</strong> — aucun centre paramétré =
+        <strong>aucun centre accessible</strong>, la fonctionnalité est inutilisable pour ce
+        profil (voir
+        « <a class="fk-link" onclick="showAnchor('generalites','droits-fonctionnalite')">Droits
+        d'accès d'une fonctionnalité</a> » dans les Généralités). Les classes concernées sont
+        <strong>stables</strong> : la liste peut être établie une fois pour toutes au
+        chargement de la session.
+      </p>
     </div>
   </div>
 
@@ -3647,7 +3889,7 @@
       sert à déterminer la plage horaire applicable, pas à lister des shifts.
     </div>
 
-    <div class="query-block" data-feature="feat-demarrage-de-shift" data-q-rank="1">
+    <div class="query-block" data-feature="feat-demarrage-de-shift" data-q-rank="2">
       <h4><span class="q-tag">Requête</span> Plages horaires courantes</h4>
       <p>
         Objectif : déterminer <strong>les plages horaires à considérer</strong> pour le centre
@@ -3671,7 +3913,7 @@
           la plage (<code>displayingBeginTime</code> / <code>displayingEndTime</code>). Le plus
           souvent une seule plage convient, mais plusieurs peuvent se chevaucher et être retenues
           ensemble.
-          <div class="arch-warning" style="margin-top:0.4rem;" data-updated="23/07/2026">
+          <div class="arch-warning" style="margin-top:0.4rem;">
             <strong>Journée portuaire :</strong> le jour auquel se rattachent l'heure
             courante et le shift s'entend en
             <a class="fk-link" onclick="showAnchor('generalites','journee-portuaire')">journée
@@ -3689,6 +3931,85 @@
         retenue si l'on veut tenir compte des marges autour des heures théoriques ; (c) les
         plages <strong>fictives</strong> (<code>fictitious = 1</code>, « Intervalle seul »)
         sont à écarter, elles ne correspondent pas à une tranche de travail réelle.
+      </p>
+    </div>
+
+    <div class="feature-intro" data-updated="25/07/2026">
+      <strong>Fonctionnalité « <a class="feat-link" onclick="show('feat-demandes-de-portiques')">Demandes de portiques</a> »</strong> —
+      le formulaire de saisie d'une demande propose au manutentionnaire un
+      <strong>horaire</strong> : c'est une <strong>plage horaire</strong> (AllottedSlot —
+      Matin, Après-midi, Nuit, Prolongation…). La liste proposée doit être
+      <strong>restreinte</strong> par la requête ci-dessous.
+    </div>
+
+    <div class="query-block" data-feature="feat-demandes-de-portiques" data-q-rank="3" data-updated="25/07/2026">
+      <h4><span class="q-tag">Requête</span> Horaires proposables pour une demande</h4>
+      <p>
+        Objectif : établir la liste des <strong>plages horaires proposées dans le formulaire
+        de saisie</strong> d'une demande de portique — ni plus, ni moins que celles qui ont
+        un sens pour l'utilisateur connecté.
+      </p>
+      <p><strong>Démarche :</strong></p>
+      <ul>
+        <li>
+          <strong>1. Partir des centres d'activité autorisés du profil</strong> — la liste
+          des centres d'activité accessibles à l'utilisateur pour cette fonctionnalité,
+          établie par la requête « Centres d'activité autorisés du profil » (fiche
+          <a class="fk-link" onclick="show('profile-dependence')">ProfileDependence</a>).
+          Rappel : aucun centre paramétré = fonctionnalité inaccessible (voir
+          « <a class="fk-link" onclick="showAnchor('generalites','droits-fonctionnalite')">Droits
+          d'accès d'une fonctionnalité</a> »).
+        </li>
+        <li>
+          <strong>2. Retenir les plages horaires de ces centres</strong> — via la table
+          <code>SLOTS_OF_ACTIVITY_CENTERS</code> (relation N:N), prendre l'union des
+          plages rattachées aux centres autorisés.
+        </li>
+        <li>
+          <strong>3. Écarter les plages fictives</strong> — exclure les plages
+          <code>fictitious = 1</code> (« Intervalle seul »), réservées au paramétrage des
+          règles d'effectif : elles ne correspondent pas à une tranche de travail réelle.
+        </li>
+        <li>
+          <strong>4. Ne garder que les horaires définis au jour demandé</strong> — la
+          demande porte une <strong>date</strong> : évaluer le
+          « <a class="fk-link" onclick="showAnchor('generalites','types-de-jour')">type de
+          jour</a> » des <a class="fk-link" onclick="show('working-period')">horaires de
+          travail</a> de chaque plage (via
+          <a class="fk-link" onclick="show('slot-definition')">SlotDefinition</a>,
+          attribut <code>validTypesOfDay</code>) et écarter ce qui n'est pas valide à
+          cette date (ex. un horaire <code>&amp;WeekOnly</code> un dimanche).
+          <strong>Ne pas réinventer la roue</strong> : le module Java
+          <code>agir-calendar</code> fait cette évaluation (voir la carte Types de jour
+          des Généralités) — couplé à la fiche
+          <a class="fk-link" onclick="show('day-off')">DayOff</a> (jours chômés et
+          fériés) et au jeu <code>MdsGlobalWeekDays</code> de
+          l'<a class="fk-link" onclick="show('api-rest')">API REST</a> (types de jour
+          connus). Cette question se retrouvera dans d'autres écrans proposant des
+          horaires.
+        </li>
+        <li>
+          <strong>5. Trier</strong> — selon la
+          <a class="fk-link" onclick="showAnchor('generalites','convention-tri')">convention
+          du code de tri</a> : code de tri puis libellé.
+        </li>
+      </ul>
+      <p class="q-note">
+        Points de vigilance : les classes concernées sont <strong>stables</strong> — les
+        étapes indépendantes de la date (1, 2, 3, 5) peuvent être établies une fois pour
+        toutes au chargement de la session ; seule l'étape 4 se réévalue pour chaque date
+        demandée, en mémoire, sans nouvelle requête.
+      </p>
+      <p class="arch-note">
+        <strong>Horaires d'extension</strong> — la qualification d'« extension »
+        (ex. Prolongation : demandes sans contrainte de délai, traitables par les chefs
+        d'équipe) est portée depuis 07/2026 par les <strong>horaires de travail</strong>,
+        pas par les plages : voir l'attribut <code>extendedWorkingPeriod</code>
+        (<code>EXTENDED_WP_ID</code>) de la fiche
+        <a class="fk-link" onclick="show('working-period')">WorkingPeriod</a>. Un horaire
+        dont ce champ est renseigné est une extension. La manière dont le formulaire de
+        demande repère les horaires d'extension parmi les plages proposées (la
+        « consommation » de cette donnée de paramétrage) reste à définir.
       </p>
     </div>
   </div>
@@ -3751,6 +4072,38 @@
       <code>secondSubWorkingPeriod</code>. Typiquement, un horaire « Journée complète »
       peut être composé de « Matin » + « Après-midi ». La fiche Legacy a un toggle
       « Composé » qui bascule entre les deux modes.
+    </p>
+    <p data-updated="25/07/2026">
+      Un WorkingPeriod peut par ailleurs être l'<strong>extension</strong> d'un autre
+      horaire (nouveau 07/2026) : il le <strong>prolonge dans le temps</strong>. Exemple
+      GPMG : l'horaire « C2-PROL » (Prolongation de shift 2) est l'extension de
+      l'horaire « C-SHIFT 2 » (Conduite après-midi). L'extension porte la référence vers
+      l'horaire étendu (<code>extendedWorkingPeriod</code>, relation récursive) ; un
+      horaire peut être étendu par <strong>plusieurs</strong> extensions, mais une
+      extension ne référence qu'<strong>un seul</strong> horaire étendu. Règles :
+      l'heure de début de l'extension doit être <strong>égale à l'heure de fin de
+      l'horaire étendu</strong> (début + durée, sans heures supplémentaires ni pause,
+      comparée modulo 24 h — les horaires de nuit débordent sur le lendemain) ; un
+      horaire ne peut pas être sa propre extension ; les chaînes (extension d'une
+      extension) sont permises. C'est une <strong>donnée de paramétrage</strong> :
+      aucune consommation (allocation, planification, pointage…) n'est implémentée à ce
+      jour côté Legacy — les fonctionnalités de la nouvelle application (ex. demandes de
+      portiques : horaires sans contrainte de délai) en seront les premières
+      consommatrices.
+    </p>
+    <p class="arch-note" data-updated="25/07/2026">
+      Note d'architecture (extension) : colonne <code>EXTENDED_WP_ID</code> ajoutée par la
+      modif bd <strong>260006</strong> (+ paramétrage spécifique GPMG <strong>260007</strong> :
+      C2-PROL → C-SHIFT 2, posé par ID). <strong>Pas de contrainte FK en base</strong>
+      (décalque du pattern des sous-horaires) : l'intégrité est assurée par la fiche
+      cliente C++, qui contrôle l'auto-référence, propose de caler l'heure de début de
+      l'extension sur la fin de l'étendu, répercute en cascade un changement de fin sur
+      ses extensions, et gère la suppression d'un horaire référencé (supprimer aussi les
+      extensions, ou les délier). Une modification SQL directe peut donc créer une
+      référence incohérente. <strong>Piège de nommage GPMG</strong> : l'<em>horaire</em>
+      s'appelle « C-SHIFT 2 » (avec espace) ; « C-SHIFT2 » (sans espace) désigne les
+      <em>plages horaires</em> (ALLOTTED_SLOTS) ; il existe aussi d'anciens horaires aux
+      libellés suffixés d'une apostrophe (« C2-PROL' », marqués « (ancien) »).
     </p>
     <p>
       Un WorkingPeriod est rattaché à une ou plusieurs
@@ -3911,12 +4264,24 @@
           <td>→ Unfitness</td>
           <td>Inaptitude appliquée préalablement à toute allocation sur cet horaire (filtre amont des ressources)</td>
         </tr>
-        <tr data-order="19">
+        <tr data-order="19" data-updated="25/07/2026">
           <td><span class="java-name has-tip">validTypesOfDay<span class="tip">C++ : mcValidTypesOfDay (ILS_ENTRY_INT — mds MdsGlobalWeekDays)</span></span></td>
           <td class="col-oracle">VALID_TYPES_OF_DAY</td>
           <td><span class="tag tag-str">String</span></td>
           <td></td>
-          <td>Jours de la semaine où cet horaire est valide (encodés selon le référentiel MdsGlobalWeekDays)</td>
+          <td>Jours où cet horaire est valide :
+            « <a class="fk-link" onclick="showAnchor('generalites','types-de-jour')">type de
+            jour</a> » (voir Généralités). Stocke le <strong>libellé</strong>
+            (ex. <code>&amp;AllWeek</code>), dont le masque s'obtient via le jeu
+            <code>MdsGlobalWeekDays</code> (<a class="fk-link" onclick="show('api-rest')">API
+            REST</a>).</td>
+        </tr>
+        <tr data-order="20" data-updated="25/07/2026">
+          <td><span class="java-name has-tip">extendedWorkingPeriod<span class="tip">C++ : mrExtendedWorkingPeriod (ILS_USES_1 vers tcMrpsWorkingPeriod)</span></span></td>
+          <td class="col-oracle">EXTENDED_WP_ID</td>
+          <td><span class="tag tag-fk">FK</span></td>
+          <td>→ WorkingPeriod (récursif)</td>
+          <td>Horaire <strong>étendu</strong> par celui-ci (nouveau 07/2026). Renseigné = cet horaire est une <strong>extension</strong> qui prolonge l'horaire référencé (ex : C2-PROL → C-SHIFT 2) ; NULL = l'horaire n'est pas une extension. Pas de FK en base : intégrité assurée par la fiche cliente.</td>
         </tr>
       </tbody>
     </table>
@@ -3949,8 +4314,20 @@
       <span class="rel-entity">Unfitness</span>
       <span class="rel-desc">via PRE_ALLOCATION_UNFITNESS_ID — inaptitude appliquée avant allocation</span>
     </div>
+    <div class="rel-row" data-updated="25/07/2026">
+      <span class="rel-entity current">WorkingPeriod</span>
+      <span class="rel-arrow">— <span class="rel-card">N:1</span> →</span>
+      <span class="rel-entity">WorkingPeriod</span>
+      <span class="rel-desc">via EXTENDED_WP_ID — horaire étendu par celui-ci (récursif, optionnel ; renseigné = cet horaire est une extension) — nouveau 07/2026</span>
+    </div>
 
     <h3 style="margin-top:1.2rem;">Relations inverses</h3>
+    <div class="rel-row" data-updated="25/07/2026">
+      <span class="rel-entity current">WorkingPeriod</span>
+      <span class="rel-arrow">← <span class="rel-card">1:N</span> —</span>
+      <span class="rel-entity">WorkingPeriod</span>
+      <span class="rel-desc">via EXTENDED_WP_ID — extensions de cet horaire (C++ : mbExtensionWorkingPeriods) — nouveau 07/2026</span>
+    </div>
     <div class="rel-row">
       <span class="rel-entity current">WorkingPeriod</span>
       <span class="rel-arrow">← <span class="rel-card">1:N</span> —</span>
@@ -4215,6 +4592,90 @@
 
 </section>
 
+<!-- ================================================================ -->
+<!-- API REST LEGACY (référentiels)                                   -->
+<!-- ================================================================ -->
+<section class="entity" id="api-rest">
+
+  <div class="entity-header">
+    <h2>API REST (référentiels)</h2>
+    <div class="aliases">API REST embarquée dans AGIRServer (C++) — port 8645</div>
+  </div>
+
+  <div class="card">
+    <h3>Principe</h3>
+    <p>
+      Le serveur Legacy embarque une <strong>API REST</strong> (livrée et testée en
+      07/2026). Cette page ne documente <strong>que les points d'entrée de
+      référentiel</strong> utiles aux requêtes de cette documentation — pas l'ensemble
+      des routes (les routes qui agissent sur le modèle, comme <code>tell</code> ou
+      <code>tasks</code>, sont hors périmètre ici).
+    </p>
+    <p>
+      <strong>Principe directeur : le Legacy reste propriétaire de son
+      paramétrage</strong>, et chaque donnée se lit par son canal naturel : ce qui
+      n'existe que dans les <strong>fichiers du serveur</strong> (<code>GlobalDS.xml</code>,
+      configuration de version) se demande <strong>par HTTP</strong>, dans le format
+      d'origine — jamais en lisant le disque du serveur, jamais en recopiant les tables
+      de correspondance ; ce qui vit dans la <strong>base Agir</strong> (jours chômés
+      <a class="fk-link" onclick="show('day-off')">DayOff</a>, horaires
+      <a class="fk-link" onclick="show('working-period')">WorkingPeriod</a>…) se lit
+      <strong>en base</strong>, comme le reste des données.
+    </p>
+    <p class="arch-note">
+      Note d'architecture : l'API est <strong>désactivée par défaut</strong> — elle
+      démarre avec le serveur si <code>agir_server.ini</code> contient
+      <code>rest_server port 8645 host 127.0.0.1 enabled true</code>. Loopback par
+      défaut (<code>host 0.0.0.0</code> pour un accès distant — pas d'authentification à
+      ce jour). Découverte : <code>GET /docs</code> (UI interactive) et
+      <code>GET /openapi.json</code> (OpenAPI 3.0.3). Encodage UTF-8 partout.
+    </p>
+  </div>
+
+  <div class="card">
+    <h3>GET /api/globalds — jeux de données de référence</h3>
+    <p>
+      Sert le fichier <code>GlobalDS.xml</code> du serveur : les <strong>jeux de données
+      de référence</strong> de l'application (35 jeux — types de jour, statuts, mois,
+      niveaux…). Paramètre optionnel <code>?datasource=NomDuJeu</code> pour ne recevoir
+      qu'un jeu (404 si nom inconnu). Le fichier est relu à chaque requête.
+    </p>
+    <p>
+      Jeu le plus important pour nos requêtes : <code>MdsGlobalWeekDays</code>, la
+      <strong>table de correspondance des types de jour</strong> — 64 libellés
+      (<code>&amp;AllWeek</code>, <code>&amp;WeekOnly</code>, <code>&amp;Never</code>…)
+      vers leur masque entier (voir la carte
+      « <a class="fk-link" onclick="showAnchor('generalites','types-de-jour')">Types de
+      jour</a> » des Généralités). C'est le <strong>libellé, esperluette comprise</strong>,
+      qui est stocké en base (ex. <code>WORKING_PERIODS.VALID_TYPES_OF_DAY</code>) ; le
+      masque est le format d'échange avec le moteur. La traduction des libellés pour
+      l'affichage (« Toute la semaine »…) est un sujet distinct, porté par les fichiers
+      <code>.trl</code> du Legacy.
+    </p>
+    <p class="q-note">
+      Usage type côté Java : charger le catalogue <strong>une fois au démarrage</strong>
+      via <code>GET /api/globalds?datasource=MdsGlobalWeekDays</code> (voir le module
+      <code>agir-calendar</code> dans la carte Types de jour).
+    </p>
+  </div>
+
+  <div class="card">
+    <h3>GET /api/informations — identité et configuration du serveur</h3>
+    <p>
+      Renvoie en JSON l'identité du serveur : <strong>produit</strong> (label, versions),
+      <strong>client</strong> (ex. GPMG, langue), <strong>modules</strong> actifs
+      (allocationKernel, pointageData…) et <strong>réglages</strong>. Valeurs
+      <strong>figées au démarrage du serveur</strong> (redémarrer le Legacy avant de
+      relire après un changement de configuration).
+    </p>
+    <p>
+      Usages typiques : bannière de version, activation conditionnelle de fonctionnalités
+      selon les modules, contrôle de compatibilité au démarrage de l'application web.
+    </p>
+  </div>
+
+</section>
+
 
 </main>
 </div>
@@ -4319,11 +4780,13 @@ var FRESHNESS = {
   'allotted-slot': 'stable',
   'slot-definition': 'stable',
   'working-period': 'stable',
-  'main-resource': 'stable'
+  'main-resource': 'stable',
+  'api-rest': 'stable'
 };
 // Précision optionnelle affichée à la suite du badge (cas particuliers).
 var FRESH_NOTES = {
-  'activity': 'classe non datée : à charger par jointure depuis les chantiers/escales (Task)'
+  'activity': 'classe non datée : à charger par jointure depuis les chantiers/escales (Task)',
+  'api-rest': 'globalds et informations : un appel au démarrage de l\'application suffit'
 };
 var FRESH_LABELS = {
   'stable':   ['fresh-static', 'Stable', 'pas de rechargement à chaque appel — un chargement initial (cache) suffit'],
@@ -4346,16 +4809,18 @@ Object.keys(FRESHNESS).forEach(function(id) {
 // Marquage des fiches récemment modifiées : pastille orange dans le menu +
 // ligne « Mis à jour » en tête de fiche. Une seule table à maintenir ci-dessous ;
 // la vider quand Franck demande la réinitialisation.
-var UPDATED_LABEL = 'Mis à jour le 23/07/2026';
+var UPDATED_LABEL = 'Mis à jour le 25/07/2026';
 var UPDATED = {
-  'generalites': 'journée portuaire (« Bug de Poisot »), ReferenceDate, restriction par manutentionnaire',
-  'feat-demandes-de-portiques': 'nouvelle page (2 requêtes)',
-  'stevedore-company': 'nouvelle fiche',
-  'main-resource': 'nouvelle fiche (ressource REFERENCE_TIME)',
-  'profile': 'restriction par manutentionnaire, rattachement Keycloak, boutons Dupliquer / Initialiser les droits, vigilance SEQUENCES, requête Demandes de portiques',
-  'task': 'lien manutentionnaire, requête Demandes de portiques, rappel journée portuaire',
-  'order': 'rappel journée portuaire (requête Commandes du shift)',
-  'allotted-slot': 'rappel journée portuaire (requête Plages horaires courantes)'
+  'generalites': 'droits d\'accès d\'une fonctionnalité, convention de tri (code de tri), types de jour (masque de bits)',
+  'profile-dependence': 'requête Centres d\'activité autorisés du profil (Démarrage de shift)',
+  'feat-demarrage-de-shift': 'droits d\'accès (centres d\'activité, pas de restriction manutentionnaire), ordre d\'affichage des escales',
+  'feat-demandes-de-portiques': 'droits d\'accès, requête Horaires proposables pour une demande',
+  'order': 'ordre d\'affichage des blocs d\'escales (requête Commandes du shift)',
+  'allotted-slot': 'requête Horaires proposables pour une demande (Demandes de portiques, avec validité au jour demandé)',
+  'working-period': 'extension d\'horaires (EXTENDED_WP_ID, modifs bd 260006/260007), validTypesOfDay → type de jour',
+  'stevedoring-set': 'typeOfDay → masque type de jour (Généralités)',
+  'day-off': 'nouvelle fiche (placeholder)',
+  'api-rest': 'nouvelle fiche — référentiels REST du Legacy (GET /api/globalds, GET /api/informations)'
 };
 Object.keys(UPDATED).forEach(function(id) {
   var link = document.querySelector('#navList a[data-id="' + id + '"]');
