@@ -130,6 +130,13 @@
   .q-source a { color: #319795; cursor: pointer; font-weight: 600; }
   .q-source a:hover { text-decoration: underline; }
   .feature-intro a.feat-link { color: #285e61; cursor: pointer; text-decoration: underline; }
+  pre.code-block {
+    margin: 0.6rem 0; padding: 0.9rem 1.1rem; border-radius: 6px;
+    background: #1e293b; color: #e2e8f0; overflow-x: auto;
+    font-family: Consolas, Menlo, "Courier New", monospace;
+    font-size: 0.8rem; line-height: 1.55;
+  }
+  pre.code-block .cmt { color: #94a3b8; font-style: italic; }
 
   /* Columns table */
   .col-card { padding: 0; overflow: hidden; }
@@ -279,6 +286,7 @@
     <li><a onclick="show('api-rest')" data-id="api-rest">API REST <span class="tbl">référentiels</span></a></li>
     <li><a onclick="show('day-off')" data-id="day-off">DayOff <span class="tbl">DAY_OFFS</span><span class="soon">(bientôt)</span></a></li>
     <li><a onclick="show('main-resource')" data-id="main-resource">MainResource <span class="tbl">MAIN_RESOURCES</span></a></li>
+    <li><a onclick="show('working-area')" data-id="working-area">WorkingArea <span class="tbl">WORKING_AREAS</span></a></li>
   </ul>
 </nav>
 
@@ -1105,7 +1113,7 @@
     </p>
     <p>
       Chaque Task est rattachée à une <a class="fk-link" onclick="show('activity')">Activity</a>
-      (le navire ou l'activité concernée) et à une zone de travail (WorkingArea, le poste à quai).
+      (le navire ou l'activité concernée) et à une zone de travail (<a class="fk-link" onclick="show('working-area')">WorkingArea</a>, le poste à quai).
       Le type d'opération est défini par la relation vers TaskType (chargement, déchargement, shifting…).
     </p>
     <p>
@@ -1155,7 +1163,7 @@
           <td><span class="java-name has-tip">workingArea<span class="tip">C++ : mrWorkingArea (ILS_USES_1)</span></span></td>
           <td class="col-oracle">AREA_ID</td>
           <td><span class="tag tag-fk">FK</span></td>
-          <td>→ WorkingArea · <strong>obligatoire</strong></td>
+          <td>→ <a class="fk-link" onclick="show('working-area')">WorkingArea</a> · <strong>obligatoire</strong></td>
           <td>Zone de travail où se déroule le chantier</td>
         </tr>
         <tr data-order="3">
@@ -1273,7 +1281,7 @@
     <div class="rel-row">
       <span class="rel-entity current">Task</span>
       <span class="rel-arrow">— <span class="rel-card">N:1</span> →</span>
-      <span class="rel-entity">WorkingArea</span>
+      <a class="rel-entity" onclick="show('working-area')">WorkingArea</a>
       <span class="rel-desc">via AREA_ID — zone de travail (obligatoire)</span>
     </div>
     <div class="rel-row">
@@ -1668,7 +1676,7 @@
     <div class="rel-row">
       <span class="rel-entity current">StevedoringSet</span>
       <span class="rel-arrow">— <span class="rel-card">N:N</span> →</span>
-      <span class="rel-entity">WorkingArea</span>
+      <a class="rel-entity" onclick="show('working-area')">WorkingArea</a>
       <span class="rel-desc">via STEVEDORING_SETS_OF_AREAS — restreint les configurations
         proposées selon la zone de travail (ex. : pas de commande de portiques sur un
         quai sans portique) ; utilisé par le panneau des commandes Legacy, sans usage
@@ -2131,7 +2139,7 @@
           <td><span class="java-name has-tip">workingArea<span class="tip">C++ : mrWorkingArea (ILS_USES_1)</span></span></td>
           <td class="col-oracle">AREA_ID</td>
           <td><span class="tag tag-fk">FK</span></td>
-          <td><span class="tag tag-fk">FK</span> WorkingArea</td>
+          <td><span class="tag tag-fk">FK</span> <a class="fk-link" onclick="show('working-area')">WorkingArea</a></td>
           <td>Zone de travail où s'exécute la commande</td>
         </tr>
         <tr data-order="3">
@@ -2241,7 +2249,7 @@
     <div class="rel-row">
       <span class="rel-entity current">Order</span>
       <span class="rel-arrow">— <span class="rel-card">N:1</span> →</span>
-      <span class="rel-entity">WorkingArea</span>
+      <a class="rel-entity" onclick="show('working-area')">WorkingArea</a>
       <span class="rel-desc">via AREA_ID — zone de travail</span>
     </div>
     <div class="rel-row">
@@ -3425,7 +3433,7 @@
     <p>
       <strong>ActivityCenter</strong> (libellé Legacy : « <em>Centre d'activité</em> ») désigne
       un <strong>périmètre d'exploitation</strong> : l'unité d'organisation qui rattache une
-      <strong>zone de travail</strong> (<a class="fk-link" onclick="show('working-period')">WorkingArea</a>)
+      <strong>zone de travail</strong> (<a class="fk-link" onclick="show('working-area')">WorkingArea</a>)
       à un <strong>Commandement</strong> (Company). C'est le contexte dans lequel se déroule la
       planification : les plages horaires, les horaires de travail et les types d'absence sont
       définis <em>par centre d'activité</em>.
@@ -3480,7 +3488,7 @@
           <td><span class="java-name has-tip">workingArea<span class="tip">C++ : mbWorkingArea (ILS_INVERTED_1)</span></span></td>
           <td class="col-oracle">WORKING_AREA_ID</td>
           <td><span class="tag tag-fk">FK</span></td>
-          <td>→ WorkingArea · <strong>obligatoire</strong></td>
+          <td>→ <a class="fk-link" onclick="show('working-area')">WorkingArea</a> · <strong>obligatoire</strong></td>
           <td>Zone de travail couverte par le centre d'activité</td>
         </tr>
         <tr data-order="3">
@@ -3563,7 +3571,7 @@
     <div class="rel-row">
       <span class="rel-entity current">ActivityCenter</span>
       <span class="rel-arrow">— <span class="rel-card">N:1</span> →</span>
-      <span class="rel-entity">WorkingArea</span>
+      <a class="rel-entity" onclick="show('working-area')">WorkingArea</a>
       <span class="rel-desc">via WORKING_AREA_ID — zone de travail (obligatoire)</span>
     </div>
     <div class="rel-row">
@@ -4355,7 +4363,7 @@
     <div class="rel-row">
       <span class="rel-entity current">WorkingPeriod</span>
       <span class="rel-arrow">— <span class="rel-card">N:N</span> →</span>
-      <span class="rel-entity">WorkingArea</span>
+      <a class="rel-entity" onclick="show('working-area')">WorkingArea</a>
       <span class="rel-desc">à travers WORKING_PERIODS_OF_AREAS — zones de travail compatibles</span>
     </div>
     <div class="rel-row">
@@ -4595,6 +4603,296 @@
 <!-- ================================================================ -->
 <!-- API REST LEGACY (référentiels)                                   -->
 <!-- ================================================================ -->
+<section class="entity" id="working-area">
+
+  <div class="entity-header">
+    <h2>WorkingArea</h2>
+    <div class="aliases">
+      Table Oracle : <code>WORKING_AREAS</code> &nbsp;|&nbsp;
+      Serveur C++ : <code>tcMrpsWorkingArea</code> &nbsp;|&nbsp;
+      Client Rp : <code>tcMrpsRpWorkingArea</code> &nbsp;|&nbsp;
+      Formulaire : <code>tcMrpsSqlFormWorkingArea</code>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Description fonctionnelle</h3>
+    <p>
+      <strong>WorkingArea</strong> (libellé Legacy : « <em>Zone de travail</em> ») représente
+      la <strong>dimension géographique</strong> d'Agir : les lieux où se déroulent les
+      travaux. La fiche Legacy est « Zones de travail » ; le sélecteur d'arbre associé
+      s'appelle « Arborescence des zones de travail ».
+    </p>
+    <p>
+      Les zones forment un <strong>arbre</strong> dont la racine unique est le
+      <strong>port</strong> : chaque zone référence sa zone mère (<code>parentArea</code>,
+      nulle pour la racine) et porte la collection de ses sous-zones. En plus de cette
+      structure arborescente, chaque zone est qualifiée par un <strong>type</strong>
+      (<code>areaType</code>) qui précise sa nature : <strong>Port, Secteur, Terminal,
+      Quai, Poste à quai</strong> (jeu de valeurs <code>MdsGlobalWkArea</code>, voir la
+      fiche <a class="fk-link" onclick="show('api-rest')">API REST</a>).
+    </p>
+    <p>
+      La zone de travail a aussi un <strong>sens organisationnel</strong>, à travers les
+      <a class="fk-link" onclick="show('activity-center')">centres d'activité</a> : un
+      centre d'activité est défini par un <strong>secteur</strong> (zone de travail de
+      type Secteur) et un <strong>Commandement</strong>. Dans Agir Legacy, les onglets des
+      écrans sont principalement les secteurs ; dans e-agir, ce sont les centres
+      d'activité ; dans eazly agir, il n'y a pas d'onglets prévus pour le moment, mais la
+      logique de découpage est également le centre d'activité.
+    </p>
+    <p>
+      Exemple : une escale (<a class="fk-link" onclick="show('task')">Task</a>) apparaît
+      sur un centre d'activité si sa zone de travail est la zone — ou une sous-zone,
+      directe ou indirecte — du secteur du centre d'activité.
+    </p>
+
+    <div class="feature-intro">
+      <strong>Recommandation eazly agir — fonction <code>isSubWorkingArea</code>.</strong>
+      Le test « la zone <code>a</code> est-elle la zone <code>b</code> ou une de ses
+      sous-zones ? » est celui que le Legacy fait depuis 25 ans ; prévoyez la même
+      fonction dans votre modèle, avec la même sémantique. Deux conventions à respecter :
+      <strong>réflexivité</strong> (une zone est sous-zone d'elle-même) et
+      <strong>permissivité</strong> (pas de zone de référence = pas de restriction, la
+      réponse est vrai).
+    </div>
+    <pre class="code-block"><span class="cmt">/**
+ * Indique si cette zone est la zone donnée ou une de ses sous-zones,
+ * à n'importe quelle profondeur. Principe : on remonte la chaîne des
+ * zones mères depuis this jusqu'à trouver la zone donnée, ou jusqu'à
+ * la racine (le port).
+ */</span>
+public boolean isSubWorkingArea(WorkingArea reference) {
+
+    <span class="cmt">// Pas de zone de référence = pas de restriction</span>
+    if (reference == null) {
+        return true;
+    }
+
+    WorkingArea current = this;
+    while (current != null) {
+        if (current.getId().equals(reference.getId())) {
+            return true;   <span class="cmt">// trouvée dans la chaîne des ancêtres</span>
+        }
+        current = current.getParent();   <span class="cmt">// zone mère (colonne AREA_ID)</span>
+    }
+
+    return false;   <span class="cmt">// racine atteinte sans avoir croisé la référence</span>
+}</pre>
+    <p style="font-size:0.9rem;">
+      Usage type — rattachement d'une escale à un centre d'activité :
+      <code>escale.getWorkingArea().isSubWorkingArea(centre.getWorkingArea())</code>.
+      Quand la zone de référence est un secteur — le cas des centres d'activité — le
+      test se réduit à une comparaison de secteurs via l'attribut <code>sector</code>
+      (voir le tableau ci-dessous), utilisable directement en SQL sans récursivité.
+    </p>
+  </div>
+
+  <!-- Attributes -->
+  <div class="card col-card">
+    <h3><span>Attributs — WorkingArea</span><button class="reset-sort" onclick="resetSort(this)">↺ Ordre initial</button></h3>
+    <table class="sortable-table">
+      <thead>
+        <tr><th class="sortable" onclick="sortTable(this,0)">Attribut</th><th class="sortable" onclick="sortTable(this,1)">Colonne Oracle</th><th class="sortable" onclick="sortTable(this,2)">Type</th><th class="sortable" onclick="sortTable(this,3)">Contrainte</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr data-order="0">
+          <td><span class="java-name has-tip">id<span class="tip">C++ : getId() — hérité de tcMrpsObject</span></span></td>
+          <td class="col-oracle">ID</td>
+          <td><span class="tag tag-num">Number</span></td>
+          <td><span class="tag tag-pk">PK</span></td>
+          <td>Identifiant unique</td>
+        </tr>
+        <tr data-order="1">
+          <td><span class="java-name has-tip">colour<span class="tip">C++ : mrColour (ILS_USES_1)</span></span></td>
+          <td class="col-oracle">COL_ID</td>
+          <td><span class="tag tag-fk">FK</span></td>
+          <td>→ Colour (fiche à venir)</td>
+          <td>Couleur d'affichage de la zone dans les plannings</td>
+        </tr>
+        <tr data-order="2">
+          <td><span class="java-name has-tip">parentArea<span class="tip">C++ : mbWorkingArea (ILS_INVERTED_1)</span></span></td>
+          <td class="col-oracle">AREA_ID</td>
+          <td><span class="tag tag-fk">FK</span></td>
+          <td>→ WorkingArea (récursif)</td>
+          <td>Zone mère. Nulle pour la racine de l'arbre (le port). Avec la collection inverse des sous-zones, elle porte la structure arborescente des zones.</td>
+        </tr>
+        <tr data-order="3">
+          <td><span class="java-name has-tip">defaultWorkingPeriod<span class="tip">C++ : mbWorkingPeriod (ILS_INVERTED_1) — champ Legacy « DefaultWorkingPeriodField »</span></span></td>
+          <td class="col-oracle">WPERIOD_ID</td>
+          <td><span class="tag tag-fk">FK</span></td>
+          <td>→ <a class="fk-link" onclick="show('working-period')">WorkingPeriod</a></td>
+          <td>Horaire de travail par défaut de la zone : dans le panneau des commandes Legacy, il pré-saisit l'horaire d'une commande créée sur la zone. Non utilisé pour le moment dans eazly agir.</td>
+        </tr>
+        <tr data-order="4">
+          <td><span class="java-name has-tip">label<span class="tip">C++ : mcLabel (ILS_ENTRY_STRING)</span></span></td>
+          <td class="col-oracle">LABEL</td>
+          <td><span class="tag tag-str">String</span></td>
+          <td><strong>obligatoire</strong></td>
+          <td>Libellé court de la zone</td>
+        </tr>
+        <tr data-order="5">
+          <td><span class="java-name has-tip">name<span class="tip">C++ : mcName (ILS_ENTRY_STRING)</span></span></td>
+          <td class="col-oracle">NAME</td>
+          <td><span class="tag tag-str">String</span></td>
+          <td><strong>obligatoire</strong></td>
+          <td>Nom complet de la zone</td>
+        </tr>
+        <tr data-order="6">
+          <td><span class="java-name has-tip">external<span class="tip">C++ : mcExternal (ILS_ENTRY_INT)</span></span></td>
+          <td class="col-oracle">EXTERNAL</td>
+          <td><span class="tag tag-int">Int</span></td>
+          <td></td>
+          <td>1 = zone externe au port lui-même, par exemple l'entrepôt d'un client dans lequel des agents du port peuvent se rendre. Non utilisé pour le moment dans eazly agir.</td>
+        </tr>
+        <tr data-order="7">
+          <td><span class="java-name has-tip">areaType<span class="tip">C++ : mcType (ILS_ENTRY_INT) — le serveur manipule l'id du type, la base stocke le libellé</span></span></td>
+          <td class="col-oracle">AREA_TYPE</td>
+          <td><span class="tag tag-str">String</span></td>
+          <td><strong>obligatoire</strong></td>
+          <td>Type de la zone. Stocké en <strong>libellé, esperluette comprise</strong> (<code>&amp;Harbour</code>, <code>&amp;Sector</code>…) ; correspondance id ↔ libellé via le jeu <code>MdsGlobalWkArea</code> (<a class="fk-link" onclick="show('api-rest')">API REST</a>) : 1 Port, 2 Secteur, 3 Terminal, 4 Quai, 5 Poste à quai.</td>
+        </tr>
+        <tr data-order="8">
+          <td><span class="java-name has-tip">externalCode<span class="tip">C++ : mcExternalCode (ILS_ENTRY_STRING)</span></span></td>
+          <td class="col-oracle">EXTERNAL_CODE</td>
+          <td><span class="tag tag-str">String</span></td>
+          <td></td>
+          <td>Code externe, pour les échanges avec les systèmes tiers</td>
+        </tr>
+        <tr data-order="9">
+          <td><span class="java-name has-tip">notes<span class="tip">C++ : mcNotes (ILS_ENTRY_STRING)</span></span></td>
+          <td class="col-oracle">NOTES</td>
+          <td><span class="tag tag-str">String</span></td>
+          <td></td>
+          <td>Notes libres</td>
+        </tr>
+        <tr data-order="10">
+          <td><span class="java-name has-tip">sector<span class="tip">C++ : mcSectorId (ILS_ENTRY_INT) — accès via getSector()/hasSector()</span></span></td>
+          <td class="col-oracle">SECTOR</td>
+          <td><span class="tag tag-num">Number</span></td>
+          <td>FK <strong>logique</strong> → WorkingArea</td>
+          <td>Id de la zone de type <strong>Secteur</strong> dont dépend la zone (dénormalisation ; pas de contrainte FK en base). Prévoir un <strong>vrai accesseur</strong> côté Java : on s'en sert souvent, ne serait-ce que pour vérifier qu'une zone est dans un centre d'activité — il suffit de comparer son secteur avec celui du centre.</td>
+        </tr>
+        <tr data-order="11">
+          <td><span class="java-name has-tip">callFlag<span class="tip">C++ : mcCallFlag (ILS_ENTRY_BOOLEAN) — isVocalServiceArea()</span></span></td>
+          <td class="col-oracle">CALLFLAG</td>
+          <td><span class="tag tag-int">Int</span></td>
+          <td></td>
+          <td>1 = zone de prévenance : zone de référence du serveur vocal Legacy. Le code de prévenance d'une zone se cherche en remontant l'arbre jusqu'à une zone marquée. Conservé côté Java : réutilisable par un autre dispositif de prévenance (SMS, WhatsApp…).</td>
+        </tr>
+        <tr data-order="12">
+          <td><span class="java-name has-tip">removalAsked<span class="tip">C++ : non exposé côté serveur — colonne Oracle / drapeau de suppression</span></span></td>
+          <td class="col-oracle">REMOVAL_ASKED</td>
+          <td><span class="tag tag-num">Number</span></td>
+          <td></td>
+          <td>1 = suppression demandée : <strong>la zone doit être considérée comme supprimée</strong>. Elle reste en base le temps que les processus libèrent ses références, puis pourra être effectivement supprimée.</td>
+        </tr>
+        <tr data-order="13">
+          <td><span class="java-name has-tip">sortingCode<span class="tip">C++ : non exposé côté serveur — colonne Oracle, gérée par le formulaire</span></span></td>
+          <td class="col-oracle">SORTING_CODE</td>
+          <td><span class="tag tag-str">String</span></td>
+          <td></td>
+          <td>Code servant à ordonner les zones dans les listes — voir la <a class="fk-link" onclick="showAnchor('generalites','convention-tri')">convention de tri</a> des Généralités</td>
+        </tr>
+        <tr data-order="14">
+          <td><span class="java-name has-tip">vocalServiceCode<span class="tip">C++ : mcVocalServiceCode (ILS_ENTRY_STRING) — vocalServiceCode()</span></span></td>
+          <td class="col-oracle">SV_CODE</td>
+          <td><span class="tag tag-str">String</span></td>
+          <td></td>
+          <td>Code de la zone pour le dispositif de prévenance (serveur vocal Legacy) — voir <code>callFlag</code></td>
+        </tr>
+        <tr data-order="15">
+          <td><span class="java-name has-tip">gratificationCode<span class="tip">C++ : non exposé côté serveur — colonne Oracle absente du .dbd, gérée par le formulaire (GratificationCodeField)</span></span></td>
+          <td class="col-oracle">GRATIFICATION_CODE</td>
+          <td><span class="tag tag-str">String</span></td>
+          <td></td>
+          <td>Code de gratification (paie), même notion que sur <a class="fk-link" onclick="show('grade')">Grade</a></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Relations -->
+  <div class="card">
+    <h3>Relations</h3>
+
+    <div class="rel-row">
+      <span class="rel-entity current">WorkingArea</span>
+      <span class="rel-arrow">— <span class="rel-card">N:1</span> →</span>
+      <span class="rel-entity">WorkingArea</span>
+      <span class="rel-desc">via AREA_ID — zone mère (récursif ; nulle pour le port, racine de l'arbre)</span>
+    </div>
+    <div class="rel-row">
+      <span class="rel-entity current">WorkingArea</span>
+      <span class="rel-arrow">— <span class="rel-card">N:1</span> →</span>
+      <span class="rel-entity">Colour</span>
+      <span class="rel-desc">via COL_ID — couleur d'affichage (fiche à venir)</span>
+    </div>
+    <div class="rel-row">
+      <span class="rel-entity current">WorkingArea</span>
+      <span class="rel-arrow">— <span class="rel-card">N:1</span> →</span>
+      <a class="rel-entity" onclick="show('working-period')">WorkingPeriod</a>
+      <span class="rel-desc">via WPERIOD_ID — horaire de travail par défaut de la zone (pré-saisie des commandes Legacy)</span>
+    </div>
+    <div class="rel-row">
+      <span class="rel-entity current">WorkingArea</span>
+      <span class="rel-arrow">— <span class="rel-card">N:N</span> →</span>
+      <a class="rel-entity" onclick="show('working-period')">WorkingPeriod</a>
+      <span class="rel-desc">à travers WORKING_PERIODS_OF_AREAS — horaires de travail applicables sur la zone</span>
+    </div>
+    <div class="rel-row">
+      <span class="rel-entity current">WorkingArea</span>
+      <span class="rel-arrow">— <span class="rel-card">N:N</span> →</span>
+      <a class="rel-entity" onclick="show('stevedoring-set')">StevedoringSet</a>
+      <span class="rel-desc">à travers STEVEDORING_SETS_OF_AREAS — configurations d'engin/équipe proposées sur la zone</span>
+    </div>
+
+    <h3 style="margin-top:1.2rem;">Relations inverses</h3>
+
+    <div class="rel-row">
+      <span class="rel-entity current">WorkingArea</span>
+      <span class="rel-arrow">← <span class="rel-card">1:N</span> —</span>
+      <span class="rel-entity">WorkingArea</span>
+      <span class="rel-desc">WORKING_AREAS.AREA_ID — collection des sous-zones (première génération)</span>
+    </div>
+    <div class="rel-row">
+      <span class="rel-entity current">WorkingArea</span>
+      <span class="rel-arrow">← <span class="rel-card">1:N</span> —</span>
+      <a class="rel-entity" onclick="show('activity-center')">ActivityCenter</a>
+      <span class="rel-desc">ACTIVITY_CENTERS.WORKING_AREA_ID — centres d'activité définis sur la zone (qui est alors un secteur)</span>
+    </div>
+    <div class="rel-row">
+      <span class="rel-entity current">WorkingArea</span>
+      <span class="rel-arrow">← <span class="rel-card">1:N</span> —</span>
+      <a class="rel-entity" onclick="show('task')">Task</a>
+      <span class="rel-desc">TASKS.AREA_ID — chantiers/escales localisés sur la zone (obligatoire côté Task)</span>
+    </div>
+    <div class="rel-row">
+      <span class="rel-entity current">WorkingArea</span>
+      <span class="rel-arrow">← <span class="rel-card">1:N</span> —</span>
+      <a class="rel-entity" onclick="show('order')">Order</a>
+      <span class="rel-desc">ORDERS.AREA_ID — commandes localisées sur la zone</span>
+    </div>
+    <div class="rel-row">
+      <span class="rel-entity current">WorkingArea</span>
+      <span class="rel-arrow">← <span class="rel-card">1:N</span> —</span>
+      <span class="rel-entity">VacationType</span>
+      <span class="rel-desc">VACATION_TYPES.WORKING_AREA_ID (et EAGIR_CHECK_WORKING_AREA_ID, contrôle e-agir) — types d'absence rattachés à une zone</span>
+    </div>
+
+    <p class="q-note">
+      La zone de travail est aussi référencée par de nombreuses entités Legacy non
+      documentées ici (contextes de règles d'effectif, groupes de zones, localisation
+      d'engins, pointages, affectations terrain…) : elles seront ajoutées si une requête
+      en a besoin.
+    </p>
+  </div>
+
+</section>
+
+<!-- ================================================================ -->
+<!-- API REST (référentiels)                                          -->
+<!-- ================================================================ -->
 <section class="entity" id="api-rest">
 
   <div class="entity-header">
@@ -4651,6 +4949,16 @@
       masque est le format d'échange avec le moteur. La traduction des libellés pour
       l'affichage (« Toute la semaine »…) est un sujet distinct, porté par les fichiers
       <code>.trl</code> du Legacy.
+    </p>
+    <p data-updated="28/07/2026">
+      Autre jeu documenté : <code>MdsGlobalWkArea</code>, la table de correspondance des
+      <strong>types de zone de travail</strong> — id ↔ libellé, esperluette comprise :
+      1 <code>&amp;Harbour</code> (Port), 2 <code>&amp;Sector</code> (Secteur),
+      3 <code>&amp;DockSet</code> (Terminal), 4 <code>&amp;Dock</code> (Quai),
+      5 <code>&amp;Berth</code> (Poste à quai). Comme pour les types de jour, c'est le
+      <strong>libellé</strong> qui est stocké en base
+      (<code>WORKING_AREAS.AREA_TYPE</code>) — voir la fiche
+      <a class="fk-link" onclick="show('working-area')">WorkingArea</a>.
     </p>
     <p class="q-note">
       Usage type côté Java : charger le catalogue <strong>une fois au démarrage</strong>
@@ -4781,7 +5089,8 @@ var FRESHNESS = {
   'slot-definition': 'stable',
   'working-period': 'stable',
   'main-resource': 'stable',
-  'api-rest': 'stable'
+  'api-rest': 'stable',
+  'working-area': 'stable'
 };
 // Précision optionnelle affichée à la suite du badge (cas particuliers).
 var FRESH_NOTES = {
@@ -4809,8 +5118,14 @@ Object.keys(FRESHNESS).forEach(function(id) {
 // Marquage des fiches récemment modifiées : pastille orange dans le menu +
 // ligne « Mis à jour » en tête de fiche. Une seule table à maintenir ci-dessous ;
 // la vider quand Franck demande la réinitialisation.
-var UPDATED_LABEL = 'Mis à jour le 25/07/2026';
+var UPDATED_DEFAULT_DATE = '25/07/2026';
+// Date spécifique par fiche (les autres gardent la date par défaut).
+var UPDATED_DATE = {
+  'working-area': '28/07/2026',
+  'api-rest': '28/07/2026'
+};
 var UPDATED = {
+  'working-area': 'nouvelle fiche — zone de travail : arborescence, types, recommandation isSubWorkingArea',
   'generalites': 'droits d\'accès d\'une fonctionnalité, convention de tri (code de tri), types de jour (masque de bits)',
   'profile-dependence': 'requête Centres d\'activité autorisés du profil (Démarrage de shift)',
   'feat-demarrage-de-shift': 'droits d\'accès (centres d\'activité, pas de restriction manutentionnaire), ordre d\'affichage des escales',
@@ -4820,20 +5135,21 @@ var UPDATED = {
   'working-period': 'extension d\'horaires (EXTENDED_WP_ID, modifs bd 260006/260007), validTypesOfDay → type de jour',
   'stevedoring-set': 'typeOfDay → masque type de jour (Généralités)',
   'day-off': 'nouvelle fiche (placeholder)',
-  'api-rest': 'nouvelle fiche — référentiels REST du Legacy (GET /api/globalds, GET /api/informations)'
+  'api-rest': 'nouvelle fiche — référentiels REST du Legacy (GET /api/globalds, GET /api/informations) ; jeu MdsGlobalWkArea, types de zone de travail (28/07)'
 };
 Object.keys(UPDATED).forEach(function(id) {
+  var lbl = 'Mis à jour le ' + (UPDATED_DATE[id] || UPDATED_DEFAULT_DATE);
   var link = document.querySelector('#navList a[data-id="' + id + '"]');
   if (link) {
     var dot = document.createElement('span');
     dot.className = 'nav-updated';
-    dot.title = UPDATED_LABEL + ' — ' + UPDATED[id];
+    dot.title = lbl + ' — ' + UPDATED[id];
     link.appendChild(dot);
   }
   var header = document.querySelector('#' + id + ' .entity-header');
   if (header) {
     var div = document.createElement('div');
-    div.innerHTML = '<span class="updated-badge"><span class="updated-dot"></span><strong>' + UPDATED_LABEL + '</strong> — ' + UPDATED[id] + '</span>';
+    div.innerHTML = '<span class="updated-badge"><span class="updated-dot"></span><strong>' + lbl + '</strong> — ' + UPDATED[id] + '</span>';
     header.appendChild(div);
   }
 });
