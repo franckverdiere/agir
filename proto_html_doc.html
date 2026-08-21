@@ -290,13 +290,16 @@
     <li><a onclick="show('activity-type')" data-id="activity-type">ActivityType <span class="tbl">ACTIVITY_TYPES</span></a></li>
     <li><a onclick="show('api-rest')" data-id="api-rest">API REST <span class="tbl">référentiels</span></a></li>
     <li><a onclick="show('cargo')" data-id="cargo">Cargo <span class="tbl">CARGOS</span><span class="soon">(bientôt)</span></a></li>
+    <li><a onclick="show('colour')" data-id="colour">Colour <span class="tbl">COLOURS</span></a></li>
     <li><a onclick="show('day-off')" data-id="day-off">DayOff <span class="tbl">DAY_OFFS</span><span class="soon">(bientôt)</span></a></li>
     <li><a onclick="show('equipment-class')" data-id="equipment-class">EquipmentClass <span class="tbl">EQUIPMENT_CLASSES</span></a></li>
     <li><a onclick="show('grade')" data-id="grade">Grade <span class="tbl">GRADES</span></a></li>
+    <li><a onclick="show('incident-type')" data-id="incident-type">IncidentType <span class="tbl">INCIDENT_TYPES</span></a></li>
     <li><a onclick="show('main-resource')" data-id="main-resource">MainResource <span class="tbl">MAIN_RESOURCES</span></a></li>
     <li><a onclick="show('skill')" data-id="skill">Skill <span class="tbl">SKILLS</span></a></li>
     <li><a onclick="show('slot-definition')" data-id="slot-definition">SlotDefinition <span class="tbl">SLOT_DEFINITIONS</span></a></li>
     <li><a onclick="show('stevedoring-set')" data-id="stevedoring-set">StevedoringSet <span class="tbl">STEVEDORING_SETS</span></a></li>
+    <li><a onclick="show('task-type')" data-id="task-type">TaskType <span class="tbl">TASK_TYPES</span></a></li>
     <li><a onclick="show('working-area')" data-id="working-area">WorkingArea <span class="tbl">WORKING_AREAS</span></a></li>
   </ul>
 </nav>
@@ -446,7 +449,7 @@
     </p>
   </div>
 
-  <div class="card" id="convention-label" data-updated="30/07/2026">
+  <div class="card" id="convention-label">
     <h3>Convention : les libellés (label)</h3>
     <p>
       Dans Agir, tous les champs <code>label</code> (colonne <code>LABEL</code>) sont des
@@ -1558,12 +1561,12 @@
           <td>→ <a class="fk-link" onclick="show('working-area')">WorkingArea</a> · <strong>obligatoire</strong></td>
           <td>Zone de travail où se déroule le chantier</td>
         </tr>
-        <tr data-order="3">
+        <tr data-order="3" class="deprecated" data-updated="21/08/2026">
           <td><span class="java-name has-tip">taskType<span class="tip">C++ : mrTaskType (ILS_USES_1)</span></span></td>
           <td class="col-oracle">TT_ID</td>
           <td><span class="tag tag-fk">FK</span></td>
-          <td>→ TaskType</td>
-          <td>Type d'opération (chargement, déchargement, shifting…). Traduit « Opération » dans le Gantt.</td>
+          <td>→ <a class="fk-link" onclick="show('task-type')">TaskType</a> · <span class="tag tag-deprecated">Déprécié</span></td>
+          <td>Lien historique chantier → <a class="fk-link" onclick="show('task-type')">Opération</a> (traduit « Opération » dans le Gantt Legacy). Déprécié : ce lien ne doit pas être repris. Ne pas utiliser côté Java.</td>
         </tr>
         <tr data-order="4">
           <td><span class="java-name has-tip">cargo<span class="tip">C++ : mrCargo (ILS_USES_1)</span></span></td>
@@ -1676,11 +1679,11 @@
       <a class="rel-entity" onclick="show('working-area')">WorkingArea</a>
       <span class="rel-desc">via AREA_ID — zone de travail (obligatoire)</span>
     </div>
-    <div class="rel-row">
+    <div class="rel-row" style="opacity:0.55;" data-updated="21/08/2026">
       <span class="rel-entity current">Task</span>
       <span class="rel-arrow">— <span class="rel-card">N:1</span> →</span>
-      <span class="rel-entity">TaskType</span>
-      <span class="rel-desc">via TT_ID — type d'opération</span>
+      <a class="rel-entity" onclick="show('task-type')">TaskType</a>
+      <span class="rel-desc">via TT_ID — type d'opération (lien déprécié — ne pas utiliser côté Java)</span>
     </div>
     <div class="rel-row">
       <span class="rel-entity current">Task</span>
@@ -2448,7 +2451,7 @@
       <a class="rel-entity" onclick="show('equipment-class')">EquipmentClass</a>
       <span class="rel-desc">via EQUIPMENT_CLASSES.SKILL_ID — catégories d'engins dont la conduite requiert cette spécialité</span>
     </div>
-    <div class="rel-row" data-updated="30/07/2026">
+    <div class="rel-row">
       <span class="rel-entity current">Skill</span>
       <span class="rel-arrow">← <span class="rel-card">1:N</span> —</span>
       <a class="rel-entity" onclick="show('stevedoring-set')">StrengthDefinition</a>
@@ -2682,7 +2685,7 @@
       <span class="rel-entity">OrderSignature</span>
       <span class="rel-desc">via ORDERS_SIGNATURES.ORDER_ID — historique des signatures du workflow</span>
     </div>
-    <div class="rel-row" data-updated="30/07/2026">
+    <div class="rel-row">
       <span class="rel-entity current">Order</span>
       <span class="rel-arrow">← <span class="rel-card">1:N</span> —</span>
       <a class="rel-entity" onclick="show('equipment-allocation')">EquipmentAllocation</a>
@@ -2927,7 +2930,7 @@
       <a class="rel-entity" onclick="show('working-period')">WorkingPeriod</a>
       <span class="rel-desc">via WPERIOD_ID — horaire de travail</span>
     </div>
-    <div class="rel-row" data-updated="30/07/2026">
+    <div class="rel-row">
       <span class="rel-entity current">Post</span>
       <span class="rel-arrow">— <span class="rel-card">N:1</span> →</span>
       <a class="rel-entity" onclick="show('equipment')">Equipment</a>
@@ -3511,7 +3514,7 @@
       <span class="rel-entity current">Equipment</span>
       <span class="rel-arrow">← <span class="rel-card">1:N</span> —</span>
       <span class="rel-entity">EquipmentIncident</span>
-      <span class="rel-desc">via EQUIPMENT_INCIDENTS — indisponibilités de l'engin, contrôlées à l'affectation</span>
+      <span class="rel-desc">via EQUIPMENT_INCIDENTS — indisponibilités de l'engin, contrôlées à l'affectation ; typées par <a class="fk-link" onclick="show('incident-type')">IncidentType</a></span>
     </div>
     <div class="rel-row" style="opacity:0.55;">
       <span class="rel-entity current">Equipment</span>
@@ -5746,7 +5749,7 @@ public boolean isSubWorkingArea(WorkingArea reference) {
           <td><span class="java-name has-tip">colour<span class="tip">C++ : mrColour (ILS_USES_1)</span></span></td>
           <td class="col-oracle">COL_ID</td>
           <td><span class="tag tag-fk">FK</span></td>
-          <td>→ Colour (fiche à venir)</td>
+          <td>→ <a class="fk-link" onclick="show('colour')">Colour</a></td>
           <td>Couleur d'affichage de la zone dans les plannings</td>
         </tr>
         <tr data-order="2">
@@ -5864,8 +5867,8 @@ public boolean isSubWorkingArea(WorkingArea reference) {
     <div class="rel-row">
       <span class="rel-entity current">WorkingArea</span>
       <span class="rel-arrow">— <span class="rel-card">N:1</span> →</span>
-      <span class="rel-entity">Colour</span>
-      <span class="rel-desc">via COL_ID — couleur d'affichage (fiche à venir)</span>
+      <a class="rel-entity" onclick="show('colour')">Colour</a>
+      <span class="rel-desc">via COL_ID — couleur d'affichage de la zone</span>
     </div>
     <div class="rel-row">
       <span class="rel-entity current">WorkingArea</span>
@@ -5918,7 +5921,7 @@ public boolean isSubWorkingArea(WorkingArea reference) {
       <span class="rel-entity">VacationType</span>
       <span class="rel-desc">VACATION_TYPES.WORKING_AREA_ID (et EAGIR_CHECK_WORKING_AREA_ID, contrôle e-agir) — types d'absence rattachés à une zone</span>
     </div>
-    <div class="rel-row" data-updated="30/07/2026">
+    <div class="rel-row">
       <span class="rel-entity current">WorkingArea</span>
       <span class="rel-arrow">← <span class="rel-card">N:N</span> —</span>
       <a class="rel-entity" onclick="show('human-resource')">HumanResource</a>
@@ -5926,7 +5929,7 @@ public boolean isSubWorkingArea(WorkingArea reference) {
         rattachés à la zone ; priorité : 0 = zone d'appartenance, 1 = zone prioritaire,
         2 = zone autorisée (détail sur la fiche HumanResource)</span>
     </div>
-    <div class="rel-row" data-updated="30/07/2026">
+    <div class="rel-row">
       <span class="rel-entity current">WorkingArea</span>
       <span class="rel-arrow">← <span class="rel-card">N:N</span> —</span>
       <a class="rel-entity" onclick="show('equipment')">Equipment</a>
@@ -5939,6 +5942,374 @@ public boolean isSubWorkingArea(WorkingArea reference) {
       documentées ici (contextes de règles d'effectif, groupes de zones, pointages,
       affectations terrain…) : elles seront ajoutées si une requête en a besoin.
     </p>
+  </div>
+
+</section>
+
+<!-- ================================================================ -->
+<!-- TASK TYPE                                                        -->
+<!-- ================================================================ -->
+<section class="entity" id="task-type">
+
+  <div class="entity-header">
+    <h2>TaskType</h2>
+    <div class="aliases">
+      Table Oracle : <code>TASK_TYPES</code> &nbsp;|&nbsp;
+      Serveur C++ : <code>tcMrpsTaskType</code> &nbsp;|&nbsp;
+      Client Rp : <code>tcMrpsRpTaskType</code> &nbsp;|&nbsp;
+      Formulaire : <code>tcMrpsFormTaskType</code>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Description fonctionnelle</h3>
+    <p>
+      La classe <strong>TaskType</strong> est le référentiel des <strong>« Opérations »</strong>
+      (terminologie de l'interface Legacy — fiche « Opérations ») : le type d'opération
+      portuaire réalisé, par exemple chargement, déchargement, shifting. Dans le Legacy,
+      l'Opération apparaît en colonne « Opération » du planning des chantiers / escales.
+    </p>
+    <p>
+      <strong>Évolution du 20/08/2026</strong> : le référentiel a été enrichi de
+      <strong>deux couleurs</strong> (<a class="fk-link" onclick="show('colour')">Colour</a>,
+      colonnes <code>COLOUR1_ID</code> et <code>COLOUR2_ID</code>) et d'un
+      <strong>code de tri</strong>. Ces couleurs sont destinées à l'<strong>affichage du
+      Suivi du shift</strong>, dans le module Java en cours de développement.
+    </p>
+    <div class="arch-warning">
+      <strong>Lien chantier → opération déprécié.</strong> Le lien historique
+      <code>TASKS.TT_ID</code> (chantier/escale → Opération) est <strong>déprécié</strong> :
+      il ne doit pas être utilisé côté Java. Le chemin par lequel le Suivi du shift
+      associera une Opération (et ses couleurs) aux données affichées reste à définir.
+    </div>
+    <p class="arch-note">
+      Note d'architecture : côté Legacy, une Opération référencée par des chantiers ne
+      peut pas être supprimée (<code>canBeDeleted</code>).
+    </p>
+  </div>
+
+  <!-- Attributes -->
+  <div class="card col-card">
+    <h3><span>Attributs — TaskType</span><button class="reset-sort" onclick="resetSort(this)">↺ Ordre initial</button></h3>
+    <table class="sortable-table">
+      <thead>
+        <tr><th class="sortable" onclick="sortTable(this,0)">Attribut</th><th class="sortable" onclick="sortTable(this,1)">Colonne Oracle</th><th class="sortable" onclick="sortTable(this,2)">Type</th><th class="sortable" onclick="sortTable(this,3)">Contrainte</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr data-order="0">
+          <td><span class="java-name has-tip">id<span class="tip">C++ : getId() — hérité de tcMrpsObject</span></span></td>
+          <td class="col-oracle">ID</td>
+          <td><span class="tag tag-num">Number</span></td>
+          <td><span class="tag tag-pk">PK</span></td>
+          <td>Identifiant unique</td>
+        </tr>
+        <tr data-order="1">
+          <td><span class="java-name has-tip">label<span class="tip">C++ : mcLabel (ILS_ENTRY_STRING)</span></span></td>
+          <td class="col-oracle">LABEL</td>
+          <td><span class="tag tag-str">String</span></td>
+          <td><strong>obligatoire</strong></td>
+          <td>Libellé court de l'opération</td>
+        </tr>
+        <tr data-order="2">
+          <td><span class="java-name has-tip">name<span class="tip">C++ : mcName (ILS_ENTRY_STRING)</span></span></td>
+          <td class="col-oracle">NAME</td>
+          <td><span class="tag tag-str">String</span></td>
+          <td><strong>obligatoire</strong></td>
+          <td>Nom complet de l'opération</td>
+        </tr>
+        <tr data-order="3">
+          <td><span class="java-name has-tip">notes<span class="tip">C++ : mcNotes (ILS_ENTRY_STRING)</span></span></td>
+          <td class="col-oracle">NOTES</td>
+          <td><span class="tag tag-str">String</span></td>
+          <td></td>
+          <td>Commentaire libre</td>
+        </tr>
+        <tr data-order="4">
+          <td><span class="java-name has-tip">colour1<span class="tip">C++ : mrColour1 (ILS_USES_1) — ajouté le 20/08/2026</span></span></td>
+          <td class="col-oracle">COLOUR1_ID</td>
+          <td><span class="tag tag-fk">FK</span></td>
+          <td>→ <a class="fk-link" onclick="show('colour')">Colour</a></td>
+          <td>Couleur 1 — première couleur d'affichage de l'opération, destinée au Suivi du shift (module Java)</td>
+        </tr>
+        <tr data-order="5">
+          <td><span class="java-name has-tip">colour2<span class="tip">C++ : mrColour2 (ILS_USES_1) — ajouté le 20/08/2026</span></span></td>
+          <td class="col-oracle">COLOUR2_ID</td>
+          <td><span class="tag tag-fk">FK</span></td>
+          <td>→ <a class="fk-link" onclick="show('colour')">Colour</a></td>
+          <td>Couleur 2 — seconde couleur d'affichage de l'opération, destinée au Suivi du shift (module Java)</td>
+        </tr>
+        <tr data-order="6">
+          <td><span class="java-name has-tip">sortingCode<span class="tip">C++ : mcSortingCode — hérité de tcMrpsObjectBase ; ajouté au modèle le 20/08/2026</span></span></td>
+          <td class="col-oracle">SORTING_CODE</td>
+          <td><span class="tag tag-str">String</span></td>
+          <td></td>
+          <td>Code de tri : permet un ordre d'affichage personnalisé, indépendant du libellé (voir la <a class="fk-link" onclick="showAnchor('generalites','convention-tri')">convention de tri</a>)</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Relations -->
+  <div class="card">
+    <h3>Relations</h3>
+    <div class="rel-row">
+      <span class="rel-entity current">TaskType</span>
+      <span class="rel-arrow">— <span class="rel-card">N:1</span> →</span>
+      <a class="rel-entity" onclick="show('colour')">Colour</a>
+      <span class="rel-desc">via COLOUR1_ID — couleur 1 (affichage Suivi du shift)</span>
+    </div>
+    <div class="rel-row">
+      <span class="rel-entity current">TaskType</span>
+      <span class="rel-arrow">— <span class="rel-card">N:1</span> →</span>
+      <a class="rel-entity" onclick="show('colour')">Colour</a>
+      <span class="rel-desc">via COLOUR2_ID — couleur 2 (affichage Suivi du shift)</span>
+    </div>
+    <div class="rel-row" style="opacity:0.55;">
+      <span class="rel-entity current">TaskType</span>
+      <span class="rel-arrow">← <span class="rel-card">1:N</span> —</span>
+      <a class="rel-entity" onclick="show('task')">Task</a>
+      <span class="rel-desc">via TASKS.TT_ID — lien déprécié : ne pas utiliser côté Java</span>
+    </div>
+  </div>
+
+</section>
+
+<!-- ================================================================ -->
+<!-- COLOUR                                                           -->
+<!-- ================================================================ -->
+<section class="entity" id="colour">
+
+  <div class="entity-header">
+    <h2>Colour</h2>
+    <div class="aliases">
+      Table Oracle : <code>COLOURS</code> &nbsp;|&nbsp;
+      Serveur C++ : <code>tcMrpsColour</code> &nbsp;|&nbsp;
+      Client Rp : <code>tcMrpsRpColour</code> &nbsp;|&nbsp;
+      Formulaire : <code>tcMrpsSqlFormColor</code>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Description fonctionnelle</h3>
+    <p>
+      La classe <strong>Colour</strong> est le référentiel des <strong>« Couleurs »</strong>
+      d'affichage (fiche Legacy « Couleurs »). Une couleur porte un libellé, un nom et ses
+      trois composantes <strong>R / G / B</strong>. Elle est référencée par les objets qui
+      ont besoin d'une couleur d'affichage : les zones de travail
+      (<a class="fk-link" onclick="show('working-area')">WorkingArea</a>) et, depuis le
+      20/08/2026, les opérations (<a class="fk-link" onclick="show('task-type')">TaskType</a>,
+      couleurs 1 et 2 du Suivi du shift).
+    </p>
+    <div class="arch-warning">
+      <strong>Composantes sur 16 bits.</strong> Les composantes <code>R</code>, <code>G</code>,
+      <code>B</code> sont stockées en <strong>intensités 16 bits, de 0 à 65535</strong>
+      (convention Ilog Views), et non en 0–255. La fiche Legacy contrôle cette plage à la
+      saisie. Côté Java, pour obtenir une composante RGB standard sur 8 bits, diviser la
+      valeur par 257 (ou décaler de 8 bits vers la droite) : par exemple 65535 → 255.
+    </div>
+  </div>
+
+  <!-- Attributes -->
+  <div class="card col-card">
+    <h3><span>Attributs — Colour</span><button class="reset-sort" onclick="resetSort(this)">↺ Ordre initial</button></h3>
+    <table class="sortable-table">
+      <thead>
+        <tr><th class="sortable" onclick="sortTable(this,0)">Attribut</th><th class="sortable" onclick="sortTable(this,1)">Colonne Oracle</th><th class="sortable" onclick="sortTable(this,2)">Type</th><th class="sortable" onclick="sortTable(this,3)">Contrainte</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr data-order="0">
+          <td><span class="java-name has-tip">id<span class="tip">C++ : getId() — hérité de tcMrpsObject</span></span></td>
+          <td class="col-oracle">ID</td>
+          <td><span class="tag tag-num">Number</span></td>
+          <td><span class="tag tag-pk">PK</span></td>
+          <td>Identifiant unique</td>
+        </tr>
+        <tr data-order="1">
+          <td><span class="java-name has-tip">label<span class="tip">C++ : mcLabel (ILS_ENTRY_STRING)</span></span></td>
+          <td class="col-oracle">LABEL</td>
+          <td><span class="tag tag-str">String</span></td>
+          <td><strong>obligatoire</strong></td>
+          <td>Libellé court de la couleur</td>
+        </tr>
+        <tr data-order="2">
+          <td><span class="java-name has-tip">name<span class="tip">C++ : mcName (ILS_ENTRY_STRING)</span></span></td>
+          <td class="col-oracle">NAME</td>
+          <td><span class="tag tag-str">String</span></td>
+          <td><strong>obligatoire</strong></td>
+          <td>Nom complet de la couleur</td>
+        </tr>
+        <tr data-order="3">
+          <td><span class="java-name has-tip">red<span class="tip">C++ : mcR (ILS_ENTRY_INT)</span></span></td>
+          <td class="col-oracle">R</td>
+          <td><span class="tag tag-int">Int</span></td>
+          <td><strong>obligatoire</strong></td>
+          <td>Composante rouge, en intensité 16 bits (0–65535) — voir l'encadré ci-dessus</td>
+        </tr>
+        <tr data-order="4">
+          <td><span class="java-name has-tip">green<span class="tip">C++ : mcG (ILS_ENTRY_INT)</span></span></td>
+          <td class="col-oracle">G</td>
+          <td><span class="tag tag-int">Int</span></td>
+          <td><strong>obligatoire</strong></td>
+          <td>Composante verte, en intensité 16 bits (0–65535)</td>
+        </tr>
+        <tr data-order="5">
+          <td><span class="java-name has-tip">blue<span class="tip">C++ : mcB (ILS_ENTRY_INT)</span></span></td>
+          <td class="col-oracle">B</td>
+          <td><span class="tag tag-int">Int</span></td>
+          <td><strong>obligatoire</strong></td>
+          <td>Composante bleue, en intensité 16 bits (0–65535)</td>
+        </tr>
+        <tr data-order="6" class="deprecated">
+          <td><span class="java-name has-tip">ilogPalette<span class="tip">C++ : mcIlogPalette (ILS_ENTRY_STRING) — non saisi dans la fiche Legacy</span></span></td>
+          <td class="col-oracle">ILOG_PALETTE</td>
+          <td><span class="tag tag-str">String</span></td>
+          <td><span class="tag tag-deprecated">Déprécié</span></td>
+          <td>Nom d'une palette Ilog Views — mécanique d'affichage purement interne au client Legacy. Ne pas utiliser côté Java.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Relations -->
+  <div class="card">
+    <h3>Relations inverses</h3>
+    <div class="rel-row">
+      <span class="rel-entity current">Colour</span>
+      <span class="rel-arrow">← <span class="rel-card">1:N</span> —</span>
+      <a class="rel-entity" onclick="show('working-area')">WorkingArea</a>
+      <span class="rel-desc">via WORKING_AREAS.COL_ID — couleur d'affichage de la zone de travail</span>
+    </div>
+    <div class="rel-row">
+      <span class="rel-entity current">Colour</span>
+      <span class="rel-arrow">← <span class="rel-card">1:N</span> —</span>
+      <a class="rel-entity" onclick="show('task-type')">TaskType</a>
+      <span class="rel-desc">via TASK_TYPES.COLOUR1_ID et COLOUR2_ID — couleurs 1 et 2 de l'opération (Suivi du shift)</span>
+    </div>
+    <div class="rel-row" style="opacity:0.55;">
+      <span class="rel-entity current">Colour</span>
+      <span class="rel-arrow">← <span class="rel-card">1:N</span> —</span>
+      <span class="rel-entity">WorkingRuleSet</span>
+      <span class="rel-desc">via WORKING_RULE_SETS.COL_ID — paramétrage Legacy non documenté pour le moment</span>
+    </div>
+    <div class="rel-row" style="opacity:0.55;">
+      <span class="rel-entity current">Colour</span>
+      <span class="rel-arrow">← <span class="rel-card">1:N</span> —</span>
+      <span class="rel-entity">WPSequenceRule / CounterMaxRule</span>
+      <span class="rel-desc">via ALMOST_REFUSED_COLOR_ID — règles de travail Legacy non documentées</span>
+    </div>
+  </div>
+
+</section>
+
+<!-- ================================================================ -->
+<!-- INCIDENT TYPE                                                    -->
+<!-- ================================================================ -->
+<section class="entity" id="incident-type">
+
+  <div class="entity-header">
+    <h2>IncidentType</h2>
+    <div class="aliases">
+      Table Oracle : <code>INCIDENT_TYPES</code> &nbsp;|&nbsp;
+      Serveur C++ : <code>tcMrpsIncidentType</code> &nbsp;|&nbsp;
+      Client Rp : <code>tcMrpsRpIncidentType</code> &nbsp;|&nbsp;
+      Formulaire : <code>tcMrpsSqlFormIncidentType</code>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Description fonctionnelle</h3>
+    <p>
+      La classe <strong>IncidentType</strong> est le référentiel des <strong>« Types
+      d'incidents »</strong> (fiche Legacy « Types d'incidents ») qui qualifient les
+      incidents d'engins. Un incident (table <code>EQUIPMENT_INCIDENTS</code>) rend un
+      <a class="fk-link" onclick="show('equipment')">engin</a> indisponible sur une
+      période : l'algorithme d'affectation refuse un engin dont un incident chevauche
+      l'horaire commercial de la commande (motif de refus « engin inutilisable »).
+    </p>
+    <p>
+      La distinction la plus importante du référentiel est le drapeau
+      <strong>externe</strong> : un type d'incident <strong>externe</strong> est de la
+      responsabilité du <strong>manutentionnaire</strong>, tandis qu'un type d'incident
+      interne (non externe) est de la responsabilité du <strong>port</strong>. Cette
+      distinction induit des comportements dans les travaux Java en cours : affichage
+      dans le Suivi du shift, calcul de facturation, etc.
+    </p>
+    <div class="arch-warning">
+      <strong>Convention sur les périodes d'incident.</strong> Les incidents portent un
+      intervalle <code>START_TIME</code> / <code>END_TIME</code> qui suit la convention
+      générale d'Agir : la date/heure de début est <strong>incluse</strong>, la date/heure
+      de fin est <strong>exclue</strong>.
+    </div>
+    <p class="arch-note">
+      Note d'architecture : la colonne <code>EXTERNAL</code> existe dans Oracle mais est
+      absente du <code>.dbd</code> et du serveur C++ — elle est gérée directement par la
+      fiche Legacy (même cas que LENGTH/BEAM pour Activity).
+    </p>
+  </div>
+
+  <!-- Attributes -->
+  <div class="card col-card">
+    <h3><span>Attributs — IncidentType</span><button class="reset-sort" onclick="resetSort(this)">↺ Ordre initial</button></h3>
+    <table class="sortable-table">
+      <thead>
+        <tr><th class="sortable" onclick="sortTable(this,0)">Attribut</th><th class="sortable" onclick="sortTable(this,1)">Colonne Oracle</th><th class="sortable" onclick="sortTable(this,2)">Type</th><th class="sortable" onclick="sortTable(this,3)">Contrainte</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr data-order="0">
+          <td><span class="java-name has-tip">id<span class="tip">C++ : getId() — hérité de tcMrpsObject</span></span></td>
+          <td class="col-oracle">ID</td>
+          <td><span class="tag tag-num">Number</span></td>
+          <td><span class="tag tag-pk">PK</span></td>
+          <td>Identifiant unique</td>
+        </tr>
+        <tr data-order="1">
+          <td><span class="java-name has-tip">label<span class="tip">C++ : mcLabel (ILS_ENTRY_STRING)</span></span></td>
+          <td class="col-oracle">LABEL</td>
+          <td><span class="tag tag-str">String</span></td>
+          <td><strong>obligatoire</strong></td>
+          <td>Libellé court du type d'incident</td>
+        </tr>
+        <tr data-order="2">
+          <td><span class="java-name has-tip">name<span class="tip">C++ : mcName (ILS_ENTRY_STRING)</span></span></td>
+          <td class="col-oracle">NAME</td>
+          <td><span class="tag tag-str">String</span></td>
+          <td><strong>obligatoire</strong></td>
+          <td>Nom complet du type d'incident</td>
+        </tr>
+        <tr data-order="3">
+          <td><span class="java-name has-tip">externalCode<span class="tip">C++ : mcExternalCode (ILS_ENTRY_STRING)</span></span></td>
+          <td class="col-oracle">EXTERNAL_CODE</td>
+          <td><span class="tag tag-str">String</span></td>
+          <td></td>
+          <td>Code externe — identifiant du type pour les échanges avec les systèmes tiers</td>
+        </tr>
+        <tr data-order="4">
+          <td><span class="java-name has-tip">external<span class="tip">Colonne Oracle gérée par la fiche Legacy (toggle « Externe ») — absente du .dbd et du serveur C++</span></span></td>
+          <td class="col-oracle">EXTERNAL</td>
+          <td><span class="tag tag-num">Number</span></td>
+          <td></td>
+          <td>1 = type d'incident <strong>externe</strong>, de la responsabilité du manutentionnaire ; 0 = incident interne, de la responsabilité du port. Distinction structurante pour le Suivi du shift et la facturation (voir la description).</td>
+        </tr>
+        <tr data-order="5">
+          <td><span class="java-name has-tip">sortingCode<span class="tip">C++ : mcSortingCode — hérité de tcMrpsObjectBase ; ajouté à la fiche Legacy le 20/08/2026</span></span></td>
+          <td class="col-oracle">SORTING_CODE</td>
+          <td><span class="tag tag-str">String</span></td>
+          <td></td>
+          <td>Code de tri : permet un ordre d'affichage personnalisé, indépendant du libellé (voir la <a class="fk-link" onclick="showAnchor('generalites','convention-tri')">convention de tri</a>)</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Relations -->
+  <div class="card">
+    <h3>Relations inverses</h3>
+    <div class="rel-row">
+      <span class="rel-entity current">IncidentType</span>
+      <span class="rel-arrow">← <span class="rel-card">1:N</span> —</span>
+      <span class="rel-entity">EquipmentIncident</span>
+      <span class="rel-desc">via EQUIPMENT_INCIDENTS.IT_ID — les incidents de ce type. Classe relationnelle (clé EQU_ID + IT_ID + START_TIME ; END_TIME, NOTES) reliant l'<a class="fk-link" onclick="show('equipment')">engin</a> à son indisponibilité ; pas de fiche dédiée pour le moment.</span>
+    </div>
   </div>
 
 </section>
@@ -6147,7 +6518,10 @@ var FRESHNESS = {
   'working-period': 'stable',
   'main-resource': 'stable',
   'api-rest': 'stable',
-  'working-area': 'stable'
+  'working-area': 'stable',
+  'task-type': 'stable',
+  'colour': 'stable',
+  'incident-type': 'stable'
 };
 // Précision optionnelle affichée à la suite du badge (cas particuliers).
 var FRESH_NOTES = {
@@ -6176,21 +6550,15 @@ Object.keys(FRESHNESS).forEach(function(id) {
 // Marquage des fiches récemment modifiées : pastille orange dans le menu +
 // ligne « Mis à jour » en tête de fiche. Une seule table à maintenir ci-dessous ;
 // la vider quand Franck demande la réinitialisation.
-var UPDATED_DEFAULT_DATE = '30/07/2026';
+var UPDATED_DEFAULT_DATE = '21/08/2026';
 // Date spécifique par fiche (les autres gardent la date par défaut).
 var UPDATED_DATE = {
 };
 var UPDATED = {
-  'zoom-affectation': 'nouvelle page — modèle des affectations : schéma besoins/affectations + captures d\'écran annotées',
-  'equipment': 'nouvelle fiche — engin : catégorie, zones (EQUIPMENT_LOCATIONS), affectations',
-  'equipment-allocation': 'nouvelle fiche — affectation d\'engin : NB_ALLOCATIONS = conducteurs pourvus (vérifié dans le code)',
-  'equipment-class': 'nouvelle fiche — catégorie d\'engins : hiérarchie, spécialité de conduite, DOCKERS = conducteurs requis',
-  'human-resource': 'nouvelle fiche — personnel (périmètre affectation) : identité, grade, commandement, zones (priorité 0/1/2), spécialités',
-  'order': 'relation EquipmentAllocation (engins affectés)',
-  'post': 'relation Equipment (EQU_ID, « qui conduit quoi »)',
-  'working-area': 'relations AreaAttachment (agents, priorité 0/1/2) et EquipmentLocation (engins)',
-  'generalites': 'carte « Convention : les libellés » (label = 20 caractères)',
-  'skill': 'relation StrengthDefinition (compositions d\'équipe des configurations)'
+  'task-type': 'nouvelle fiche — opération : libellés, couleurs du Suivi du shift (20/08/2026), code de tri',
+  'colour': 'nouvelle fiche — couleur : composantes R/G/B en intensités 16 bits (0–65535)',
+  'incident-type': 'nouvelle fiche — type d\'incident : externe = responsabilité du manutentionnaire',
+  'task': 'attribut taskType (TT_ID) déprécié — ne pas utiliser côté Java'
 };
 Object.keys(UPDATED).forEach(function(id) {
   var lbl = 'Mis à jour le ' + (UPDATED_DATE[id] || UPDATED_DEFAULT_DATE);
