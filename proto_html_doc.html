@@ -1108,6 +1108,16 @@
       et ne transitent pas par le serveur ni le mapping du client BD,
       car les algorithmes n'en ont pas besoin.
     </p>
+    <p class="arch-note" data-updated="06/10/2026">
+      Évolution du 06/10/2026 (modif bd <code>AGIR_260014</code>) : le numéro OMI
+      (<code>imoNumber</code>) entre, lui, dans le modèle serveur et le mapping, car l'API REST
+      doit pouvoir retrouver un navire par ce numéro ; <code>removalAsked</code> (« Retiré »)
+      permet de neutraliser une ancienne dénomination de navire ou une activité obsolète sans
+      rien supprimer. Règle : <strong>au plus un navire actif (non retiré) par numéro OMI</strong>,
+      contrôlée à la saisie ; le numéro reste <strong>optionnel</strong> (un navire peut être créé
+      avant d'être connu de l'autorité portuaire), son attribution aux navires existants se fera
+      au fil de l'eau par le rapprochement des escales importées (connecteur VIGIESIP, à venir).
+    </p>
   </div>
 
   <!-- Attributes -->
@@ -1209,14 +1219,28 @@
           <td></td>
           <td>Largeur du navire. Informatif, pertinent uniquement quand <code>vessel = 1</code>.</td>
         </tr>
-        <tr data-order="13" class="deprecated">
+        <tr data-order="13" data-updated="06/10/2026">
+          <td><span class="java-name has-tip">imoNumber<span class="tip">C++ : mcImoNumber (ILS_ENTRY_STRING) — ajouté le 06/10/2026, modif bd AGIR_260014</span></span></td>
+          <td class="col-oracle">IMO_NUMBER</td>
+          <td><span class="tag tag-str">String</span></td>
+          <td>7 chiffres, clé de contrôle OMI</td>
+          <td>Numéro OMI d'identification du navire, pertinent uniquement quand <code>vessel = 1</code>. Les sept chiffres seuls, sans le préfixe « IMO », le septième étant la clé de contrôle (chiffres 1 à 6 pondérés 7 à 2, somme modulo 10). <strong>Optionnel</strong> : le planificateur peut créer un navire avant de connaître son numéro ; l'attribution se fait à la saisie dans la fiche ou par rapprochement lors de l'import des escales. <strong>Non unique</strong> : un navire rebaptisé peut exister sous plusieurs dénominations portant le même numéro ; le navire courant d'un numéro OMI est le seul <strong>non retiré</strong> (voir <code>removalAsked</code>).</td>
+        </tr>
+        <tr data-order="14" data-updated="06/10/2026">
+          <td><span class="java-name has-tip">removalAsked<span class="tip">C++ : mcRemovalAsked (ILS_ENTRY_BOOLEAN, hérité de tcMrpsObjectBase) — mappé sur ACTIVITIES le 06/10/2026, modif bd AGIR_260014</span></span></td>
+          <td class="col-oracle">REMOVAL_ASKED</td>
+          <td><span class="tag tag-num">Number</span></td>
+          <td>0 / 1, défaut 0</td>
+          <td>1 = <strong>retiré</strong> : à considérer comme supprimé (ancienne dénomination d'un navire, navire disparu, activité obsolète), les suppressions physiques étant proscrites. Les escales existantes restent rattachées et <strong>continuent d'apparaître</strong>, passées comme à venir : le retrait n'efface rien. Côté Java : <strong>exclure les activités retirées des listes de choix</strong> uniquement (création d'escale, demande de portique, toute liste de navires), jamais des escales déjà créées ; l'API REST refuse déjà de créer une escale sur une activité retirée. Décision humaine et réversible, prise dans la fiche Legacy (case « Retiré »).</td>
+        </tr>
+        <tr data-order="15" class="deprecated">
           <td><span class="java-name">fixed</span></td>
           <td class="col-oracle">FIXED</td>
           <td><span class="tag tag-num">Number</span></td>
           <td><span class="tag tag-deprecated">Déprécié</span></td>
           <td>Spécifique à la planification Legacy. Ne pas utiliser côté Java.</td>
         </tr>
-        <tr data-order="14" class="deprecated">
+        <tr data-order="16" class="deprecated">
           <td><span class="java-name">isTraining</span></td>
           <td class="col-oracle">ISTRAINING</td>
           <td><span class="tag tag-num">Number</span></td>
@@ -1561,7 +1585,7 @@
           <td>→ <a class="fk-link" onclick="show('working-area')">WorkingArea</a> · <strong>obligatoire</strong></td>
           <td>Zone de travail où se déroule le chantier</td>
         </tr>
-        <tr data-order="3" class="deprecated" data-updated="21/08/2026">
+        <tr data-order="3" class="deprecated">
           <td><span class="java-name has-tip">taskType<span class="tip">C++ : mrTaskType (ILS_USES_1)</span></span></td>
           <td class="col-oracle">TT_ID</td>
           <td><span class="tag tag-fk">FK</span></td>
@@ -1679,7 +1703,7 @@
       <a class="rel-entity" onclick="show('working-area')">WorkingArea</a>
       <span class="rel-desc">via AREA_ID — zone de travail (obligatoire)</span>
     </div>
-    <div class="rel-row" style="opacity:0.55;" data-updated="21/08/2026">
+    <div class="rel-row" style="opacity:0.55;">
       <span class="rel-entity current">Task</span>
       <span class="rel-arrow">— <span class="rel-card">N:1</span> →</span>
       <a class="rel-entity" onclick="show('task-type')">TaskType</a>
@@ -1773,6 +1797,13 @@
         <li>
           <strong>3. Joindre l'Activity</strong> — pour présenter le navire
           (<a class="fk-link" onclick="show('activity')">Activity</a> via <code>ACT_ID</code>).
+          <div class="q-note" style="margin-top:0.4rem;" data-updated="07/10/2026">
+            Ne pas filtrer ici sur <code>removalAsked</code> : une escale existante sur un
+            navire <strong>retiré</strong> doit apparaître, avec son navire. Le retrait n'exclut
+            une activité que des <strong>listes de choix</strong> (voir
+            <a class="fk-link" onclick="show('activity')">Activity</a>, attribut
+            <code>removalAsked</code>).
+          </div>
         </li>
       </ul>
       <p class="q-note">
@@ -6550,15 +6581,14 @@ Object.keys(FRESHNESS).forEach(function(id) {
 // Marquage des fiches récemment modifiées : pastille orange dans le menu +
 // ligne « Mis à jour » en tête de fiche. Une seule table à maintenir ci-dessous ;
 // la vider quand Franck demande la réinitialisation.
-var UPDATED_DEFAULT_DATE = '21/08/2026';
+var UPDATED_DEFAULT_DATE = '07/10/2026';
 // Date spécifique par fiche (les autres gardent la date par défaut).
 var UPDATED_DATE = {
+  'activity': '06/10/2026'
 };
 var UPDATED = {
-  'task-type': 'nouvelle fiche — opération : libellés, couleurs du Suivi du shift (20/08/2026), code de tri',
-  'colour': 'nouvelle fiche — couleur : composantes R/G/B en intensités 16 bits (0–65535)',
-  'incident-type': 'nouvelle fiche — type d\'incident : externe = responsabilité du manutentionnaire',
-  'task': 'attribut taskType (TT_ID) déprécié — ne pas utiliser côté Java'
+  'activity': 'numéro OMI (IMO_NUMBER) et marqueur retiré (REMOVAL_ASKED) — modif bd AGIR_260014 du 06/10/2026 ; les escales existantes d\'un navire retiré restent visibles',
+  'task': 'requête « Escales des manutentionnaires autorisés » : ne pas filtrer sur removalAsked, les escales d\'un navire retiré restent visibles'
 };
 Object.keys(UPDATED).forEach(function(id) {
   var lbl = 'Mis à jour le ' + (UPDATED_DATE[id] || UPDATED_DEFAULT_DATE);
